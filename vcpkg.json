@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    {
+      "name": "qtbase",
+      "features": ["widgets", "opengl", "gui", "freetype", "icu", "dbus"],
+      "version>=": "6.6.3"
+    }
+  ],
+  "builtin-baseline": "40616a5e954f7be1077ef37db3fbddbd5dcd1ca6"
+}
