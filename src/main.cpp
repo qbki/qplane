@@ -1,12 +1,10 @@
 #include <QApplication>
-
-#include "mainwindow/mainwindow.h"
+#include <QQmlApplicationEngine>
 
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
-  MainWindow window;
-  window.setWindowTitle("First Qt application");
-  window.resize(800, 600);
-  window.show();
+  QQmlApplicationEngine engine;
+  engine.loadFromModule("app", "MainWindow");
+  QObject::connect(&engine, &QQmlApplicationEngine::quit, &QApplication::quit);
   return app.exec();
 }
