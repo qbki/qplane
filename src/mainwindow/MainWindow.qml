@@ -9,11 +9,17 @@ import QtQuick3D
 import QtQuick3D.Helpers
 import QtQuick3D.AssetUtils
 
+import "../components"
+import app
+
 ApplicationWindow {
     visible: true
-    width: 800
-    height: 600
+    visibility: ApplicationWindow.Maximized
     title: "QPlane"
+
+    ModelsState {
+        id: modelsState
+    }
 
     menuBar: MenuBar {
         Menu {
@@ -26,14 +32,14 @@ ApplicationWindow {
         }
     }
 
-    RowLayout {
+    SplitView {
         anchors.fill: parent
         spacing: 0
 
         View3D {
             id: view
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            SplitView.fillWidth: true
+            SplitView.fillHeight: true
 
             environment: SceneEnvironment {
                 backgroundMode: SceneEnvironment.Color
@@ -57,14 +63,6 @@ ApplicationWindow {
                 }
             }
 
-            RuntimeLoader {
-                id: importNode
-                onStatusChanged: {
-                    if (status === RuntimeLoader.Error) {
-                        console.error(importNode.errorString);
-                    }
-                }
-            }
 
             AxisHelper {
                 enableXYGrid: true
@@ -72,22 +70,50 @@ ApplicationWindow {
                 enableYZGrid: false
                 scale: Qt.vector3d(0.01, 0.01, 0.01)
             }
+
+            Repeater3D {
+                model: modelsState
+
+                SceneItem {
+                    required property var model
+                    source: model.display
+                }
+            }
         }
 
-        Pane {
-            Layout.fillWidth: false
-            Layout.fillHeight: true
-            Layout.minimumWidth: 150
+        Frame {
+            id: frame
+            SplitView.fillWidth: true
+            SplitView.fillHeight: true
+            SplitView.preferredWidth: 200
+            SplitView.minimumWidth: 150
+            SplitView.maximumWidth: 400
+            padding: 0
 
-            ColumnLayout {
-                id: entitiesRoster
+            Grid {
+                columns: 2
+                spacing: 1
+
+                Repeater {
+                    anchors.fill: parent
+                    model: modelsState
+
+                    ModelItem {
+                        required property var model
+                        width: frame.width / 2 - 1
+                        height: frame.width / 2 - 1
+                        source: model.display
+                    }
+                }
             }
         }
     }
 
     Platform.FolderDialog {
         id: openProjectDialog
-        onAccepted: console.log(folder)
+        onAccepted: {
+            modelsState.populateFromDir(folder);
+        }
         options: Platform.FolderDialog.ShowDirsOnly
     }
 }

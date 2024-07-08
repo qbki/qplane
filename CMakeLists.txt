@@ -3,13 +3,15 @@ cmake_minimum_required(VERSION 3.27)
 set(CMAKE_TOOLCHAIN_FILE
     "${CMAKE_CURRENT_SOURCE_DIR}/tools/vcpkg/scripts/buildsystems/vcpkg.cmake"
     CACHE STRING "Vcpkg toolchain file")
-set(CMAKE_AUTOMOC ON)
 
 project(qplane VERSION 0.0.1)
 
+set(CMAKE_AUTOMOC ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories(${CMAKE_SOURCE_DIR})
 
 find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Gui CONFIG REQUIRED)
@@ -134,6 +136,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils Qt6::Quick3DUtils
 
 qt_add_qml_module(${PROJECT_NAME}
     URI app
-    QML_FILES src/mainwindow/MainWindow.qml
+    QML_FILES
+      src/mainwindow/MainWindow.qml
+      src/components/ModelItem.qml
+      src/components/SceneItem.qml
     DEPENDENCIES QtQuick
+    SOURCES src/models/modelsstate.h src/models/modelsstate.cpp
+    SOURCES src/consts.h
+    QML_FILES src/components/SceneItem.qml
 )
