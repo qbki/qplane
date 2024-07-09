@@ -11,7 +11,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(
+  ${CMAKE_SOURCE_DIR}
+  # Without it Qt can't find models tagged with QML_ELEMENT
+  ${CMAKE_SOURCE_DIR}/src/models
+)
 
 find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Gui CONFIG REQUIRED)
@@ -136,12 +140,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils Qt6::Quick3DUtils
 
 qt_add_qml_module(${PROJECT_NAME}
     URI app
+    DEPENDENCIES QtQuick
     QML_FILES
-      src/mainwindow/MainWindow.qml
       src/components/ModelItem.qml
       src/components/SceneItem.qml
-    DEPENDENCIES QtQuick
-    SOURCES src/models/modelsstate.h src/models/modelsstate.cpp
-    SOURCES src/consts.h
-    QML_FILES src/components/SceneItem.qml
+      src/mainwindow/MainWindow.qml
+    SOURCES
+      src/consts.h
+      src/models/modelsstate.h src/models/modelsstate.cpp
 )

@@ -8,10 +8,12 @@
 class ModelsState : public QAbstractListModel
 {
   Q_OBJECT
+  Q_PROPERTY(QString selectedModel READ selectedModel WRITE setSelectedModel NOTIFY selectedModelChanged FINAL)
 
 private:
   QVariant _header;
   QVector<QVariant> _data;
+  QString _selectedModel {""};
 
 public:
   explicit ModelsState(QObject* parent = nullptr);
@@ -36,6 +38,12 @@ public:
 
   Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+  QString selectedModel() const;
+  void setSelectedModel(const QString& value);
+
 public slots:
   void populateFromDir(const QUrl& dirPath);
+
+signals:
+  void selectedModelChanged();
 };

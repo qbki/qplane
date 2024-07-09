@@ -1,5 +1,4 @@
 #include <QUrl>
-#include <algorithm>
 
 #include "src/consts.h"
 
@@ -97,4 +96,19 @@ ModelsState::populateFromDir(const QUrl& dirPath) {
     _data << files.next();
   }
   endResetModel();
+}
+
+QString
+ModelsState::selectedModel() const
+{
+  return _selectedModel;
+}
+
+void
+ModelsState::setSelectedModel(const QString& value)
+{
+  if (_selectedModel != value) {
+    _selectedModel = value;
+    emit selectedModelChanged();
+  }
 }
