@@ -34,6 +34,10 @@ ApplicationWindow {
         id: modelsState
     }
 
+    AppState {
+        id: appState
+    }
+
     SplitView {
         anchors.fill: parent
         spacing: 0
@@ -160,7 +164,14 @@ ApplicationWindow {
 
     Platform.FolderDialog {
         id: openProjectDialog
-        onAccepted: modelsState.populateFromDir(folder);
+        onAccepted: {
+            appState.projectDir = folder;
+            if (appState.isModelsDirExists) {
+                modelsState.populateFromDir(appState.modelsDir);
+            } else {
+                console.log("\"models\" dir doesn't exists");
+            }
+        }
         options: Platform.FolderDialog.ShowDirsOnly
     }
 }

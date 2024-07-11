@@ -147,4 +147,5 @@ qt_add_qml_module(${PROJECT_NAME}
     SOURCES
       src/consts.h
       src/models/modelsstate.h src/models/modelsstate.cpp
+      src/models/appstate.h src/models/appstate.cpp
 )
