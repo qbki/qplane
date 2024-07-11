@@ -16,6 +16,12 @@ Node {
     }
 
     function addInstance(position: vector3d) {
+        // Avoiding placing the same model at the same place
+        for (const item of instancesList.instances) {
+            if (item.position.fuzzyEquals(position)) {
+                return;
+            }
+        }
         const component = Qt.createComponent("QtQuick3D", "InstanceListEntry", Component.PreferSynchronous, null);
         if (component.status === Component.Ready) {
             const instance = component.createObject(null, { position });

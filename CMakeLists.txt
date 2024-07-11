@@ -62,7 +62,7 @@ find_package(Qt6QuickTest CONFIG REQUIRED)
 find_package(Qt6QuickTestUtilsPrivate CONFIG REQUIRED)
 find_package(Qt6QuickWidgets CONFIG REQUIRED)
 
-find_package(Qt6BundledEmbree CONFIG REQUIRED)
+# find_package(Qt6BundledEmbree CONFIG REQUIRED)
 find_package(Qt6Quick3D CONFIG REQUIRED)
 find_package(Qt6Quick3DAssetImport CONFIG REQUIRED)
 find_package(Qt6Quick3DAssetUtils CONFIG REQUIRED)
@@ -70,7 +70,7 @@ find_package(Qt6Quick3DEffects CONFIG REQUIRED)
 find_package(Qt6Quick3DGlslParserPrivate CONFIG REQUIRED)
 find_package(Qt6Quick3DHelpers CONFIG REQUIRED)
 find_package(Qt6Quick3DHelpersImpl CONFIG REQUIRED)
-find_package(Qt6Quick3DIblBaker CONFIG REQUIRED)
+# find_package(Qt6Quick3DIblBaker CONFIG REQUIRED)
 find_package(Qt6Quick3DParticleEffects CONFIG REQUIRED)
 find_package(Qt6Quick3DParticles CONFIG REQUIRED)
 find_package(Qt6Quick3DRuntimeRender CONFIG REQUIRED)
@@ -124,7 +124,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickTest Qt6::QuickTest Qt::Q
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickTestUtilsPrivate Qt6::QuickTestUtilsPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickWidgets Qt6::QuickWidgets Qt::QuickWidgetsPrivate Qt6::QuickWidgetsPrivate)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::BundledEmbree Qt6::BundledEmbree)
+# target_link_libraries(${PROJECT_NAME} PRIVATE Qt::BundledEmbree Qt6::BundledEmbree)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3D Qt6::Quick3D Qt::Quick3DPrivate Qt6::Quick3DPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DAssetImport Qt6::Quick3DAssetImport Qt::Quick3DAssetImportPrivate Qt6::Quick3DAssetImportPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DAssetUtils Qt6::Quick3DAssetUtils Qt::Quick3DAssetUtilsPrivate Qt6::Quick3DAssetUtilsPrivate)
@@ -132,7 +132,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DEffects Qt6::Quick3DEff
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DGlslParserPrivate Qt6::Quick3DGlslParserPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DHelpers Qt6::Quick3DHelpers Qt::Quick3DHelpersPrivate Qt6::Quick3DHelpersPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DHelpersImpl Qt6::Quick3DHelpersImpl Qt::Quick3DHelpersImplPrivate Qt6::Quick3DHelpersImplPrivate)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DIblBaker Qt6::Quick3DIblBaker Qt::Quick3DIblBakerPrivate Qt6::Quick3DIblBakerPrivate)
+# target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DIblBaker Qt6::Quick3DIblBaker Qt::Quick3DIblBakerPrivate Qt6::Quick3DIblBakerPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DParticleEffects Qt6::Quick3DParticleEffects Qt::Quick3DParticleEffectsPrivate Qt6::Quick3DParticleEffectsPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DParticles Qt6::Quick3DParticles Qt::Quick3DParticlesPrivate Qt6::Quick3DParticlesPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DRuntimeRender Qt6::Quick3DRuntimeRender Qt::Quick3DRuntimeRenderPrivate Qt6::Quick3DRuntimeRenderPrivate)
@@ -140,7 +140,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils Qt6::Quick3DUtils
 
 qt_add_qml_module(${PROJECT_NAME}
     URI app
-    DEPENDENCIES QtQuick
     QML_FILES
       src/components/ModelItem.qml
       src/components/SceneItem.qml

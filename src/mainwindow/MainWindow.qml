@@ -58,6 +58,13 @@ ApplicationWindow {
                 return Qt.vector3d(0, 0, 0);
             }
 
+            function getGridAlignedPlacingPosition() {
+                const pos = getPlacingPosition();
+                return Qt.vector3d(Math.floor(pos.x) + 0.5,
+                                   Math.floor(pos.y) + 0.5,
+                                   pos.z);
+            }
+
             function isGhostShown(model) {
                 return modelsState.selectedModel.valueOf() === model.display.valueOf();
             }
@@ -101,7 +108,7 @@ ApplicationWindow {
 
                 SceneItem {
                     required property var model
-                    ghostPosition: view.getPlacingPosition()
+                    ghostPosition: view.getGridAlignedPlacingPosition()
                     ghostShown: view.isGhostShown(model)
                     source: model.display
                     onGhostShownChanged: {
