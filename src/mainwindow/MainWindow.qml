@@ -24,7 +24,7 @@ ApplicationWindow {
             title: qsTr("File")
 
             Action {
-                text: qsTr("Open project...")
+                text: qsTr("Open assets...")
                 onTriggered: openProjectDialog.open()
             }
         }
@@ -169,7 +169,7 @@ ApplicationWindow {
             if (appState.isModelsDirExists) {
                 modelsState.populateFromDir(appState.modelsDir);
             } else {
-                console.log("\"models\" dir doesn't exists");
+                console.error("\"models\" directory doesn't exists");
             }
         }
         options: Platform.FolderDialog.ShowDirsOnly
