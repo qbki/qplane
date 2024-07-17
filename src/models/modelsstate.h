@@ -11,9 +11,9 @@ class ModelsState : public QAbstractListModel
   Q_PROPERTY(QString selectedModel READ selectedModel WRITE setSelectedModel NOTIFY selectedModelChanged FINAL)
 
 private:
-  QVariant _header;
-  QVector<QVariant> _data;
-  QString _selectedModel {""};
+  QVariant m_header;
+  QVector<QVariant> m_data;
+  QString m_selectedModel {""};
 
 public:
   explicit ModelsState(QObject* parent = nullptr);

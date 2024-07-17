@@ -6,7 +6,7 @@
 
 ModelsState::ModelsState(QObject* parent)
   : QAbstractListModel(parent)
-  , _header(tr("Models"))
+  , m_header(tr("Models"))
 {
 }
 
@@ -15,7 +15,7 @@ ModelsState::headerData(int section,
                         Qt::Orientation orientation,
                         int role) const
 {
-  return _header;
+  return m_header;
 }
 
 bool
@@ -25,7 +25,7 @@ ModelsState::setHeaderData(int section,
                            int role)
 {
   if (value != headerData(section, orientation, role)) {
-    _header = value;
+    m_header = value;
     emit headerDataChanged(orientation, section, section);
     return true;
   }
@@ -38,7 +38,7 @@ ModelsState::rowCount(const QModelIndex& parent) const
   if (parent.isValid()) {
     return 0;
   }
-  return _data.size();
+  return m_data.size();
 }
 
 QVariant
@@ -49,12 +49,12 @@ ModelsState::data(const QModelIndex& index, int role) const
   }
 
   auto idx = index.row();
-  if (idx < 0 || idx >= _data.size()) {
+  if (idx < 0 || idx >= m_data.size()) {
     return QVariant();
   }
 
   if (role == Qt::DisplayRole) {
-    return _data.at(idx);
+    return m_data.at(idx);
   }
 
   return QVariant();
@@ -64,11 +64,11 @@ bool
 ModelsState::setData(const QModelIndex& index, const QVariant& value, int role)
 {
   auto idx = index.row();
-  if (idx < 0 || idx >= _data.size()) {
+  if (idx < 0 || idx >= m_data.size()) {
     return false;
   }
   if (data(index, role) != value) {
-    _data[index.row()] = value;
+    m_data[index.row()] = value;
     emit dataChanged(index, index, { role });
     return true;
   }
@@ -91,9 +91,9 @@ ModelsState::populateFromDir(const QUrl& dirPath) {
                      QDir::Files,
                      QDirIterator::Subdirectories);
   beginResetModel();
-  _data.clear();
+  m_data.clear();
   while (files.hasNext()) {
-    _data << files.next();
+    m_data << files.next();
   }
   endResetModel();
 }
@@ -101,14 +101,14 @@ ModelsState::populateFromDir(const QUrl& dirPath) {
 QString
 ModelsState::selectedModel() const
 {
-  return _selectedModel;
+  return m_selectedModel;
 }
 
 void
 ModelsState::setSelectedModel(const QString& value)
 {
-  if (_selectedModel != value) {
-    _selectedModel = value;
+  if (m_selectedModel != value) {
+    m_selectedModel = value;
     emit selectedModelChanged();
   }
 }

@@ -46,14 +46,19 @@ ApplicationWindow {
             id: view
             SplitView.fillWidth: true
             SplitView.fillHeight: true
+            focus: true
             environment: SceneEnvironment {
                 backgroundMode: SceneEnvironment.Color
                 antialiasingMode: SceneEnvironment.MSAA
                 clearColor: "#dddddd"
             }
 
+            function pickSceneObjects () {
+                return this.pickAll(mouseArea.mouseX, mouseArea.mouseY);
+            }
+
             function getPlacingPosition() {
-                const objects = this.pickAll(mouseArea.mouseX, mouseArea.mouseY);
+                const objects = pickSceneObjects();
                 for (const obj of objects) {
                     if (obj.objectHit === intersectionPlane) {
                         return obj.scenePosition;
@@ -86,6 +91,22 @@ ApplicationWindow {
                 }
             }
 
+            Keys.onPressed: function(event) {
+                if (event.key === Qt.Key_X) {
+                    const objects = pickSceneObjects()
+                        .filter((v) => v.objectHit !== intersectionPlane)
+                        .filter((v) => currentSceneItem.containsModel(v.objectHit));
+                    if (objects.length > 0) {
+                      currentSceneItem.removeInstanceByIndex(objects[0].instanceIndex);
+                    }
+                    event.accepted = true;
+                } else  if (event.key === Qt.Key_S) {
+                    sceneItems.children.forEach(function(v) {
+                        v.eachInstance((v) => console.log(v));
+                    });
+                }
+            }
+
             DirectionalLight {
                 eulerRotation: "-30, -20, -40"
                 ambientColor: "#333"
@@ -108,6 +129,7 @@ ApplicationWindow {
             }
 
             Repeater3D {
+                id: sceneItems
                 model: modelsState
 
                 SceneItem {

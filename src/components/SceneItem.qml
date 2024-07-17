@@ -33,6 +33,40 @@ Node {
         }
     }
 
+    function removeInstanceByIndex(index: int) {
+        instancesList.instances.splice(index, 1);
+    }
+
+    function setPickable(obj) {
+        for (let child of getModels(obj)) {
+            child.pickable = true;
+        }
+    }
+
+    function getModels(obj): list<Model> {
+        if (obj instanceof Model) {
+            return [obj];
+        }
+        if (!obj || !obj.children) {
+            return [];
+        }
+        let result = [];
+        for (const child of obj.children) {
+            result = [...result, ...getModels(child)];
+        }
+        return result;
+    }
+
+    function containsModel(obj: Model): bool {
+        return getModels(instancingRoot).some((v) => v === obj);
+    }
+
+    function eachInstance(fn) {
+        for (const instance of instancesList.instances) {
+            fn(instance);
+        }
+    }
+
     InstanceList {
         id: instancesList
         instances: [
@@ -40,12 +74,16 @@ Node {
     }
 
     RuntimeLoader {
+        id: instancingRoot
         source: root.source
         instancing: instancesList
         onStatusChanged: {
             if (status === RuntimeLoader.Error) {
                 console.error(errorString);
             }
+        }
+        onBoundsChanged: {
+            setPickable(this);
         }
     }
 
