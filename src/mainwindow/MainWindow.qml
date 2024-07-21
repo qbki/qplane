@@ -15,6 +15,7 @@ import app
 ApplicationWindow {
     property SceneItem currentSceneItem
     property vector3d ghostPosition
+    property entityModel test
 
     title: "QPlane"
     visible: true
@@ -30,8 +31,8 @@ ApplicationWindow {
         }
     }
 
-    ModelsState {
-        id: modelsState
+    ModelEntityState {
+        id: modelEntityState
     }
 
     AppState {
@@ -74,8 +75,12 @@ ApplicationWindow {
                                    pos.z);
             }
 
+            function areStrsEqual(a: string, b: string): bool {
+                return a.localeCompare(b) === 0;
+            }
+
             function isGhostShown(model) {
-                return modelsState.selectedModel.valueOf() === model.display.valueOf();
+                return areStrsEqual(modelEntityState.selectedModel, model.display.path);
             }
 
             MouseArea {
@@ -130,13 +135,13 @@ ApplicationWindow {
 
             Repeater3D {
                 id: sceneItems
-                model: modelsState
+                model: modelEntityState
 
                 SceneItem {
                     required property var model
                     ghostPosition: view.getGridAlignedPlacingPosition()
                     ghostShown: view.isGhostShown(model)
-                    source: model.display
+                    source: model.display.path
                     onGhostShownChanged: {
                         if (this.ghostShown) {
                             currentSceneItem = this;
@@ -168,18 +173,36 @@ ApplicationWindow {
 
                 Repeater {
                     anchors.fill: parent
-                    model: modelsState
+                    model: modelEntityState
 
-                    ModelItem {
-                        id: item
+                    EntityModelItem {
                         required property var model
+                        id: item
                         width: frame.width / 2 - 1
                         height: frame.width / 2 - 1
-                        source: model.display
-                        selected: modelsState.selectedModel.valueOf() === model.display.valueOf()
-                        onClicked: modelsState.selectedModel = item.source
+                        source: model.display.path
+                        selected: view.areStrsEqual(modelEntityState.selectedModel, model.display.path)
+                        onClicked: function(event) {
+                            if (event.button === Qt.LeftButton) {
+                                modelEntityState.selectedModel = item.source;
+                            } else if (event.button === Qt.RightButton){
+                                entityModelEditWindow.open((model.display));
+                            }
+                        }
                     }
                 }
+            }
+        }
+    }
+
+    EntityModelEditWindow {
+        id: entityModelEditWindow
+        onAccepted: function(newEntityModel, originalEntityModel) {
+            const idx = modelEntityState.findIndexById(originalEntityModel.id);
+            if (idx.valid) {
+                modelEntityState.setData(idx, newEntityModel);
+            } else {
+                console.error("Can't update the \"Entity Model\" model state. An item is not found")
             }
         }
     }
@@ -189,7 +212,7 @@ ApplicationWindow {
         onAccepted: {
             appState.projectDir = folder;
             if (appState.isModelsDirExists) {
-                modelsState.populateFromDir(appState.modelsDir);
+                modelEntityState.populateFromDir(appState.modelsDir);
             } else {
                 console.error("\"models\" directory doesn't exists");
             }

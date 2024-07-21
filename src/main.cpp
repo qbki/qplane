@@ -1,14 +1,15 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QRect>
 
-#include "models/appstate.h"
-#include "models/modelsstate.h"
+// #include "models/appstate.h"
+// #include "models/modelentitystate.h"
+#include "types/entitymodel.h"
 
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
 
-  qmlRegisterType<ModelsState>("app", 1, 0, "ModelsState");
-  qmlRegisterType<AppState>("app", 1, 0, "AppState");
+  qRegisterMetaType<EntityModel>();
 
   QQmlApplicationEngine engine;
   engine.loadFromModule("app", "MainWindow");

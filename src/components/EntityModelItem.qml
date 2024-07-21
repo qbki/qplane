@@ -10,7 +10,7 @@ Item {
     required property url source
     required property bool selected
 
-    signal clicked()
+    signal clicked(event: MouseEvent)
 
     HoverHandler {
         id: hover
@@ -20,7 +20,10 @@ Item {
         id: mouseArea
         anchors.fill: parent
         cursorShape: root.selected ? Qt.ArrowCursor : Qt.PointingHandCursor
-        onClicked: root.clicked()
+        acceptedButtons: Qt.AllButtons
+        onClicked: function(event) {
+            root.clicked(event)
+        }
     }
 
     View3D {
