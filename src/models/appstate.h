@@ -7,6 +7,7 @@ class AppState : public QObject
   Q_OBJECT
   QML_ELEMENT
   Q_PROPERTY(QUrl projectDir READ projectDir WRITE setProjectDir NOTIFY projectDirChanged FINAL)
+  Q_PROPERTY(QUrl levelsDir READ levelsDir NOTIFY levelsDirChanged FINAL)
   Q_PROPERTY(QUrl modelsDir READ modelsDir NOTIFY modelsDirChanged FINAL)
   Q_PROPERTY(bool isModelsDirExists READ isModelsDirExists FINAL)
 
@@ -20,11 +21,16 @@ public:
 
   bool isModelsDirExists() const;
 
+  QUrl levelsDir() const;
+
 signals:
   void projectDirChanged();
 
   void modelsDirChanged();
 
+  void levelsDirChanged();
+
 private:
   QUrl m_projectDir;
+  QUrl m_levelsDir;
 };

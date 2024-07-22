@@ -2,8 +2,6 @@
 #include <QQmlApplicationEngine>
 #include <QRect>
 
-// #include "models/appstate.h"
-// #include "models/modelentitystate.h"
 #include "types/entitymodel.h"
 
 int main(int argc, char* argv[]) {

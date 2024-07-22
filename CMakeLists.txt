@@ -151,5 +151,6 @@ qt_add_qml_module(${PROJECT_NAME}
       src/models/appstate.h src/models/appstate.cpp
       src/models/baselist.h
       src/models/modelentitystate.h src/models/modelentitystate.cpp
+      src/models/savehandler.h src/models/savehandler.cpp
       src/types/entitymodel.h src/types/entitymodel.cpp
 )

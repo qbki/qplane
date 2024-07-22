@@ -33,6 +33,12 @@ bool ModelEntityState::setData(const QModelIndex &index, const QVariant &value, 
   return result;
 }
 
+std::vector<EntityModel>&
+ModelEntityState::internalData()
+{
+  return m_data.getData();
+}
+
 QModelIndex ModelEntityState::findIndexById(const QString &id)
 {
   auto& data = m_data.getData();
@@ -55,9 +61,11 @@ ModelEntityState::populateFromDir(const QUrl& dirPath) {
   auto& data = m_data.getData();
   data.clear();
   while (files.hasNext()) {
-    auto filePath = files.next();
+    QUrl filePath(files.next());
+    auto modelName = filePath.fileName().replace(".glb", "");
+    auto modelId = QString("model-%1").arg(modelName);
     EntityModel model;
-    model.setId(filePath);
+    model.setId(modelId);
     model.setPath({filePath});
     model.setIsOpaque(true);
     m_data.push(model);

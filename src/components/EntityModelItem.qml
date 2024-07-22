@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 
 import QtQuick3D
 import QtQuick3D.Helpers
@@ -7,6 +8,7 @@ import QtQuick3D.AssetUtils
 Item {
   id: root
 
+  required property string name
   required property url source
   required property bool selected
 
@@ -60,6 +62,28 @@ Item {
           console.error(errorString);
         }
       }
+    }
+  }
+
+  Label {
+    text: root.name
+    leftPadding: 4
+    rightPadding: 4
+    topPadding: 2
+    bottomPadding: 0
+    color: "#000000"
+    background: Rectangle {
+      anchors.fill: parent
+      color: "#7fffffff"
+    }
+
+    HoverHandler {
+      id: nameHint
+    }
+
+    ToolTip {
+      visible: nameHint.hovered
+      text: root.name
     }
   }
 

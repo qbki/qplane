@@ -28,6 +28,11 @@ ApplicationWindow {
         text: qsTr("Open assets...")
         onTriggered: openProjectDialog.open()
       }
+
+      Action {
+        text: qsTr("Save")
+        onTriggered: SaveHandler.save(appState, modelEntityState)
+      }
     }
   }
 
@@ -178,6 +183,7 @@ ApplicationWindow {
           EntityModelItem {
             required property var model
             id: item
+            name: model.display.id
             width: frame.width / 2 - 1
             height: frame.width / 2 - 1
             source: model.display.path

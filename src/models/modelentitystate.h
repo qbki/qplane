@@ -1,5 +1,6 @@
 #pragma once
 #include <QAbstractListModel>
+#include <vector>
 
 #include <src/types/entitymodel.h>
 
@@ -21,6 +22,7 @@ public:
   int rowCount(const QModelIndex &parent) const;
   QVariant data(const QModelIndex &index, int role) const;
   bool setData(const QModelIndex &index, const QVariant &value, int role);
+  std::vector<EntityModel>& internalData();
 
   QString selectedModel() const;
   void setSelectedModel(const QString &value);

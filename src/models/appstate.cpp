@@ -34,3 +34,9 @@ bool AppState::isModelsDirExists() const
   QDir models_dir {modelsDir().path()};
   return models_dir.exists();
 }
+
+QUrl AppState::levelsDir() const
+{
+  auto projectDir = QDir{m_projectDir.toString(QUrl::NormalizePathSegments)};
+  return projectDir.filePath(PROJECT_LEVELS_DIR);
+}
