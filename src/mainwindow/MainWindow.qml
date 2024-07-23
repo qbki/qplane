@@ -31,6 +31,7 @@ ApplicationWindow {
 
       Action {
         text: qsTr("Save")
+        enabled: appState.isProjectLoaded
         onTriggered: ProjectStructure.save(appState, modelEntityState)
       }
     }

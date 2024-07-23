@@ -21,6 +21,7 @@ void AppState::setProjectDir(const QUrl &newProjectDir)
   }
   m_projectDir = newProjectDir;
   emit projectDirChanged();
+  emit isProjectLoadedChanged();
 }
 
 QUrl AppState::modelsDir() const
@@ -39,4 +40,9 @@ QUrl AppState::levelsDir() const
 {
   auto projectDir = QDir{m_projectDir.toString(QUrl::NormalizePathSegments)};
   return projectDir.filePath(PROJECT_LEVELS_DIR);
+}
+
+bool AppState::isProjectLoaded() const
+{
+  return !m_projectDir.isEmpty();
 }
