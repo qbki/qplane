@@ -5,6 +5,8 @@ import QtQuick3D
 import QtQuick3D.Helpers
 import QtQuick3D.AssetUtils
 
+import app
+
 Item {
   id: root
 
@@ -67,9 +69,9 @@ Item {
 
   Label {
     text: root.name
-    leftPadding: 4
-    rightPadding: 4
-    topPadding: 2
+    leftPadding: Theme.spacing(0.5)
+    rightPadding: Theme.spacing(0.5)
+    topPadding: Theme.spacing(0.25)
     bottomPadding: 0
     color: "#000000"
     background: Rectangle {
@@ -93,6 +95,6 @@ Item {
     width: root.width
     height: root.height
     border.color: "green"
-    border.width: 4
+    border.width: Theme.spacing(0.5)
   }
 }

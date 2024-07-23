@@ -36,8 +36,8 @@ Window {
 
     ColumnLayout {
       anchors.fill: parent
-      anchors.margins: 16
-      spacing: 8
+      anchors.margins: Theme.spacing(2)
+      spacing: Theme.spacing(1)
 
       FormTextInput {
         id: idField
@@ -57,7 +57,7 @@ Window {
       }
 
       RowLayout {
-        spacing: 8
+        spacing: Theme.spacing(1)
         Layout.fillWidth: true
 
         Item {

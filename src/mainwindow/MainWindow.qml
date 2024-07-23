@@ -167,9 +167,9 @@ ApplicationWindow {
       id: frame
       SplitView.fillWidth: true
       SplitView.fillHeight: true
-      SplitView.preferredWidth: 200
-      SplitView.minimumWidth: 150
-      SplitView.maximumWidth: 400
+      SplitView.preferredWidth: Theme.spacing(25)
+      SplitView.minimumWidth: Theme.spacing(18)
+      SplitView.maximumWidth: Theme.spacing(50)
       padding: 0
       clip: true
 
@@ -183,7 +183,7 @@ ApplicationWindow {
 
         ColumnLayout {
           id: rootLayout
-          spacing: 8
+          spacing: Theme.spacing(1)
 
           ColumnLayout {
             spacing: 0

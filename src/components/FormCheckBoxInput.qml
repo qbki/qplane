@@ -2,13 +2,15 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import app
+
 RowLayout {
   property alias label: labelComponent.text
   property alias checkState: checkBox.checkState
 
   CheckBox {
     id: checkBox
-    leftPadding: 8
+    leftPadding: Theme.spacing(1)
     rightPadding: 0
   }
 
