@@ -31,7 +31,7 @@ ApplicationWindow {
 
       Action {
         text: qsTr("Save")
-        onTriggered: SaveHandler.save(appState, modelEntityState)
+        onTriggered: ProjectStructure.save(appState, modelEntityState)
       }
     }
   }
@@ -218,7 +218,7 @@ ApplicationWindow {
     onAccepted: {
       appState.projectDir = folder;
       if (appState.isModelsDirExists) {
-        modelEntityState.populateFromDir(appState.modelsDir);
+        ProjectStructure.load(appState, modelEntityState);
       } else {
         console.error("\"models\" directory doesn't exists");
       }

@@ -4,6 +4,7 @@
 #include <QUrl>
 #include <algorithm>
 #include <iterator>
+#include <ranges>
 
 #include "src/consts.h"
 
@@ -86,4 +87,14 @@ ModelEntityState::setSelectedModel(const QString &value)
     m_selectedModel = value;
     emit selectedModelChanged();
   }
+}
+
+void
+ModelEntityState::updateWholeModel(const std::vector<EntityModel>& new_data)
+{
+  beginResetModel();
+  auto& data = m_data.getData();
+  data.clear();
+  std::ranges::copy(new_data, std::back_inserter(data));
+  endResetModel();
 }

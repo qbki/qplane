@@ -138,19 +138,19 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DRuntimeRender Qt6::Quic
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils Qt6::Quick3DUtils Qt::Quick3DUtilsPrivate Qt6::Quick3DUtilsPrivate)
 
 qt_add_qml_module(${PROJECT_NAME}
-    URI app
-    QML_FILES
-      src/components/EntityModelEditWindow.qml
-      src/components/EntityModelItem.qml
-      src/components/FormCheckBoxInput.qml
-      src/components/FormTextInput.qml
-      src/components/SceneItem.qml
-      src/mainwindow/MainWindow.qml
-    SOURCES
-      src/consts.h
-      src/models/appstate.h src/models/appstate.cpp
-      src/models/baselist.h
-      src/models/modelentitystate.h src/models/modelentitystate.cpp
-      src/models/savehandler.h src/models/savehandler.cpp
-      src/types/entitymodel.h src/types/entitymodel.cpp
+  URI app
+  QML_FILES
+    src/components/EntityModelEditWindow.qml
+    src/components/EntityModelItem.qml
+    src/components/FormCheckBoxInput.qml
+    src/components/FormTextInput.qml
+    src/components/SceneItem.qml
+    src/mainwindow/MainWindow.qml
+  SOURCES
+    src/consts.h
+    src/models/appstate.h src/models/appstate.cpp
+    src/models/baselist.h
+    src/models/modelentitystate.h src/models/modelentitystate.cpp
+    src/models/projectstructure.h src/models/projectstructure.cpp
+    src/types/entitymodel.h src/types/entitymodel.cpp
 )

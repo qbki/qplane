@@ -5,15 +5,16 @@
 class AppState;
 class ModelEntityState;
 
-class SaveHandler : public QObject
+class ProjectStructure : public QObject
 {
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON
 
 public:
-  explicit SaveHandler(QObject* parent = nullptr);
+  explicit ProjectStructure(QObject* parent = nullptr);
 
 public slots:
   void save(AppState* appState, ModelEntityState* modelEntityState);
+  void load(AppState* appState, ModelEntityState* modelEntityState);
 };

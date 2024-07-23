@@ -1,5 +1,6 @@
 #pragma once
 #include <QAbstractListModel>
+#include <functional>
 #include <vector>
 
 #include <src/types/entitymodel.h>
@@ -26,6 +27,8 @@ public:
 
   QString selectedModel() const;
   void setSelectedModel(const QString &value);
+
+  void updateWholeModel(const std::vector<EntityModel>& new_data);
 
 signals:
   void selectedModelChanged();
