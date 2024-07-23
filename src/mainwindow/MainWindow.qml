@@ -171,28 +171,51 @@ ApplicationWindow {
       SplitView.minimumWidth: 150
       SplitView.maximumWidth: 400
       padding: 0
+      clip: true
 
-      Grid {
-        columns: 2
-        spacing: 1
+      Flickable {
+        anchors.fill: parent
+        clip: true
+        contentHeight: rootLayout.height
 
-        Repeater {
-          anchors.fill: parent
-          model: modelEntityState
+        ScrollBar.vertical: ScrollBar {
+        }
 
-          EntityModelItem {
-            required property var model
-            id: item
-            name: model.display.id
-            width: frame.width / 2 - 1
-            height: frame.width / 2 - 1
-            source: model.display.path
-            selected: view.areStrsEqual(modelEntityState.selectedModel, model.display.path)
-            onClicked: function(event) {
-              if (event.button === Qt.LeftButton) {
-                modelEntityState.selectedModel = item.source;
-              } else if (event.button === Qt.RightButton){
-                entityModelEditWindow.open((model.display));
+        ColumnLayout {
+          id: rootLayout
+          spacing: 8
+
+          ColumnLayout {
+            spacing: 0
+
+            Label {
+              text: qsTr("Models")
+            }
+
+            Grid {
+              columns: 2
+              spacing: 1
+
+              Repeater {
+                anchors.fill: parent
+                model: modelEntityState
+
+                EntityModelItem {
+                  required property var model
+                  id: item
+                  name: model.display.id
+                  width: frame.width / 2 - 1
+                  height: frame.width / 2 - 1
+                  source: model.display.path
+                  selected: view.areStrsEqual(modelEntityState.selectedModel, model.display.path)
+                  onClicked: function(event) {
+                    if (event.button === Qt.LeftButton) {
+                      modelEntityState.selectedModel = item.source;
+                    } else if (event.button === Qt.RightButton){
+                      entityModelEditWindow.open((model.display));
+                    }
+                  }
+                }
               }
             }
           }
