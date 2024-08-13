@@ -144,14 +144,18 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/EntityModelItem.qml
     src/components/FormCheckBoxInput.qml
     src/components/FormTextInput.qml
+    src/components/LevelsEditWindow.qml
+    src/components/MainMenuItem.qml
     src/components/SceneItem.qml
     src/mainwindow/MainWindow.qml
   SOURCES
     src/consts.h
     src/models/appstate.h src/models/appstate.cpp
     src/models/baselist.h
+    src/models/fileio.h src/models/fileio.cpp
     src/models/modelentitystate.h src/models/modelentitystate.cpp
     src/models/projectstructure.h src/models/projectstructure.cpp
     src/models/theme.h src/models/theme.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
+    src/types/placement.h src/types/placement.cpp
 )

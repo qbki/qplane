@@ -9,40 +9,90 @@ AppState::AppState(QObject* parent)
 {
 }
 
-QUrl AppState::projectDir() const
+QUrl
+AppState::projectDir() const
 {
   return m_projectDir;
 }
 
-void AppState::setProjectDir(const QUrl &newProjectDir)
+QString
+AppState::projectLocalDir() const
 {
-  if (m_projectDir.matches(newProjectDir, QUrl::NormalizePathSegments)) {
+  return m_projectDir.toLocalFile();
+}
+
+void
+AppState::setProjectDir(const QUrl& newProjectDir)
+{
+  auto directory = newProjectDir;
+  // This slash helps in resolving correct pathes.
+  // Without it QUrl::resolved ignores the last path
+  // component of the original url.
+  directory.setPath(directory.path() + "/");
+  if (m_projectDir.matches(directory, QUrl::NormalizePathSegments)) {
     return;
   }
-  m_projectDir = newProjectDir;
-  emit projectDirChanged();
+  m_projectDir = directory;
   emit isProjectLoadedChanged();
+  emit levelsDirChanged();
+  emit projectDirChanged();
 }
 
-QUrl AppState::modelsDir() const
+QUrl
+AppState::modelsDir() const
 {
-  auto projectDir = QDir{m_projectDir.toString(QUrl::NormalizePathSegments)};
-  return projectDir.filePath(PROJECT_MODELS_DIR);
+  return m_projectDir.resolved(PROJECT_MODELS_DIR);
 }
 
-bool AppState::isModelsDirExists() const
+bool
+AppState::isModelsDirExists() const
 {
-  QDir models_dir {modelsDir().path()};
-  return models_dir.exists();
+  QDir dir{modelsDir().toLocalFile()};
+  return dir.exists();
 }
 
-QUrl AppState::levelsDir() const
+QUrl
+AppState::levelsDir() const
 {
-  auto projectDir = QDir{m_projectDir.toString(QUrl::NormalizePathSegments)};
-  return projectDir.filePath(PROJECT_LEVELS_DIR);
+  return m_projectDir.resolved(PROJECT_LEVELS_DIR + "/");
 }
 
-bool AppState::isProjectLoaded() const
+bool
+AppState::isProjectLoaded() const
 {
   return !m_projectDir.isEmpty();
+}
+
+bool
+AppState::isNewLevel() const
+{
+  return !m_levelPath.isEmpty();
+}
+
+QUrl
+AppState::levelPath() const
+{
+  return m_levelPath;
+}
+
+void
+AppState::setLevelPath(const QUrl &newLevelPath)
+{
+  if (m_levelPath == newLevelPath) {
+    return;
+  }
+  m_levelPath = newLevelPath;
+  emit levelPathChanged();
+}
+
+bool
+AppState::isLevelLoaded() const
+{
+  return !m_levelPath.isEmpty();
+}
+
+QUrl
+AppState::levelsMetaPath() const
+{
+  return levelsDir().resolved(PROJECT_LEVELS_META_FILE);
 }

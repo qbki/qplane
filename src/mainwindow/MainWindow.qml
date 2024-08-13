@@ -17,23 +17,72 @@ ApplicationWindow {
   property vector3d ghostPosition
   property entityModel test
 
-  title: "QPlane"
+  title: appState.isProjectLoaded ? `QPlane: ${appState.projectLocalDir()}` : "QPlane"
   visible: true
   visibility: ApplicationWindow.Maximized
   menuBar: MenuBar {
     Menu {
       title: qsTr("File")
 
-      Action {
-        text: qsTr("Open assets...")
-        onTriggered: openProjectDialog.open()
-      }
+      MainMenuItem { action: openAssetsAction }
+      MainMenuItem { action: saveAssetsAction }
+    }
+    Menu {
+      title: qsTr("Level")
+      enabled: appState.isProjectLoaded
 
-      Action {
-        text: qsTr("Save")
-        enabled: appState.isProjectLoaded
-        onTriggered: ProjectStructure.save(appState, modelEntityState)
+      MainMenuItem { action: newLevelAction }
+      MainMenuItem { action: openLevelAction }
+      MainMenuItem { action: openLevelsEditWindow }
+    }
+  }
+
+  Action {
+    id: openAssetsAction
+    text: qsTr("Open assets...")
+    shortcut: StandardKey.Open
+    onTriggered: openProjectDialog.open()
+  }
+
+  Action {
+    id: saveAssetsAction
+    text: qsTr("Save")
+    enabled: appState.isProjectLoaded
+    shortcut: StandardKey.Save
+    onTriggered: {
+      if (appState.isProjectLoaded) {
+        const json = ProjectStructure.entitiesToJson(appState, modelEntityState);
+        console.log(JSON.stringify(json, null, 2));
+        FileIO.saveJson(appState.levelsDir + "/entities.json", json);
       }
+      if (appState.isLevelLoaded) {
+        const entities = sceneItems.children.map((child) => child.getPlacement());
+        const json = ProjectStructure.levelToJson(appState, entities);
+        FileIO.saveJson(appState.levelPath, json);
+      }
+    }
+  }
+
+  Action {
+    id: newLevelAction
+    text: qsTr("New")
+    onTriggered: newLevelDialog.open()
+  }
+
+  Action {
+    id: openLevelAction
+    text: qsTr("Open...")
+    onTriggered: openLevelDialog.open()
+  }
+
+  Action {
+    id: openLevelsEditWindow
+    text: qsTr("Edit levels order...")
+    onTriggered: {
+      if (!levelsEditWindowLoader.sourceComponent) {
+        levelsEditWindowLoader.sourceComponent = levelsEditWindowComponent;
+      }
+      levelsEditWindowLoader.item.open();
     }
   }
 
@@ -111,10 +160,6 @@ ApplicationWindow {
             currentSceneItem.removeInstanceByIndex(objects[0].instanceIndex);
           }
           event.accepted = true;
-        } else  if (event.key === Qt.Key_S) {
-          sceneItems.children.forEach(function(v) {
-            v.eachInstance((v) => console.log(v));
-          });
         }
       }
 
@@ -145,6 +190,7 @@ ApplicationWindow {
 
         SceneItem {
           required property var model
+          name: model.display.id
           ghostPosition: view.getGridAlignedPlacingPosition()
           ghostShown: view.isGhostShown(model)
           source: model.display.path
@@ -212,7 +258,7 @@ ApplicationWindow {
                   onClicked: function(event) {
                     if (event.button === Qt.LeftButton) {
                       modelEntityState.selectedModel = item.source;
-                    } else if (event.button === Qt.RightButton){
+                    } else if (event.button === Qt.RightButton) {
                       entityModelEditWindow.open((model.display));
                     }
                   }
@@ -237,16 +283,79 @@ ApplicationWindow {
     }
   }
 
+  Component {
+    id: levelsEditWindowComponent
+    LevelsEditWindow {
+      id: levelsEditWindow
+      levelsMetaFileUrl: appState.levelsMetaPath
+      projectFolderUrl: appState.projectDir
+      levelsFolderUrl: appState.levelsDir
+
+      onClosing: {
+        levelsEditWindowLoader.sourceComponent = undefined
+      }
+    }
+  }
+
+  Loader {
+    id: levelsEditWindowLoader
+    sourceComponent: undefined
+  }
+
   Platform.FolderDialog {
     id: openProjectDialog
+    title: qsTr("Select an assets directory")
     onAccepted: {
       appState.projectDir = folder;
-      if (appState.isModelsDirExists) {
-        ProjectStructure.load(appState, modelEntityState);
-      } else {
-        console.error("\"models\" directory doesn't exists");
+      try {
+        const entitiesJson = FileIO.loadJson(appState.levelsDir + "/entities.json");
+        ProjectStructure.populateEntities(entitiesJson, appState, modelEntityState);
+      } catch(error) {
+        console.error(error);
       }
     }
     options: Platform.FolderDialog.ShowDirsOnly
+  }
+
+  Platform.FileDialog {
+    id: openLevelDialog
+    title: qsTr("A level selection")
+    folder: appState.levelsDir
+    nameFilters: [ qsTr("Level (*.level.json)") ]
+    onAccepted: {
+      appState.levelPath = openLevelDialog.file;
+      try {
+        const json = FileIO.loadJson(appState.levelPath);
+        const level = ProjectStructure.parseLevel(json);
+        sceneItems.children.forEach(function(sceneItem) {
+          sceneItem.clear();
+          const placement = level[sceneItem.name];
+          if (placement) {
+            sceneItem.setPlacement(placement);
+          }
+        });
+      } catch(error) {
+        console.error(error);
+      }
+    }
+  }
+
+  Platform.FileDialog {
+    id: newLevelDialog
+    title: qsTr("Choose a level name")
+    folder: appState.levelsDir
+    fileMode: Platform.FileDialog.SaveFile
+    nameFilters: [ qsTr("Level (*.level.json)") ]
+    onAccepted: {
+      let filePath = newLevelDialog.file;
+      const hasCorrectFileExtension = /.*\.level\.json$/m.test(filePath);
+      if (!hasCorrectFileExtension) {
+        filePath = Qt.resolvedUrl(`${filePath}.level.json`);
+      }
+      appState.levelPath = filePath;
+      sceneItems.children.forEach(function(sceneItem) {
+        sceneItem.clear();
+      });
+    }
   }
 }

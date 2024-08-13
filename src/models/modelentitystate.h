@@ -1,6 +1,5 @@
 #pragma once
 #include <QAbstractListModel>
-#include <functional>
 #include <vector>
 
 #include <src/types/entitymodel.h>

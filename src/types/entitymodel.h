@@ -43,4 +43,3 @@ public:
   EntityModelFactory(QObject* parent = Q_NULLPTR);
   Q_INVOKABLE EntityModel create();
 };
-

@@ -3,8 +3,11 @@ import QtQuick
 import QtQuick3D
 import QtQuick3D.AssetUtils
 
+import app
+
 Node {
   id: root
+  required property string name
   required property url source
   property vector3d ghostPosition
   property bool ghostShown: false
@@ -15,6 +18,18 @@ Node {
     }
   }
 
+  function createInstanceEntry(position: vector3d) {
+    const component = Qt.createComponent("QtQuick3D", "InstanceListEntry", Component.PreferSynchronous, null);
+    if (component.status === Component.Ready) {
+      const entry = component.createObject(null, { position });
+      instancesList.instances.push(entry);
+    } else if (component.status === Component.Error) {
+      const where = root.source;
+      const what = component.errorString();
+      console.error(`${where}: ${what}`);
+    }
+  }
+
   function addInstance(position: vector3d) {
     // Avoiding placing the same model at the same place
     for (const item of instancesList.instances) {
@@ -22,15 +37,7 @@ Node {
         return;
       }
     }
-    const component = Qt.createComponent("QtQuick3D", "InstanceListEntry", Component.PreferSynchronous, null);
-    if (component.status === Component.Ready) {
-      const instance = component.createObject(null, { position });
-      instancesList.instances.push(instance);
-    } else if (component.status === Component.Error) {
-      const where = root.source;
-      const what = component.errorString();
-      console.error(`${where}: ${what}`);
-    }
+    createInstanceEntry(position);
   }
 
   function removeInstanceByIndex(index: int) {
@@ -65,6 +72,25 @@ Node {
     for (const instance of instancesList.instances) {
       fn(instance);
     }
+  }
+
+  function getPlacement(): placement {
+    const placement = PlacementFactory.create();
+    placement.id = root.name;
+    placement.behaviour = "static";
+    instancesList.instances.forEach((instance) => placement.pushPosition(instance.position));
+    return placement;
+  }
+
+  function setPlacement(value: placement) {
+    const positions = value.getQmlPositions();
+    for (const position of positions) {
+      createInstanceEntry(position);
+    }
+  }
+
+  function clear() {
+    instancesList.instances = [];
   }
 
   InstanceList {

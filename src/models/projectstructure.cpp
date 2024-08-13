@@ -2,11 +2,13 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <algorithm>
 
 #include "src/types/entitymodel.h"
 
 #include "appstate.h"
 #include "modelentitystate.h"
+#include "placement.h"
 #include "projectstructure.h"
 
 ProjectStructure::ProjectStructure(QObject* parent)
@@ -15,13 +17,31 @@ ProjectStructure::ProjectStructure(QObject* parent)
 }
 
 QJsonObject
-toJson(AppState* appState, const EntityModel& value) {
+toJson(const AppState& appState, const EntityModel& value) {
   QJsonObject result;
-  QDir dir(appState->projectDir().toLocalFile());
+  QDir dir(appState.projectDir().toLocalFile());
   auto relativePath = dir.relativeFilePath(value.path().toString());
   result.insert("kind", "model");
   result.insert("path", relativePath);
   result.insert("is_opaque", value.isOpaque());
+  return result;
+}
+
+QJsonArray
+toJson(const AppState& appState, const Placement& value) {
+  QJsonArray result;
+  for (const auto& position: value.getPositions()) {
+    QJsonObject jsonPlacement;
+    jsonPlacement.insert("kind", "single");
+    jsonPlacement.insert("entity_id", value.id());
+    jsonPlacement.insert("bahaviour", value.behaviour());
+    QJsonArray jsonPosition;
+    jsonPosition.push_back(position.x());
+    jsonPosition.push_back(position.y());
+    jsonPosition.push_back(position.z());
+    jsonPlacement.insert("position", jsonPosition);
+    result.push_back(jsonPlacement);
+  }
   return result;
 }
 
@@ -65,37 +85,32 @@ checkObject(const QJsonObject& object, const QString& key)
   }
 }
 
+void
+checkArray(const QJsonObject& object, const QString& key)
+{
+  if (!object.contains(key)) {
+    return;
+  }
+  if (!object.value(key).isArray()) {
+    throw std::runtime_error(QString("The \"%1\" key is not an array").arg(key).toStdString());
+  }
+}
+
 void fromJson(const std::vector<EntityModel>& entities, ModelEntityState* modelEntityState)
 {
   modelEntityState->updateWholeModel(entities);
 }
 
-void
-ProjectStructure::save(AppState* appState, ModelEntityState* modelEntityState)
+QJsonValue
+ProjectStructure::entitiesToJson(AppState* appState, ModelEntityState* modelEntityState)
 {
   QJsonObject root;
   QJsonObject entities;
-
   for (auto& item : modelEntityState->internalData()) {
-    entities.insert(item.id(), toJson(appState, item));
+    entities.insert(item.id(), toJson(*appState, item));
   }
   root.insert("entities", entities);
-
-  QJsonDocument json {root};
-
-  auto levelsDir = QDir(appState->levelsDir().toLocalFile());
-  if (levelsDir.mkpath(".")) {
-    auto entitiesPath = levelsDir.filePath("./entities.json");
-    QFile entitiesFile {entitiesPath};
-    if (entitiesFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      entitiesFile.write(json.toJson());
-      entitiesFile.close();
-    } else {
-      qWarning() << QString("Can't create \"%1\" file").arg(entitiesPath);
-    }
-  } else {
-    qWarning() << QString("Can't create \"%1\" directory").arg(levelsDir.canonicalPath());
-  }
+  return root;
 }
 
 EntityModel fromJsonToEntityModel(const QJsonObject& value,
@@ -114,23 +129,9 @@ EntityModel fromJsonToEntityModel(const QJsonObject& value,
 }
 
 void
-ProjectStructure::load(AppState* appState, ModelEntityState* modelEntityState)
+ProjectStructure::populateEntities(const QJsonValue& json, AppState* appState, ModelEntityState* modelEntityState)
 {
-  auto levelsDir = QDir(appState->levelsDir().toLocalFile());
-  auto entitiesPath = levelsDir.filePath("./entities.json");
-  QJsonDocument doc;
-
-  QFile entitiesFile {entitiesPath};
-  if (entitiesFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    auto rawData = entitiesFile.readAll();
-    doc = QJsonDocument::fromJson(rawData);
-    entitiesFile.close();
-  } else {
-    qWarning() << QString("Can't read \"%1\" file").arg(entitiesPath);
-    return;
-  }
-
-  auto root = doc.object();
+  auto root = json.toObject();
   checkRequiredKey(root, "entities");
   checkObject(root, "entities");
   auto entities = root.value("entities").toObject();
@@ -146,4 +147,62 @@ ProjectStructure::load(AppState* appState, ModelEntityState* modelEntityState)
     }
   }
   modelEntityState->updateWholeModel(entityModelList);
+}
+
+QJsonValue
+ProjectStructure::levelToJson(AppState* appState, const QVariant& placedEntities)
+{
+  if (appState->levelPath().isEmpty()) {
+    qDebug() << "A level's file path was not specified";
+    return {};
+  }
+  QJsonArray map;
+  for (const auto& item : placedEntities.toList()) {
+    auto placement = item.value<Placement>();
+    auto placementArrayJson = toJson(*appState, placement);
+    std::ranges::copy(placementArrayJson, std::back_inserter(map));
+  }
+
+  QJsonObject camera;
+  camera.insert("position", QJsonArray {0, 0, 30});
+
+  QJsonObject root;
+  root.insert("map", map);
+  root.insert("camera", camera);
+
+  return root;
+}
+
+QVariant
+ProjectStructure::parseLevel(const QJsonValue& json)
+{
+  auto root = json.toObject();
+  checkRequiredKey(root, "map");
+  checkArray(root, "map");
+  auto map = root.value("map").toArray();
+  std::unordered_map<QString, Placement> placementBuffer;
+  for (const auto& item : map) {
+    auto jsonPlacement = item.toObject();
+    checkRequiredKey(jsonPlacement, "entity_id");
+    checkString(jsonPlacement, "entity_id");
+    auto id = jsonPlacement.value("entity_id").toString();
+    checkRequiredKey(jsonPlacement, "position");
+    checkArray(jsonPlacement, "position");
+    auto pos = jsonPlacement.value("position").toArray();
+    const QVector3D position(pos.at(0).toDouble(), pos.at(1).toDouble(), pos.at(2).toDouble());
+    if (placementBuffer.contains(id)) {
+      placementBuffer[id].pushPosition(position);
+    } else {
+      Placement placement;
+      placement.setId(id);
+      placement.setBehaviour("static");
+      placement.pushPosition(position);
+      placementBuffer[id] = placement;
+    }
+  }
+  QVariantMap result;
+  for (const auto& [id, placement] : placementBuffer) {
+    result[id] = QVariant::fromValue(placement);
+  }
+  return result;
 }

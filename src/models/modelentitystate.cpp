@@ -4,7 +4,6 @@
 #include <QUrl>
 #include <algorithm>
 #include <iterator>
-#include <ranges>
 
 #include "src/consts.h"
 

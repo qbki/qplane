@@ -1,4 +1,5 @@
 #pragma once
+#include <QJsonValue>
 #include <QObject>
 #include <QQmlEngine>
 
@@ -15,6 +16,9 @@ public:
   explicit ProjectStructure(QObject* parent = nullptr);
 
 public slots:
-  void save(AppState* appState, ModelEntityState* modelEntityState);
-  void load(AppState* appState, ModelEntityState* modelEntityState);
+  QJsonValue entitiesToJson(AppState* appState, ModelEntityState* modelEntityState);
+  void populateEntities(const QJsonValue& json, AppState* appState, ModelEntityState* modelEntityState);
+
+  QJsonValue levelToJson(AppState* appState, const QVariant& placedEntities);
+  QVariant parseLevel(const QJsonValue& json);
 };
