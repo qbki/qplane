@@ -10,6 +10,7 @@ class AppState : public QObject
   Q_PROPERTY(QUrl levelsDir READ levelsDir NOTIFY levelsDirChanged FINAL)
   Q_PROPERTY(QUrl levelsMetaPath READ levelsMetaPath NOTIFY levelsMetaPathChanged FINAL)
   Q_PROPERTY(QUrl levelPath READ levelPath WRITE setLevelPath NOTIFY levelPathChanged FINAL)
+  Q_PROPERTY(QUrl themePath READ themePath NOTIFY themePathChanged FINAL)
   Q_PROPERTY(QUrl modelsDir READ modelsDir NOTIFY modelsDirChanged FINAL)
   Q_PROPERTY(bool isProjectLoaded READ isProjectLoaded NOTIFY isProjectLoadedChanged FINAL)
   Q_PROPERTY(bool isLevelLoaded READ isLevelLoaded NOTIFY isLevelLoadedChanged FINAL)
@@ -25,6 +26,9 @@ public:
   QUrl levelPath() const;
   void setLevelPath(const QUrl &newLevelPath);
 
+  QUrl levelsMetaPath() const;
+  QUrl themePath() const;
+
   QUrl modelsDir() const;
   QUrl levelsDir() const;
 
@@ -33,7 +37,6 @@ public:
   bool isNewLevel() const;
   bool isLevelLoaded() const;
 
-  QUrl levelsMetaPath() const;
 
 signals:
   void projectDirChanged();
@@ -43,6 +46,7 @@ signals:
   void levelPathChanged();
   void isLevelLoadedChanged();
   void levelsMetaPathChanged();
+  void themePathChanged();
 
 private:
   QUrl m_projectDir;

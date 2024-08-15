@@ -127,11 +127,38 @@ Window {
     onTriggered: levelsModel.clear()
   }
 
+  Action {
+    id: closeAction
+    text: qsTr("Cancel")
+    onTriggered: root.close()
+  }
+
+  Action {
+    id: acceptAction
+    text: qsTr("Save and close")
+    onTriggered: {
+      onClicked: {
+        const levels = levelsModel
+          .toArray()
+          .map((value) => value.fileUrl)
+          .map((value) => FileIO.relativePath(root.projectFolderUrl, value));
+        try {
+          FileIO.saveJson(root.levelsMetaFileUrl, { levels });
+          root.close();
+        } catch(error) {
+          console.error(error);
+        }
+      }
+    }
+  }
+
   Pane {
     anchors.fill: parent
 
     ColumnLayout {
       anchors.fill: parent
+      anchors.margins: Theme.spacing(1)
+      spacing: Theme.spacing(2)
 
       Item {
         property real buttonsBlockWidth: Theme.spacing(14)
@@ -272,33 +299,10 @@ Window {
         }
       }
 
-      RowLayout {
+      FormAcceptButtonsGroup {
         Layout.fillWidth: true
-        Layout.topMargin: Theme.spacing(1)
-        Layout.bottomMargin: Theme.spacing(1)
-        Layout.alignment: Qt.AlignRight
-        spacing: Theme.spacing(1)
-
-        Button {
-          text: qsTr("Cancel")
-          onClicked: root.close()
-        }
-
-        Button {
-          text: qsTr("Save and close")
-          onClicked: {
-            const levels = levelsModel
-              .toArray()
-              .map((value) => value.fileUrl)
-              .map((value) => FileIO.relativePath(root.projectFolderUrl, value));
-            try {
-              FileIO.saveJson(root.levelsMetaFileUrl, { levels });
-              root.close();
-            } catch(error) {
-              console.error(error);
-            }
-          }
-        }
+        cancelAction: closeAction
+        acceptAction: acceptAction
       }
     }
   }

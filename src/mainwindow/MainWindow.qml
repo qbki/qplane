@@ -27,13 +27,21 @@ ApplicationWindow {
       MainMenuItem { action: openAssetsAction }
       MainMenuItem { action: saveAssetsAction }
     }
+
     Menu {
       title: qsTr("Level")
       enabled: appState.isProjectLoaded
 
       MainMenuItem { action: newLevelAction }
       MainMenuItem { action: openLevelAction }
-      MainMenuItem { action: openLevelsEditWindow }
+      MainMenuItem { action: openLevelsEditWindowAction }
+    }
+
+    Menu {
+      title: qsTr("Level")
+      enabled: appState.isProjectLoaded
+
+      MainMenuItem { action: openThemeEditWindowAction }
     }
   }
 
@@ -76,13 +84,24 @@ ApplicationWindow {
   }
 
   Action {
-    id: openLevelsEditWindow
+    id: openLevelsEditWindowAction
     text: qsTr("Edit levels order...")
     onTriggered: {
       if (!levelsEditWindowLoader.sourceComponent) {
         levelsEditWindowLoader.sourceComponent = levelsEditWindowComponent;
       }
       levelsEditWindowLoader.item.open();
+    }
+  }
+
+  Action {
+    id: openThemeEditWindowAction
+    text: qsTr("Edit theme...")
+    onTriggered: {
+      if (!themeEditWindowLoader.sourceComponent) {
+        themeEditWindowLoader.sourceComponent = themeEditWindowComponent;
+      }
+      themeEditWindowLoader.item.open();
     }
   }
 
@@ -285,20 +304,33 @@ ApplicationWindow {
 
   Component {
     id: levelsEditWindowComponent
+
     LevelsEditWindow {
       id: levelsEditWindow
       levelsMetaFileUrl: appState.levelsMetaPath
       projectFolderUrl: appState.projectDir
       levelsFolderUrl: appState.levelsDir
-
-      onClosing: {
-        levelsEditWindowLoader.sourceComponent = undefined
-      }
+      onClosing: levelsEditWindowLoader.sourceComponent = undefined
     }
   }
 
   Loader {
     id: levelsEditWindowLoader
+    sourceComponent: undefined
+  }
+
+  Component {
+    id: themeEditWindowComponent
+
+    ThemeEditWindow {
+      themePathUrl: appState.themePath
+      projectFolderUrl: appState.projectDir
+      onClosing: themeEditWindowLoader.sourceComponent = undefined
+    }
+  }
+
+  Loader {
+    id: themeEditWindowLoader
     sourceComponent: undefined
   }
 

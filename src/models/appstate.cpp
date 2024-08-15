@@ -96,3 +96,8 @@ AppState::levelsMetaPath() const
 {
   return levelsDir().resolved(PROJECT_LEVELS_META_FILE);
 }
+
+QUrl AppState::themePath() const
+{
+  return levelsDir().resolved(PROJECT_THEME_FILE);
+}

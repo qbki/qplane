@@ -21,7 +21,7 @@ Window {
   title: qsTr("Edit a model")
   modality: Qt.WindowModal
   minimumWidth: 640
-  minimumHeight: 240
+  minimumHeight: 480
 
   function open(initialData: entityModel) {
     idField.text = initialData.id;
@@ -31,13 +31,35 @@ Window {
     root.show();
   }
 
+  Action {
+    id: cancelAction
+    text: qsTr("Cancel")
+    onTriggered: {
+      root.canceled();
+      root.close();
+    }
+  }
+
+  Action {
+    id: acceptAction
+    text: qsTr("Ok")
+    onTriggered: {
+      const newEntityModel = EntityModelFactory.create();
+      newEntityModel.id = idField.text;
+      newEntityModel.path = pathField.text;
+      newEntityModel.isOpaque = isOpaqueField.checkState === Qt.Checked;
+      root.accepted(newEntityModel, store.initialData);
+      root.close();
+    }
+  }
+
   Pane {
     anchors.fill: parent
 
     ColumnLayout {
       anchors.fill: parent
-      anchors.margins: Theme.spacing(2)
-      spacing: Theme.spacing(1)
+      anchors.margins: Theme.spacing(1)
+      spacing: Theme.spacing(3)
 
       FormTextInput {
         id: idField
@@ -56,33 +78,14 @@ Window {
         label: qsTr("Is a model opaque?")
       }
 
-      RowLayout {
-        spacing: Theme.spacing(1)
+      Item {
+        Layout.fillHeight: true
+      }
+
+      FormAcceptButtonsGroup {
         Layout.fillWidth: true
-
-        Item {
-          Layout.fillWidth: true
-        }
-
-        Button {
-          text: qsTr("Cancel")
-          onClicked: {
-            root.canceled();
-            root.close();
-          }
-        }
-
-        Button {
-          text: qsTr("Ok")
-          onClicked: {
-            const newEntityModel = EntityModelFactory.create();
-            newEntityModel.id = idField.text;
-            newEntityModel.path = pathField.text;
-            newEntityModel.isOpaque = isOpaqueField.checkState === Qt.Checked;
-            root.accepted(newEntityModel, store.initialData);
-            root.close();
-          }
-        }
+        cancelAction: cancelAction
+        acceptAction: acceptAction
       }
     }
   }

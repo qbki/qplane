@@ -79,6 +79,21 @@ QUrl FileIO::absolutePath(const QUrl &dir, const QUrl &path) const
   return dir.resolved(path);
 }
 
+QUrl FileIO::toUrl(const QString &path) const
+{
+  return {path};
+}
+
+QString FileIO::toLocalFile(const QUrl &path) const
+{
+  return path.toLocalFile();
+}
+
+QUrl FileIO::fromLocalFile(const QString &path) const
+{
+  return QUrl::fromLocalFile(path);
+}
+
 void
 FileIO::throwJSError(const QString &message) const
 {
