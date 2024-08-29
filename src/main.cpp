@@ -2,14 +2,16 @@
 #include <QQmlApplicationEngine>
 #include <QRect>
 
+#include "types/entityactor.h"
 #include "types/entitymodel.h"
-#include "types/placement.h"
+#include "types/positionstrategymany.h"
 
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
 
+  qRegisterMetaType<EntityActor>();
   qRegisterMetaType<EntityModel>();
-  qRegisterMetaType<Placement>();
+  qRegisterMetaType<PositionStrategyMany>();
 
   QQmlApplicationEngine engine;
   engine.loadFromModule("app", "MainWindow");

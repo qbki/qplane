@@ -8,15 +8,7 @@ import app
 Node {
   id: root
   required property string name
-  required property url source
-  property vector3d ghostPosition
-  property bool ghostShown: false
-
-  function addInstanceByGhostPos() {
-    if (ghostPosition) {
-      addInstance(ghostPosition);
-    }
-  }
+  property alias source: loader.source
 
   function createInstanceEntry(position: vector3d) {
     const component = Qt.createComponent("QtQuick3D", "InstanceListEntry", Component.PreferSynchronous, null);
@@ -41,7 +33,9 @@ Node {
   }
 
   function removeInstanceByIndex(index: int) {
-    instancesList.instances.splice(index, 1);
+    if (index >= 0 && index < instancesList.instanceCount) {
+      instancesList.instances.splice(index, 1);
+    }
   }
 
   function setPickable(obj) {
@@ -64,8 +58,8 @@ Node {
     return result;
   }
 
-  function containsModel(obj: Model): bool {
-    return getModels(instancingRoot).some((v) => v === obj);
+  function containsModel(model: Model): bool {
+    return getModels(loader).some((v) => (v === model));
   }
 
   function eachInstance(fn) {
@@ -74,16 +68,15 @@ Node {
     }
   }
 
-  function getPlacement(): placement {
-    const placement = PlacementFactory.create();
-    placement.id = root.name;
-    placement.behaviour = "static";
-    instancesList.instances.forEach((instance) => placement.pushPosition(instance.position));
-    return placement;
+  function getPositionStrategy(): positionStrategyMany {
+    const strategy = PositionStrategyManyFactory.create();
+    strategy.entity_id = root.name;
+    strategy.behaviour = "static";
+    strategy.positions = instancesList.instances.map((instance) => instance.position);
+    return strategy;
   }
 
-  function setPlacement(value: placement) {
-    const positions = value.getQmlPositions();
+  function addPositions(positions) {
     for (const position of positions) {
       createInstanceEntry(position);
     }
@@ -93,6 +86,10 @@ Node {
     instancesList.instances = [];
   }
 
+  function isEmpty() {
+    return instancesList.instanceCount === 0;
+  }
+
   InstanceList {
     id: instancesList
     instances: [
@@ -100,8 +97,7 @@ Node {
   }
 
   RuntimeLoader {
-    id: instancingRoot
-    source: root.source
+    id: loader
     instancing: instancesList
     onStatusChanged: {
       if (status === RuntimeLoader.Error) {
@@ -110,18 +106,6 @@ Node {
     }
     onBoundsChanged: {
       setPickable(this);
-    }
-  }
-
-  RuntimeLoader {
-    source: root.source
-    visible: root.ghostShown
-    position: root.ghostPosition
-    opacity: 0.3
-    onStatusChanged: {
-      if (status === RuntimeLoader.Error) {
-        console.error(errorString);
-      }
     }
   }
 }

@@ -8,8 +8,9 @@ import app
 
 Window {
   property url modelsDir
+  property url projectDir
 
-  Item {
+  QtObject {
     id: store
     property entityModel initialData
   }
@@ -25,8 +26,8 @@ Window {
 
   function open(initialData: entityModel) {
     idField.text = initialData.id;
-    pathField.text = initialData.path;
-    isOpaqueField.checkState = initialData.isOpaque ? Qt.Checked : Qt.Unchecked;
+    pathField.value = initialData.path;
+    isOpaqueField.checkState = initialData.is_opaque ? Qt.Checked : Qt.Unchecked;
     store.initialData = initialData;
     root.show();
   }
@@ -46,7 +47,7 @@ Window {
     onTriggered: {
       const newEntityModel = EntityModelFactory.create();
       newEntityModel.id = idField.text;
-      newEntityModel.path = pathField.text;
+      newEntityModel.path = pathField.value;
       newEntityModel.isOpaque = isOpaqueField.checkState === Qt.Checked;
       root.accepted(newEntityModel, store.initialData);
       root.close();
@@ -67,10 +68,17 @@ Window {
         Layout.fillWidth: true
       }
 
-      FormTextInput {
+      FormFilesComboBoxInput {
         id: pathField
         label: qsTr("Path to a *.glb model")
+        folder: modelsDir
+        rootDir: projectDir
         Layout.fillWidth: true
+        onValueChanged: {
+          if (idField.text === "" && !!pathField.value) {
+            idField.text = FileIO.fileName(pathField.value).replace(/.glb$/, "");
+          }
+        }
       }
 
       FormCheckBoxInput {
@@ -86,21 +94,6 @@ Window {
         Layout.fillWidth: true
         cancelAction: cancelAction
         acceptAction: acceptAction
-      }
-    }
-  }
-
-  Platform.FileDialog {
-    id: fileDilog
-    title: qsTr("A 3D model selection")
-    folder: modelsDir
-    nameFilters: [ qsTr("glTF (*.glb)") ]
-    onAccepted: {
-      appState.projectDir = folder;
-      if (appState.isModelsDirExists) {
-        modelEntityState.populateFromDir(appState.modelsDir);
-      } else {
-        console.error("\"models\" directory doesn't exists");
       }
     }
   }

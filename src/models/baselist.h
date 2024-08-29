@@ -15,6 +15,7 @@ public:
                int role = Qt::EditRole);
 
   std::vector<T>& getData();
+  const std::vector<T>& getData() const;
 
 public slots:
   void push(const T& value);
@@ -68,6 +69,13 @@ BaseList<T>::setData(const QModelIndex& index, const QVariant& value, int role)
 template<typename T>
 std::vector<T>&
 BaseList<T>::getData()
+{
+  return m_data;
+}
+
+template<typename T>
+const std::vector<T>&
+BaseList<T>::getData() const
 {
   return m_data;
 }

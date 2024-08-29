@@ -65,9 +65,9 @@ ModelEntityState::populateFromDir(const QUrl& dirPath) {
     auto modelName = filePath.fileName().replace(".glb", "");
     auto modelId = QString("model-%1").arg(modelName);
     EntityModel model;
-    model.setId(modelId);
-    model.setPath({filePath});
-    model.setIsOpaque(true);
+    model.set_id(modelId);
+    model.set_path({filePath});
+    model.set_is_opaque(true);
     m_data.push(model);
   }
   endResetModel();

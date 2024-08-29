@@ -9,15 +9,17 @@ import QtQuick3D
 import QtQuick3D.Helpers
 import QtQuick3D.AssetUtils
 
-import "../components"
+import "../jsutils/utils.mjs" as JS
 import app
 
 ApplicationWindow {
-  property SceneItem currentSceneItem
-  property vector3d ghostPosition
-  property entityModel test
+  property url ghostUrl: ""
+  property vector3d ghostPosition: Qt.vector3d(0, 0, 0)
+  property var addInstance: JS.noop
+  property var removeInstance: JS.noop
+  property var sceneItemsMap: JS.id({})
 
-  title: appState.isProjectLoaded ? `QPlane: ${appState.projectLocalDir()}` : "QPlane"
+  id: root
   visible: true
   visibility: ApplicationWindow.Maximized
   menuBar: MenuBar {
@@ -38,7 +40,7 @@ ApplicationWindow {
     }
 
     Menu {
-      title: qsTr("Level")
+      title: qsTr("Theme")
       enabled: appState.isProjectLoaded
 
       MainMenuItem { action: openThemeEditWindowAction }
@@ -59,14 +61,48 @@ ApplicationWindow {
     shortcut: StandardKey.Save
     onTriggered: {
       if (appState.isProjectLoaded) {
-        const json = ProjectStructure.entitiesToJson(appState, modelEntityState);
-        console.log(JSON.stringify(json, null, 2));
-        FileIO.saveJson(appState.levelsDir + "/entities.json", json);
+        const modelsJson = entityModelStore.toArray()
+          .map((value) => [value.id, EntityModelFactory.toJson(value, appState.projectDir)]);
+        const actorsJson = entityActorStore.toArray()
+          .map((value) => [value.id, EntityActorFactory.toJson(value)]);
+        const entities = [
+          ...modelsJson,
+          ...actorsJson,
+        ].reduce((acc, [id, value]) => {
+          acc[id] = value;
+          return acc;
+        }, {});
+        // TODO: Placeholder, it should be removed after implementation of light entity.
+        //       But I need it here for testing new features with the plane engine.
+        entities["sun_light"] = {
+          kind: "directional_light",
+          color: [1, 1, 1],
+          direction: [-0.8, -0.8, -1.0]
+        };
+        FileIO.saveJson(appState.levelsDir + "/entities.json", { entities });
       }
       if (appState.isLevelLoaded) {
-        const entities = sceneItems.children.map((child) => child.getPlacement());
-        const json = ProjectStructure.levelToJson(appState, entities);
-        FileIO.saveJson(appState.levelPath, json);
+        // TODO: Placeholder, it should be removed after implementation of a camera screen (or its substitution).
+        //       But I need it here for testing new features with the plane engine.
+        const camera = {
+          "position": [0.0, 0.0, 30.0]
+        };
+        const statics = sceneModelItems.children
+          .filter((child) => !child.isEmpty())
+          .map((child) => PositionStrategyManyFactory.toJson(child.getPositionStrategy()));
+        const actors = sceneActorItems.children
+          .filter((child) => !child.isEmpty())
+          .map((child) => PositionStrategyManyFactory.toJson(child.getPositionStrategy()))
+          .map((strategy) => {
+            strategy.behaviour = "player";
+            return strategy;
+          });
+        const light = {
+          kind: "void",
+          behaviour: "light",
+          entity_id: "sun_light"
+        };
+        FileIO.saveJson(appState.levelPath, { camera, map: [...statics, ...actors, light] });
       }
     }
   }
@@ -105,12 +141,30 @@ ApplicationWindow {
     }
   }
 
-  ModelEntityState {
-    id: modelEntityState
+  GadgetListModel {
+    id: entityModelStore
+
+    function getById(id) {
+      const index = entityModelStore.findIndex((v) => v.id === id);
+      return entityModelStore.data(index, "display");
+    }
+  }
+
+  GadgetListModel {
+    id: entityActorStore
   }
 
   AppState {
+    property string name: "QPlane"
+
     id: appState
+    onLevelPathChanged: {
+      const relativeLevelPath = FileIO.relativePath(appState.projectDir, appState.levelPath);
+      root.title = `${appState.name}: ${relativeLevelPath}`;
+    }
+    Component.onCompleted: {
+      root.title = appState.name
+    }
   }
 
   SplitView {
@@ -149,35 +203,18 @@ ApplicationWindow {
                            pos.z);
       }
 
-      function areStrsEqual(a: string, b: string): bool {
-        return a.localeCompare(b) === 0;
-      }
-
-      function isGhostShown(model) {
-        return areStrsEqual(modelEntityState.selectedModel, model.display.path);
-      }
-
       MouseArea {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        onMouseXChanged: ghostPosition = view.getPlacingPosition()
-        onMouseYChanged: ghostPosition = view.getPlacingPosition()
-        onPressed: {
-          if (currentSceneItem) {
-            currentSceneItem.addInstanceByGhostPos();
-          }
-        }
+        onMouseXChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
+        onMouseYChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
+        onPressed: root.addInstance()
       }
 
       Keys.onPressed: function(event) {
         if (event.key === Qt.Key_X) {
-          const objects = pickSceneObjects()
-            .filter((v) => v.objectHit !== intersectionPlane)
-            .filter((v) => currentSceneItem.containsModel(v.objectHit));
-          if (objects.length > 0) {
-            currentSceneItem.removeInstanceByIndex(objects[0].instanceIndex);
-          }
+          root.removeInstance();
           event.accepted = true;
         }
       }
@@ -204,19 +241,33 @@ ApplicationWindow {
       }
 
       Repeater3D {
-        id: sceneItems
-        model: modelEntityState
+        id: sceneModelItems
+        model: entityModelStore
 
         SceneItem {
           required property var model
+
+          id: modelItem
           name: model.display.id
-          ghostPosition: view.getGridAlignedPlacingPosition()
-          ghostShown: view.isGhostShown(model)
           source: model.display.path
-          onGhostShownChanged: {
-            if (this.ghostShown) {
-              currentSceneItem = this;
-            }
+          Component.onCompleted: {
+            root.sceneItemsMap[model.display.id] = modelItem;
+          }
+        }
+      }
+
+      Repeater3D {
+        id: sceneActorItems
+        model: entityActorStore
+
+        SceneItem {
+          required property var model
+
+          id: actorItem
+          name: model.display.id
+          source: entityModelStore.getById(model.display.model_id).path
+          Component.onCompleted: {
+            root.sceneItemsMap[model.display.id] = actorItem;
           }
         }
       }
@@ -227,10 +278,15 @@ ApplicationWindow {
         materials: PrincipledMaterial { opacity: 0 }
         pickable: true
       }
+
+      SceneGhost {
+        source: root.ghostUrl
+        position: root.ghostPosition
+      }
     }
 
     Frame {
-      id: frame
+      id: roster
       SplitView.fillWidth: true
       SplitView.fillHeight: true
       SplitView.preferredWidth: Theme.spacing(25)
@@ -238,6 +294,39 @@ ApplicationWindow {
       SplitView.maximumWidth: Theme.spacing(50)
       padding: 0
       clip: true
+
+      function updateEntity(entitiesStore, newEntity, oldEntity) {
+        const index = entitiesStore.findIndex((storedEntity) => storedEntity.id === oldEntity.id);
+        if (index.valid) {
+          entitiesStore.setData(index, newEntity);
+        } else {
+          console.error("Invalid index");
+        }
+      }
+
+      function makeEntityUpdater(entitiesStore) {
+        return JS.partial(updateEntity, entitiesStore);
+      }
+
+      function openEntityActorEditWindow(entity: entityActor) {
+        if (!entityActorEditWindowLoader.sourceComponent) {
+          entityActorEditWindowLoader.sourceComponent = entityActorEditWindowComponent;
+        }
+        entityActorEditWindowLoader.item.open(entity);
+      }
+
+      function openEntityModelEditWindow(entity: entityModel) {
+        if (!entityModelEditWindowLoader.sourceComponent) {
+          entityModelEditWindowLoader.sourceComponent = entityModelEditWindowComponent;
+        }
+        entityModelEditWindowLoader.item.open(entity);
+      }
+
+      function clearSelection() {
+        root.addInstance = JS.noop;
+        entityActorListView.currentIndex = -1;
+        modelGroupBox.clearSelection();
+      }
 
       Flickable {
         anchors.fill: parent
@@ -249,40 +338,159 @@ ApplicationWindow {
 
         ColumnLayout {
           id: rootLayout
+          anchors.fill: parent
           spacing: Theme.spacing(1)
 
-          ColumnLayout {
-            spacing: 0
+          GroupBox {
+            id: entityActorBlock
+            title: qsTr("Actors")
+            Layout.fillWidth: true
 
-            Label {
-              text: qsTr("Models")
+            component ActorDelegate: Label {
+              required property int index
+              required property var model
+              property entityActor modelData: model.display
+
+              Layout.fillWidth: true
+              Layout.fillHeight: true
+              text: modelData.id
+              font.pointSize: 16
+
+              MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.AllButtons
+                onClicked: function(event) {
+                  if (event.button === Qt.LeftButton) {
+                    roster.clearSelection();
+                    entityActorListView.currentIndex = index;
+                    const foundEntity = entityModelStore.getById(parent.modelData.model_id);
+                    const sceneItem = root.sceneItemsMap[parent.modelData.id];
+                    if (foundEntity && sceneItem) {
+                      root.ghostUrl = foundEntity.path;
+                      root.addInstance = () => {
+                        sceneItem.addInstance(root.ghostPosition);
+                      };
+                      root.removeInstance = () => {
+                        view.pickSceneObjects()
+                          .filter((v) => sceneItem.containsModel(v.objectHit))
+                          .forEach((v) => sceneItem.removeInstanceByIndex(v.instanceIndex));
+                      };
+                    }
+                  } else if (event.button === Qt.RightButton) {
+                    roster.openEntityActorEditWindow(modelData);
+                    const updateActor = roster.makeEntityUpdater(entityActorStore);
+                    JS.fireOnce(entityActorEditWindowLoader.item.accepted, updateActor);
+                  }
+                }
+              }
             }
 
-            Grid {
+            ListView {
+              id: entityActorListView
+              model: entityActorStore
+              anchors.fill: parent
+              highlight: Highlight {}
+              delegate: ActorDelegate {}
+            }
+
+            ActorDelegate {
+              id: actorDelegateParamsDonor
+              index: -1
+              model: JS.id({ display: EntityActorFactory.create() })
+              visible: false
+            }
+
+            Connections {
+              target: entityActorStore
+              function onModelReset() {
+                entityActorBlock.Layout.preferredHeight = (
+                  entityActorStore.rowCount() * actorDelegateParamsDonor.height
+                  + entityActorBlock.implicitLabelHeight
+                  + 2 * entityActorBlock.horizontalPadding
+                  + entityActorBlock.spacing
+                );
+              }
+            }
+          }
+
+          Button {
+            text: qsTr("Add Actor")
+            onClicked: {
+              roster.openEntityActorEditWindow(EntityActorFactory.create());
+              const addActor = (entity) => entityActorStore.append(entity);
+              JS.fireOnce(entityActorEditWindowLoader.item.accepted, addActor);
+            }
+          }
+
+          GroupBox {
+            id: modelGroupBox
+            title: qsTr("Models")
+            Layout.fillWidth: true
+
+            function clearSelection() {
+              for (const child of modelLayout.children) {
+                if ("selected" in child) {
+                  child.selected = false;
+                }
+              };
+            }
+
+            GridLayout {
+              id: modelLayout
               columns: 2
-              spacing: 1
+              rowSpacing: 1
+              columnSpacing: 1
+              uniformCellWidths: true
+              uniformCellHeights: true
+              anchors.right: parent.right
+              anchors.left: parent.left
 
               Repeater {
-                anchors.fill: parent
-                model: modelEntityState
+                id: entityModelRepeater
+                model: entityModelStore
 
                 EntityModelItem {
                   required property var model
+                  property entityModel modelData: model.display
                   id: item
-                  name: model.display.id
-                  width: frame.width / 2 - 1
-                  height: frame.width / 2 - 1
-                  source: model.display.path
-                  selected: view.areStrsEqual(modelEntityState.selectedModel, model.display.path)
+                  name: modelData.id
+                  Layout.fillWidth: true
+                  Layout.preferredHeight: modelGroupBox.width / 2
+                  source: modelData.path
+                  selected: false
                   onClicked: function(event) {
                     if (event.button === Qt.LeftButton) {
-                      modelEntityState.selectedModel = item.source;
+                      roster.clearSelection();
+                      item.selected = true;
+                      root.ghostUrl = modelData.path;
+                      const sceneItem = root.sceneItemsMap[modelData.id];
+                      if (sceneItem) {
+                        root.addInstance = () => {
+                          sceneItem.addInstance(root.ghostPosition);
+                        }
+                        root.removeInstance = () => {
+                          view.pickSceneObjects()
+                            .filter((v) => sceneItem.containsModel(v.objectHit))
+                            .forEach((v) => sceneItem.removeInstanceByIndex(v.instanceIndex));
+                        };
+                      }
                     } else if (event.button === Qt.RightButton) {
-                      entityModelEditWindow.open((model.display));
+                      roster.openEntityModelEditWindow(modelData);
+                      const updateModel = roster.makeEntityUpdater(entityModelStore);
+                      JS.fireOnce(entityModelEditWindowLoader.item.accepted, updateModel);
                     }
                   }
                 }
               }
+            }
+          }
+
+          Button {
+            text: qsTr("Add Model")
+            onClicked: {
+              roster.openEntityModelEditWindow(EntityModelFactory.create());
+              const addModel = (entity) => entityModelStore.append(entity);
+              JS.fireOnce(entityModelEditWindowLoader.item.accepted, addModel);
             }
           }
         }
@@ -290,23 +498,41 @@ ApplicationWindow {
     }
   }
 
-  EntityModelEditWindow {
-    id: entityModelEditWindow
-    onAccepted: function(newEntityModel, originalEntityModel) {
-      const idx = modelEntityState.findIndexById(originalEntityModel.id);
-      if (idx.valid) {
-        modelEntityState.setData(idx, newEntityModel);
-      } else {
-        console.error("Can't update the \"Entity Model\" model state. An item is not found")
-      }
+  Component {
+    id: entityModelEditWindowComponent
+
+    EntityModelEditWindow {
+      id: entityModelEditWindow
+      modelsDir: appState.modelsDir
+      projectDir: appState.projectDir
+      onClosing: entityModelEditWindowLoader.sourceComponent = undefined
     }
+  }
+
+  Loader {
+    id: entityModelEditWindowLoader
+    sourceComponent: undefined
+  }
+
+  Component {
+    id: entityActorEditWindowComponent
+
+    EntityActorEditWindow {
+      id: entityActorEditWindow
+      modelsList: entityModelStore.toArray().map((v) => v.id)
+      onClosing: entityActorEditWindowLoader.sourceComponent = undefined
+    }
+  }
+
+  Loader {
+    id: entityActorEditWindowLoader
+    sourceComponent: undefined
   }
 
   Component {
     id: levelsEditWindowComponent
 
     LevelsEditWindow {
-      id: levelsEditWindow
       levelsMetaFileUrl: appState.levelsMetaPath
       projectFolderUrl: appState.projectDir
       levelsFolderUrl: appState.levelsDir
@@ -340,8 +566,25 @@ ApplicationWindow {
     onAccepted: {
       appState.projectDir = folder;
       try {
-        const entitiesJson = FileIO.loadJson(appState.levelsDir + "/entities.json");
-        ProjectStructure.populateEntities(entitiesJson, appState, modelEntityState);
+        const { entities } = FileIO.loadJson(appState.levelsDir + "/entities.json");
+        for (const [id, value] of Object.entries(entities)) {
+          const mapping = {
+            "model": () => {
+              const entity = EntityModelFactory.fromJson(id, value, appState.projectDir);
+              entityModelStore.append(entity);
+            },
+            "actor": () => {
+              const entity = EntityActorFactory.fromJson(id, value);
+              entityActorStore.append(entity);
+            }
+          }
+          const handler = mapping[value.kind];
+          if (handler) {
+            handler();
+          } else {
+            console.warn(`Unknown kind: ${value.kind}`);
+          }
+        }
       } catch(error) {
         console.error(error);
       }
@@ -358,14 +601,17 @@ ApplicationWindow {
       appState.levelPath = openLevelDialog.file;
       try {
         const json = FileIO.loadJson(appState.levelPath);
-        const level = ProjectStructure.parseLevel(json);
-        sceneItems.children.forEach(function(sceneItem) {
-          sceneItem.clear();
-          const placement = level[sceneItem.name];
-          if (placement) {
-            sceneItem.setPlacement(placement);
+
+        const scene = [
+          ...sceneModelItems.children,
+          ...sceneActorItems.children
+        ].reduce(JS.reduceToObjectByField("name"), {});
+        for (const strategyJson of json.map) {
+          if (strategyJson.kind === "many") {
+            const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
+            scene[strategy.entity_id]?.addPositions(strategy.positions);
           }
-        });
+        }
       } catch(error) {
         console.error(error);
       }
@@ -385,7 +631,7 @@ ApplicationWindow {
         filePath = Qt.resolvedUrl(`${filePath}.level.json`);
       }
       appState.levelPath = filePath;
-      sceneItems.children.forEach(function(sceneItem) {
+      sceneModelItems.children.forEach(function(sceneItem) {
         sceneItem.clear();
       });
     }

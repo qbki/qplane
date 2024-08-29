@@ -79,6 +79,11 @@ QUrl FileIO::absolutePath(const QUrl &dir, const QUrl &path) const
   return dir.resolved(path);
 }
 
+QString FileIO::fileName(const QUrl &path) const
+{
+  return path.fileName();
+}
+
 QUrl FileIO::toUrl(const QString &path) const
 {
   return {path};

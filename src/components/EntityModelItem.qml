@@ -20,6 +20,10 @@ Item {
     id: hover
   }
 
+  SystemPalette {
+    id: palette
+  }
+
   MouseArea {
     id: mouseArea
     anchors.fill: parent
@@ -94,7 +98,7 @@ Item {
     color: "transparent"
     width: root.width
     height: root.height
-    border.color: "green"
+    border.color: palette.highlight
     border.width: Theme.spacing(0.5)
   }
 }

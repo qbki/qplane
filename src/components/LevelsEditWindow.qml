@@ -28,10 +28,6 @@ Window {
   minimumWidth: 640
   minimumHeight: 480
 
-  SystemPalette {
-    id: palette
-  }
-
   FolderListModel {
     id: candidatesModel
     showDirs: false
@@ -75,10 +71,6 @@ Window {
     function getIndexById(id) {
       return levelsModel.toArray().findIndex((item) => item.id === id);
     }
-  }
-
-  component HighlightComponent: Rectangle {
-    color: palette.highlight
   }
 
   component LevelItem: Label {
@@ -180,7 +172,7 @@ Window {
             anchors.fill: parent
             model: candidatesModel
             focus: true
-            highlight: HighlightComponent {}
+            highlight: Highlight {}
             clip: true
             delegate: LevelItem {
               MouseArea {
@@ -248,7 +240,7 @@ Window {
             model: levelsModel
             focus: true
             clip: true
-            highlight: HighlightComponent {}
+            highlight: Highlight {}
             highlightFollowsCurrentItem: true
             highlightMoveDuration: 300
             delegate: LevelItem {

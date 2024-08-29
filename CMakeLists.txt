@@ -22,7 +22,6 @@ include_directories(
 # find_package and target_link_libraries were taken from vcpkg's install log
 find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Gui CONFIG REQUIRED)
-find_package(Qt6Widgets CONFIG REQUIRED)
 
 find_package(Qt6Qml CONFIG REQUIRED)
 find_package(Qt6QmlBuiltins CONFIG REQUIRED)
@@ -82,7 +81,6 @@ qt_add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Core Qt6::Core Qt::CorePrivate Qt6::CorePrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Gui Qt6::Gui Qt::GuiPrivate Qt6::GuiPrivate)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Widgets Qt6::Widgets Qt::WidgetsPrivate Qt6::WidgetsPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::PacketProtocolPrivate Qt6::PacketProtocolPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Qml Qt6::Qml Qt::QmlPrivate Qt6::QmlPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlBuiltins Qt6::QmlBuiltins Qt::QmlBuiltinsPrivate Qt6::QmlBuiltinsPrivate)
@@ -140,24 +138,34 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils Qt6::Quick3DUtils
 qt_add_qml_module(${PROJECT_NAME}
   URI app
   QML_FILES
+    src/components/EntityActorEditWindow.qml
     src/components/EntityModelEditWindow.qml
     src/components/EntityModelItem.qml
+    src/components/Highlight.qml
     src/components/LevelsEditWindow.qml
     src/components/MainMenuItem.qml
+    src/components/SceneGhost.qml
     src/components/SceneItem.qml
     src/components/ThemeEditWindow.qml
     src/components/form/FormAcceptButtonsGroup.qml
     src/components/form/FormCheckBoxInput.qml
+    src/components/form/FormComboBoxInput.qml
+    src/components/form/FormFilesComboBoxInput.qml
     src/components/form/FormTextInput.qml
     src/mainwindow/MainWindow.qml
+  QML_FILES
+    src/jsutils/utils.mjs
   SOURCES
     src/consts.h
     src/models/appstate.h src/models/appstate.cpp
     src/models/baselist.h
     src/models/fileio.h src/models/fileio.cpp
+    src/models/gadgetlistmodel.h src/models/gadgetlistmodel.cpp
     src/models/modelentitystate.h src/models/modelentitystate.cpp
-    src/models/projectstructure.h src/models/projectstructure.cpp
     src/models/theme.h src/models/theme.cpp
+    src/models/transformmodel.h src/models/transformmodel.cpp
+    src/types/entityactor.h src/types/entityactor.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
-    src/types/placement.h src/types/placement.cpp
+    src/types/positionstrategymany.h src/types/positionstrategymany.cpp
+    src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp
 )

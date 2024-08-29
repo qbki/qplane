@@ -20,6 +20,7 @@ public:
   Q_INVOKABLE void saveJson(const QUrl& fileUrl, const QJsonValue& json) const;
   Q_INVOKABLE QString relativePath(const QUrl& dir, const QUrl& path) const;
   Q_INVOKABLE QUrl absolutePath(const QUrl& dir, const QUrl& path) const;
+  Q_INVOKABLE QString fileName(const QUrl& path) const;
   Q_INVOKABLE QUrl toUrl(const QString& path) const;
   Q_INVOKABLE QString toLocalFile(const QUrl& path) const;
   Q_INVOKABLE QUrl fromLocalFile(const QString& path) const;
