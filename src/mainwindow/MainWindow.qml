@@ -122,23 +122,13 @@ ApplicationWindow {
   Action {
     id: openLevelsEditWindowAction
     text: qsTr("Edit levels order...")
-    onTriggered: {
-      if (!levelsEditWindowLoader.sourceComponent) {
-        levelsEditWindowLoader.sourceComponent = levelsEditWindowComponent;
-      }
-      levelsEditWindowLoader.item.open();
-    }
+    onTriggered: levelsEditWindow.open()
   }
 
   Action {
     id: openThemeEditWindowAction
     text: qsTr("Edit theme...")
-    onTriggered: {
-      if (!themeEditWindowLoader.sourceComponent) {
-        themeEditWindowLoader.sourceComponent = themeEditWindowComponent;
-      }
-      themeEditWindowLoader.item.open();
-    }
+    onTriggered: themeEditWindow.open()
   }
 
   GadgetListModel {
@@ -308,20 +298,6 @@ ApplicationWindow {
         return JS.partial(updateEntity, entitiesStore);
       }
 
-      function openEntityActorEditWindow(entity: entityActor) {
-        if (!entityActorEditWindowLoader.sourceComponent) {
-          entityActorEditWindowLoader.sourceComponent = entityActorEditWindowComponent;
-        }
-        entityActorEditWindowLoader.item.open(entity);
-      }
-
-      function openEntityModelEditWindow(entity: entityModel) {
-        if (!entityModelEditWindowLoader.sourceComponent) {
-          entityModelEditWindowLoader.sourceComponent = entityModelEditWindowComponent;
-        }
-        entityModelEditWindowLoader.item.open(entity);
-      }
-
       function clearSelection() {
         root.addInstance = JS.noop;
         entityActorListView.currentIndex = -1;
@@ -377,9 +353,9 @@ ApplicationWindow {
                       };
                     }
                   } else if (event.button === Qt.RightButton) {
-                    roster.openEntityActorEditWindow(modelData);
+                    entityActorEditWindow.open(modelData)
                     const updateActor = roster.makeEntityUpdater(entityActorStore);
-                    JS.fireOnce(entityActorEditWindowLoader.item.accepted, updateActor);
+                    JS.fireOnce(entityActorEditWindow.accepted, updateActor);
                   }
                 }
               }
@@ -416,9 +392,9 @@ ApplicationWindow {
           Button {
             text: qsTr("Add Actor")
             onClicked: {
-              roster.openEntityActorEditWindow(EntityActorFactory.create());
+              entityActorEditWindow.open(EntityActorFactory.create());
               const addActor = (entity) => entityActorStore.append(entity);
-              JS.fireOnce(entityActorEditWindowLoader.item.accepted, addActor);
+              JS.fireOnce(entityActorEditWindow.accepted, addActor);
             }
           }
 
@@ -475,9 +451,9 @@ ApplicationWindow {
                         };
                       }
                     } else if (event.button === Qt.RightButton) {
-                      roster.openEntityModelEditWindow(modelData);
+                      entityModelEditWindow.open(modelData);
                       const updateModel = roster.makeEntityUpdater(entityModelStore);
-                      JS.fireOnce(entityModelEditWindowLoader.item.accepted, updateModel);
+                      JS.fireOnce(entityModelEditWindow.accepted, updateModel);
                     }
                   }
                 }
@@ -488,9 +464,9 @@ ApplicationWindow {
           Button {
             text: qsTr("Add Model")
             onClicked: {
-              roster.openEntityModelEditWindow(EntityModelFactory.create());
+              entityModelEditWindow.open(EntityModelFactory.create());
               const addModel = (entity) => entityModelStore.append(entity);
-              JS.fireOnce(entityModelEditWindowLoader.item.accepted, addModel);
+              JS.fireOnce(entityModelEditWindow.accepted, addModel);
             }
           }
         }
@@ -498,66 +474,44 @@ ApplicationWindow {
     }
   }
 
-  Component {
-    id: entityModelEditWindowComponent
-
-    EntityModelEditWindow {
-      id: entityModelEditWindow
-      modelsDir: appState.modelsDir
-      projectDir: appState.projectDir
-      onClosing: entityModelEditWindowLoader.sourceComponent = undefined
+  LazyEditWindow {
+    id: entityModelEditWindow
+    window: Component {
+      EntityModelEditWindow {
+        modelsDir: appState.modelsDir
+        projectDir: appState.projectDir
+      }
     }
   }
 
-  Loader {
-    id: entityModelEditWindowLoader
-    sourceComponent: undefined
-  }
-
-  Component {
-    id: entityActorEditWindowComponent
-
-    EntityActorEditWindow {
-      id: entityActorEditWindow
-      modelsList: entityModelStore.toArray().map((v) => v.id)
-      onClosing: entityActorEditWindowLoader.sourceComponent = undefined
+  LazyEditWindow {
+    id: entityActorEditWindow
+    window: Component {
+      EntityActorEditWindow {
+        modelsList: entityModelStore.toArray().map((v) => v.id)
+      }
     }
   }
 
-  Loader {
-    id: entityActorEditWindowLoader
-    sourceComponent: undefined
-  }
-
-  Component {
-    id: levelsEditWindowComponent
-
-    LevelsEditWindow {
-      levelsMetaFileUrl: appState.levelsMetaPath
-      projectFolderUrl: appState.projectDir
-      levelsFolderUrl: appState.levelsDir
-      onClosing: levelsEditWindowLoader.sourceComponent = undefined
+  LazyWindow {
+    id: levelsEditWindow
+    window: Component {
+      LevelsEditWindow {
+        levelsMetaFileUrl: appState.levelsMetaPath
+        projectFolderUrl: appState.projectDir
+        levelsFolderUrl: appState.levelsDir
+      }
     }
   }
 
-  Loader {
-    id: levelsEditWindowLoader
-    sourceComponent: undefined
-  }
-
-  Component {
-    id: themeEditWindowComponent
-
-    ThemeEditWindow {
-      themePathUrl: appState.themePath
-      projectFolderUrl: appState.projectDir
-      onClosing: themeEditWindowLoader.sourceComponent = undefined
+  LazyWindow {
+    id: themeEditWindow
+    window: Component {
+      ThemeEditWindow {
+        themePathUrl: appState.themePath
+        projectFolderUrl: appState.projectDir
+      }
     }
-  }
-
-  Loader {
-    id: themeEditWindowLoader
-    sourceComponent: undefined
   }
 
   Platform.FolderDialog {

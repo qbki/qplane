@@ -142,6 +142,8 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/EntityModelEditWindow.qml
     src/components/EntityModelItem.qml
     src/components/Highlight.qml
+    src/components/LazyEditWindow.qml
+    src/components/LazyWindow.qml
     src/components/LevelsEditWindow.qml
     src/components/MainMenuItem.qml
     src/components/SceneGhost.qml

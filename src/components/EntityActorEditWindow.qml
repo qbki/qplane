@@ -33,6 +33,7 @@ Window {
     id: cancelAction
     text: qsTr("Cancel")
     onTriggered: {
+      root.canceled();
       root.close();
     }
   }
