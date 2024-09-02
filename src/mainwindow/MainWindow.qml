@@ -161,117 +161,129 @@ ApplicationWindow {
     anchors.fill: parent
     spacing: 0
 
-    View3D {
-      id: view
+    Item {
       SplitView.fillWidth: true
       SplitView.fillHeight: true
-      focus: true
-      environment: SceneEnvironment {
-        backgroundMode: SceneEnvironment.Color
-        antialiasingMode: SceneEnvironment.MSAA
-        clearColor: "#dddddd"
-      }
 
-      function pickSceneObjects () {
-        return this.pickAll(mouseArea.mouseX, mouseArea.mouseY);
-      }
-
-      function getPlacingPosition() {
-        const objects = pickSceneObjects();
-        for (const obj of objects) {
-          if (obj.objectHit === intersectionPlane) {
-            return obj.scenePosition;
-          }
-        }
-        return Qt.vector3d(0, 0, 0);
-      }
-
-      function getGridAlignedPlacingPosition() {
-        const pos = getPlacingPosition();
-        return Qt.vector3d(Math.floor(pos.x) + 0.5,
-                           Math.floor(pos.y) + 0.5,
-                           pos.z);
-      }
-
-      MouseArea {
-        id: mouseArea
+      View3D {
+        id: view
         anchors.fill: parent
-        hoverEnabled: true
-        onMouseXChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
-        onMouseYChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
-        onPressed: root.addInstance()
-      }
-
-      Keys.onPressed: function(event) {
-        if (event.key === Qt.Key_X) {
-          root.removeInstance();
-          event.accepted = true;
+        focus: true
+        environment: SceneEnvironment {
+          backgroundMode: SceneEnvironment.Color
+          antialiasingMode: SceneEnvironment.MSAA
+          clearColor: "#dddddd"
         }
-      }
 
-      DirectionalLight {
-        eulerRotation: "-30, -20, -40"
-        ambientColor: "#333"
-      }
+        function pickSceneObjects () {
+          return this.pickAll(mouseArea.mouseX, mouseArea.mouseY);
+        }
 
-      PerspectiveCamera {
-        id: camera
-        clipNear: 0.001
-        clipFar: 1000
-        position: Qt.vector3d(0, 0, 20)
-        frustumCullingEnabled: true
-        Component.onCompleted: lookAt(Qt.vector3d(0, 0, 0))
-      }
+        function getPlacingPosition() {
+          const objects = pickSceneObjects();
+          for (const obj of objects) {
+            if (obj.objectHit === intersectionPlane) {
+              return obj.scenePosition;
+            }
+          }
+          return Qt.vector3d(0, 0, 0);
+        }
 
-      AxisHelper {
-        enableXYGrid: true
-        enableXZGrid: false
-        enableYZGrid: false
-        scale: Qt.vector3d(0.01, 0.01, 0.01)
-      }
+        function getGridAlignedPlacingPosition() {
+          const pos = getPlacingPosition();
+          return Qt.vector3d(Math.floor(pos.x) + 0.5,
+                             Math.floor(pos.y) + 0.5,
+                             pos.z);
+        }
 
-      Repeater3D {
-        id: sceneModelItems
-        model: entityModelStore
+        MouseArea {
+          id: mouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          onMouseXChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
+          onMouseYChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
+          onPressed: root.addInstance()
+        }
 
-        SceneItem {
-          required property var model
-
-          id: modelItem
-          name: model.display.id
-          source: model.display.path
-          Component.onCompleted: {
-            root.sceneItemsMap[model.display.id] = modelItem;
+        Keys.onPressed: function(event) {
+          if (event.key === Qt.Key_X) {
+            root.removeInstance();
+            event.accepted = true;
           }
         }
-      }
 
-      Repeater3D {
-        id: sceneActorItems
-        model: entityActorStore
+        DirectionalLight {
+          eulerRotation: "-30, -20, -40"
+          ambientColor: "#333"
+        }
 
-        SceneItem {
-          required property var model
+        PerspectiveCamera {
+          id: camera
+          clipNear: 0.001
+          clipFar: 1000
+          position: Qt.vector3d(0, 0, 20)
+          frustumCullingEnabled: true
+          Component.onCompleted: lookAt(Qt.vector3d(0, 0, 0))
+        }
 
-          id: actorItem
-          name: model.display.id
-          source: entityModelStore.getById(model.display.model_id).path
-          Component.onCompleted: {
-            root.sceneItemsMap[model.display.id] = actorItem;
+        AxisHelper {
+          enableXYGrid: true
+          enableXZGrid: false
+          enableYZGrid: false
+          scale: Qt.vector3d(0.01, 0.01, 0.01)
+        }
+
+        Repeater3D {
+          id: sceneModelItems
+          model: entityModelStore
+
+          SceneItem {
+            required property var model
+
+            id: modelItem
+            name: model.display.id
+            source: model.display.path
+            Component.onCompleted: {
+              root.sceneItemsMap[model.display.id] = modelItem;
+            }
           }
+        }
+
+        Repeater3D {
+          id: sceneActorItems
+          model: entityActorStore
+
+          SceneItem {
+            required property var model
+
+            id: actorItem
+            name: model.display.id
+            source: entityModelStore.getById(model.display.model_id).path
+            Component.onCompleted: {
+              root.sceneItemsMap[model.display.id] = actorItem;
+            }
+          }
+        }
+
+        Model {
+          id: intersectionPlane
+          source: "#Rectangle"
+          materials: PrincipledMaterial { opacity: 0 }
+          pickable: true
+        }
+
+        SceneGhost {
+          source: root.ghostUrl
+          position: root.ghostPosition
         }
       }
 
-      Model {
-        id: intersectionPlane
-        source: "#Rectangle"
-        materials: PrincipledMaterial { opacity: 0 }
-        pickable: true
-      }
-
-      SceneGhost {
-        source: root.ghostUrl
-        position: root.ghostPosition
+      HeightControl {
+        value: intersectionPlane.z
+        x: Theme.spacing(1)
+        y: Theme.spacing(1)
+        onClickedUp: intersectionPlane.z = Math.floor(intersectionPlane.z + 1.0)
+        onClickedDown: intersectionPlane.z = Math.floor(intersectionPlane.z - 1.0)
       }
     }
 

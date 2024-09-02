@@ -76,6 +76,9 @@ find_package(Qt6Quick3DParticles CONFIG REQUIRED)
 find_package(Qt6Quick3DRuntimeRender CONFIG REQUIRED)
 find_package(Qt6Quick3DUtils CONFIG REQUIRED)
 
+find_package(Qt6Svg CONFIG REQUIRED)
+find_package(Qt6SvgWidgets CONFIG REQUIRED)
+
 qt_standard_project_setup(REQUIRES 6.7)
 qt_add_executable(${PROJECT_NAME} src/main.cpp)
 
@@ -135,13 +138,18 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DParticles Qt6::Quick3DP
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DRuntimeRender Qt6::Quick3DRuntimeRender Qt::Quick3DRuntimeRenderPrivate Qt6::Quick3DRuntimeRenderPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils Qt6::Quick3DUtils Qt::Quick3DUtilsPrivate Qt6::Quick3DUtilsPrivate)
 
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Svg Qt6::Svg Qt::SvgPrivate Qt6::SvgPrivate)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt::SvgWidgets Qt6::SvgWidgets Qt::SvgWidgetsPrivate Qt6::SvgWidgetsPrivate)
+
 qt_add_qml_module(${PROJECT_NAME}
   URI app
   QML_FILES
     src/components/EntityActorEditWindow.qml
     src/components/EntityModelEditWindow.qml
     src/components/EntityModelItem.qml
+    src/components/HeightControl.qml
     src/components/Highlight.qml
+    src/components/IconButton.qml
     src/components/LazyEditWindow.qml
     src/components/LazyWindow.qml
     src/components/LevelsEditWindow.qml
@@ -154,6 +162,9 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/form/FormComboBoxInput.qml
     src/components/form/FormFilesComboBoxInput.qml
     src/components/form/FormTextInput.qml
+    src/components/icon/BaseIconShape.qml
+    src/components/icon/DownIcon.qml
+    src/components/icon/UpIcon.qml
     src/mainwindow/MainWindow.qml
   QML_FILES
     src/jsutils/utils.mjs

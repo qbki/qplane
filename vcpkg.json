@@ -11,6 +11,10 @@
       "version>=": "6.7.2"
     },
     {
+      "name": "qtsvg",
+      "version>=": "6.7.2"
+    },
+    {
       "name": "qtdeclarative",
       "version>=": "6.7.2"
     }
