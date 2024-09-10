@@ -9,3 +9,8 @@ int Theme::spacing(float value)
 {
   return SPACING * value;
 }
+
+double Theme::sceneOpacity() const
+{
+  return m_sceneOpacity;
+}

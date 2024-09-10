@@ -10,15 +10,14 @@ Node {
   required property string name
   property alias source: loader.source
 
-  function createInstanceEntry(position: vector3d) {
+  function createInstanceEntry(position: vector3d): InstanceListEntry {
     const component = Qt.createComponent("QtQuick3D", "InstanceListEntry", Component.PreferSynchronous, null);
     if (component.status === Component.Ready) {
-      const entry = component.createObject(null, { position });
-      instancesList.instances.push(entry);
+      return component.createObject(null, { position });
     } else if (component.status === Component.Error) {
       const where = root.source;
       const what = component.errorString();
-      console.error(`${where}: ${what}`);
+      throw new Error(`${where}: ${what}`);
     }
   }
 
@@ -29,13 +28,20 @@ Node {
         return;
       }
     }
-    createInstanceEntry(position);
+    const entry = createInstanceEntry(position);
+    entry.name = root.name;
+    instancesList.instances.push(entry);
   }
 
   function removeInstanceByIndex(index: int) {
     if (index >= 0 && index < instancesList.instanceCount) {
       instancesList.instances.splice(index, 1);
     }
+  }
+
+  function removeInstance(instance: InstanceListEntry) {
+    const index = instancesList.instances.indexOf(instance);
+    root.removeInstanceByIndex(index);
   }
 
   function setPickable(obj) {
@@ -78,7 +84,8 @@ Node {
 
   function addPositions(positions) {
     for (const position of positions) {
-      createInstanceEntry(position);
+      const entry = createInstanceEntry(position);
+      instancesList.instances.push(entry);
     }
   }
 
@@ -88,6 +95,13 @@ Node {
 
   function isEmpty() {
     return instancesList.instanceCount === 0;
+  }
+
+  function getInstance(index) {
+    if (index < 0 || index >= instancesList.instanceCount) {
+      throw new RangeError("Instance index is out of range");
+    }
+    return instancesList.instances[index];
   }
 
   InstanceList {

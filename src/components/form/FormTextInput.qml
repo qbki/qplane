@@ -5,11 +5,12 @@ import QtQuick.Controls
 Item {
   id: root
   property alias label: label.text
-  property alias text: textField.text
+  property alias value: textField.text
 
-  height: label.height + textField.height
+  height: label.height + layout.spacing + textField.height
 
   ColumnLayout {
+    id: layout
     anchors.fill: parent
 
     Label {

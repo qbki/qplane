@@ -22,9 +22,9 @@ Window {
   minimumHeight: 480
 
   function open(initialData: entityActor) {
-    idField.text = initialData.id;
+    idField.value = initialData.id;
     modelIdField.value = initialData.model_id;
-    speedField.text = initialData.speed;
+    speedField.value = initialData.speed;
     store.initialData = initialData;
     root.show();
   }
@@ -44,10 +44,10 @@ Window {
     onTriggered: {
       const newEntity = EntityActorFactory.create();
 
-      newEntity.id = idField.text;
+      newEntity.id = idField.value;
       newEntity.model_id = modelIdField.value;
 
-      const speed = Number.parseFloat(speedField.text);
+      const speed = Number.parseFloat(speedField.value);
       newEntity.speed = Number.isNaN(speed) ? 0 : speed;
 
       root.accepted(newEntity, store.initialData);

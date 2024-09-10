@@ -19,7 +19,7 @@ Window {
       if (FileIO.isExists(root.themePathUrl)) {
         const json = FileIO.loadJson(root.themePathUrl);
         const absoluteFontPath = FileIO.absolutePath(root.projectFolderUrl, json.font);
-        fontField.text = FileIO.toLocalFile(absoluteFontPath);
+        fontField.value = FileIO.toLocalFile(absoluteFontPath);
       }
     } catch(error) {
       console.error(error);
@@ -39,7 +39,7 @@ Window {
     onTriggered: {
       try {
         const data = {
-          font: FileIO.relativePath(projectFolderUrl, FileIO.fromLocalFile(fontField.text)),
+          font: FileIO.relativePath(projectFolderUrl, FileIO.fromLocalFile(fontField.value)),
         };
         FileIO.saveJson(root.themePathUrl, data);
         root.close();

@@ -15,9 +15,41 @@ import app
 ApplicationWindow {
   property url ghostUrl: ""
   property vector3d ghostPosition: Qt.vector3d(0, 0, 0)
-  property var addInstance: JS.noop
-  property var removeInstance: JS.noop
+  property var selectedInstance: null
+  property string selectedEntityId: ""
   property var sceneItemsMap: JS.id({})
+
+  function isServiceObject(value) {
+    return intersectionPlane === value;
+  }
+
+  function addInstance() {
+    const sceneItem = sceneItemsMap[root.selectedEntityId];
+    if (sceneItem) {
+      sceneItem.addInstance(root.ghostPosition);
+    }
+  }
+
+  function removeInstance() {
+    const closestItem = view.pickSceneObjects()
+      .filter((v) => !root.isServiceObject(v.objectHit))
+      .reduce((acc, v) => {
+        if (acc === null) {
+          return v;
+        }
+        const candidateLength = camera.position.minus(v.position).length();
+        const storedLength = camera.position.minus(acc.position).length()
+        return (storedLength < candidateLength) ? acc : v;
+      }, null);
+    if (closestItem) {
+      const sceneItem = JS.findParentOf(closestItem.objectHit, SceneItem);
+      sceneItem.removeInstanceByIndex(closestItem.instanceIndex);
+    }
+  }
+
+  onSelectedEntityIdChanged: {
+    const entityId = root.selectedEntityId;
+  }
 
   id: root
   visible: true
@@ -52,6 +84,16 @@ ApplicationWindow {
     text: qsTr("Open assets...")
     shortcut: StandardKey.Open
     onTriggered: openProjectDialog.open()
+  }
+
+  Action {
+    id: focusViewAction
+    shortcut: StandardKey.Cancel
+    onTriggered: {
+      view.forceActiveFocus();
+      root.selectedInstance = null;
+      propertiesControl.position = Qt.vector3d(0, 0, 0);
+    }
   }
 
   Action {
@@ -176,7 +218,7 @@ ApplicationWindow {
         }
 
         function pickSceneObjects () {
-          return this.pickAll(mouseArea.mouseX, mouseArea.mouseY);
+          return view.pickAll(mouseArea.mouseX, mouseArea.mouseY);
         }
 
         function getPlacingPosition() {
@@ -202,13 +244,29 @@ ApplicationWindow {
           hoverEnabled: true
           onMouseXChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
           onMouseYChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
-          onPressed: root.addInstance()
+          onPressed: {
+            view.forceActiveFocus();
+            root.addInstance();
+          }
         }
 
         Keys.onPressed: function(event) {
           if (event.key === Qt.Key_X) {
             root.removeInstance();
-            event.accepted = true;
+          } else if (event.key === Qt.Key_Q) {
+            const list = view.pickSceneObjects()
+              .filter((v) => !root.isServiceObject(v.objectHit));
+            if (list[0]) {
+              const hitResult = list[0];
+              const model = hitResult.objectHit;
+              const sceneItem = JS.findParentOf(model, SceneItem);
+              if (sceneItem) {
+                root.selectedEntityId = sceneItem.name;
+                root.selectedInstance = sceneItem.getInstance(hitResult.instanceIndex);
+                propertiesControl.position = root.selectedInstance.position;
+                root.ghostUrl = sceneItem.source;
+              }
+            }
           }
         }
 
@@ -285,6 +343,21 @@ ApplicationWindow {
         onClickedUp: intersectionPlane.z = Math.floor(intersectionPlane.z + 1.0)
         onClickedDown: intersectionPlane.z = Math.floor(intersectionPlane.z - 1.0)
       }
+
+      PropertiesControl {
+        id: propertiesControl
+        enabled: Boolean(root.selectedInstance)
+        anchors.right: view.right
+        anchors.top: view.top
+        anchors.rightMargin: Theme.spacing(1)
+        anchors.topMargin: Theme.spacing(1)
+        position: Qt.vector3d(0, 0, 0)
+        onPositionChanged: {
+          if (root.selectedInstance) {
+            root.selectedInstance.position = propertiesControl.position;
+          }
+        }
+      }
     }
 
     Frame {
@@ -308,12 +381,6 @@ ApplicationWindow {
 
       function makeEntityUpdater(entitiesStore) {
         return JS.partial(updateEntity, entitiesStore);
-      }
-
-      function clearSelection() {
-        root.addInstance = JS.noop;
-        entityActorListView.currentIndex = -1;
-        modelGroupBox.clearSelection();
       }
 
       Flickable {
@@ -349,20 +416,10 @@ ApplicationWindow {
                 acceptedButtons: Qt.AllButtons
                 onClicked: function(event) {
                   if (event.button === Qt.LeftButton) {
-                    roster.clearSelection();
-                    entityActorListView.currentIndex = index;
                     const foundEntity = entityModelStore.getById(parent.modelData.model_id);
-                    const sceneItem = root.sceneItemsMap[parent.modelData.id];
-                    if (foundEntity && sceneItem) {
+                    if (foundEntity) {
+                      root.selectedEntityId = parent.modelData.id;
                       root.ghostUrl = foundEntity.path;
-                      root.addInstance = () => {
-                        sceneItem.addInstance(root.ghostPosition);
-                      };
-                      root.removeInstance = () => {
-                        view.pickSceneObjects()
-                          .filter((v) => sceneItem.containsModel(v.objectHit))
-                          .forEach((v) => sceneItem.removeInstanceByIndex(v.instanceIndex));
-                      };
                     }
                   } else if (event.button === Qt.RightButton) {
                     entityActorEditWindow.open(modelData)
@@ -377,6 +434,11 @@ ApplicationWindow {
               id: entityActorListView
               model: entityActorStore
               anchors.fill: parent
+              currentIndex: {
+                const { selectedEntityId }  = root;
+                const index = entityActorStore.findIndex((v) => v.id === selectedEntityId);
+                return index.valid ? index.row : -1;
+              }
               highlight: Highlight {}
               delegate: ActorDelegate {}
             }
@@ -415,14 +477,6 @@ ApplicationWindow {
             title: qsTr("Models")
             Layout.fillWidth: true
 
-            function clearSelection() {
-              for (const child of modelLayout.children) {
-                if ("selected" in child) {
-                  child.selected = false;
-                }
-              };
-            }
-
             GridLayout {
               id: modelLayout
               columns: 2
@@ -445,23 +499,11 @@ ApplicationWindow {
                   Layout.fillWidth: true
                   Layout.preferredHeight: modelGroupBox.width / 2
                   source: modelData.path
-                  selected: false
+                  selected: root.selectedEntityId == modelData.id
                   onClicked: function(event) {
                     if (event.button === Qt.LeftButton) {
-                      roster.clearSelection();
-                      item.selected = true;
                       root.ghostUrl = modelData.path;
-                      const sceneItem = root.sceneItemsMap[modelData.id];
-                      if (sceneItem) {
-                        root.addInstance = () => {
-                          sceneItem.addInstance(root.ghostPosition);
-                        }
-                        root.removeInstance = () => {
-                          view.pickSceneObjects()
-                            .filter((v) => sceneItem.containsModel(v.objectHit))
-                            .forEach((v) => sceneItem.removeInstanceByIndex(v.instanceIndex));
-                        };
-                      }
+                      root.selectedEntityId = modelData.id;
                     } else if (event.button === Qt.RightButton) {
                       entityModelEditWindow.open(modelData);
                       const updateModel = roster.makeEntityUpdater(entityModelStore);

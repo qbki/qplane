@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 import app
 
-Item {
+OpacityHover {
   property real value: 0
 
   signal clickedUp(MouseEvent event)
@@ -13,16 +13,10 @@ Item {
   id: root
   height: content.height
   width: content.width
-  layer.enabled: true
   layer.samples: 4
-  opacity: rootHover.hovered ? 1.0 : 0.3
 
   SystemPalette {
     id: palette
-  }
-
-  HoverHandler {
-    id: rootHover
   }
 
   ColumnLayout {

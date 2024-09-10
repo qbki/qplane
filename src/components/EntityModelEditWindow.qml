@@ -25,7 +25,7 @@ Window {
   minimumHeight: 480
 
   function open(initialData: entityModel) {
-    idField.text = initialData.id;
+    idField.value = initialData.id;
     pathField.value = initialData.path;
     isOpaqueField.checkState = initialData.is_opaque ? Qt.Checked : Qt.Unchecked;
     store.initialData = initialData;
@@ -46,7 +46,7 @@ Window {
     text: qsTr("Ok")
     onTriggered: {
       const newEntityModel = EntityModelFactory.create();
-      newEntityModel.id = idField.text;
+      newEntityModel.id = idField.value;
       newEntityModel.path = pathField.value;
       newEntityModel.isOpaque = isOpaqueField.checkState === Qt.Checked;
       root.accepted(newEntityModel, store.initialData);
@@ -75,8 +75,8 @@ Window {
         rootDir: projectDir
         Layout.fillWidth: true
         onValueChanged: {
-          if (idField.text === "" && !!pathField.value) {
-            idField.text = FileIO.fileName(pathField.value).replace(/.glb$/, "");
+          if (idField.value === "" && !!pathField.value) {
+            idField.value = FileIO.fileName(pathField.value).replace(/.glb$/, "");
           }
         }
       }

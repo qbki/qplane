@@ -154,6 +154,8 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/LazyWindow.qml
     src/components/LevelsEditWindow.qml
     src/components/MainMenuItem.qml
+    src/components/OpacityHover.qml
+    src/components/PropertiesControl.qml
     src/components/SceneGhost.qml
     src/components/SceneItem.qml
     src/components/ThemeEditWindow.qml
@@ -162,6 +164,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/form/FormComboBoxInput.qml
     src/components/form/FormFilesComboBoxInput.qml
     src/components/form/FormTextInput.qml
+    src/components/form/FormVector3DInput.qml
     src/components/icon/BaseIconShape.qml
     src/components/icon/DownIcon.qml
     src/components/icon/UpIcon.qml

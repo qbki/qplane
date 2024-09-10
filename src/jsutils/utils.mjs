@@ -38,3 +38,13 @@ export function reduceToObjectByField(fieldName) {
 export function areStrsEqual(a, b) {
   return a.localeCompare(b) === 0;
 }
+
+export function findParentOf(item, ctor) {
+  if (item instanceof ctor) {
+    return item;
+  }
+  if (item.parent) {
+    return findParentOf(item.parent, ctor);
+  }
+  return null;
+}
