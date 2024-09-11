@@ -156,6 +156,8 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/MainMenuItem.qml
     src/components/OpacityHover.qml
     src/components/PropertiesControl.qml
+    src/components/RosterEntityActors.qml
+    src/components/RosterEntityModels.qml
     src/components/SceneGhost.qml
     src/components/SceneItem.qml
     src/components/ThemeEditWindow.qml

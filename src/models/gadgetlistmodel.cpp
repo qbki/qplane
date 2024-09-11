@@ -39,9 +39,10 @@ GadgetListModel::internalData()
 
 void GadgetListModel::append(const QVariant &value)
 {
-  beginResetModel();
+  auto idx = m_data.rowCount();
+  beginInsertRows(QModelIndex{}, idx, idx);
   m_data.push(value);
-  endResetModel();
+  endInsertRows();
 }
 
 QJSValue GadgetListModel::toArray()

@@ -103,9 +103,9 @@ ApplicationWindow {
     shortcut: StandardKey.Save
     onTriggered: {
       if (appState.isProjectLoaded) {
-        const modelsJson = entityModelStore.toArray()
+        const modelsJson = modelsStore.toArray()
           .map((value) => [value.id, EntityModelFactory.toJson(value, appState.projectDir)]);
-        const actorsJson = entityActorStore.toArray()
+        const actorsJson = actorsStore.toArray()
           .map((value) => [value.id, EntityActorFactory.toJson(value)]);
         const entities = [
           ...modelsJson,
@@ -174,16 +174,16 @@ ApplicationWindow {
   }
 
   GadgetListModel {
-    id: entityModelStore
+    id: modelsStore
 
     function getById(id) {
-      const index = entityModelStore.findIndex((v) => v.id === id);
-      return entityModelStore.data(index, "display");
+      const index = modelsStore.findIndex((v) => v.id === id);
+      return modelsStore.data(index, "display");
     }
   }
 
   GadgetListModel {
-    id: entityActorStore
+    id: actorsStore
   }
 
   AppState {
@@ -293,7 +293,7 @@ ApplicationWindow {
 
         Repeater3D {
           id: sceneModelItems
-          model: entityModelStore
+          model: modelsStore
 
           SceneItem {
             required property var model
@@ -309,14 +309,14 @@ ApplicationWindow {
 
         Repeater3D {
           id: sceneActorItems
-          model: entityActorStore
+          model: actorsStore
 
           SceneItem {
             required property var model
 
             id: actorItem
             name: model.display.id
-            source: entityModelStore.getById(model.display.model_id).path
+            source: modelsStore.getById(model.display.model_id).path
             Component.onCompleted: {
               root.sceneItemsMap[model.display.id] = actorItem;
             }
@@ -370,179 +370,56 @@ ApplicationWindow {
       padding: 0
       clip: true
 
-      function updateEntity(entitiesStore, newEntity, oldEntity) {
-        const index = entitiesStore.findIndex((storedEntity) => storedEntity.id === oldEntity.id);
-        if (index.valid) {
-          entitiesStore.setData(index, newEntity);
-        } else {
-          console.error("Invalid index");
-        }
-      }
-
-      function makeEntityUpdater(entitiesStore) {
-        return JS.partial(updateEntity, entitiesStore);
-      }
-
       Flickable {
         anchors.fill: parent
         clip: true
-        contentHeight: rootLayout.height
+        contentHeight: rosterRootLayout.height
 
         ScrollBar.vertical: ScrollBar {
         }
 
         ColumnLayout {
-          id: rootLayout
+          id: rosterRootLayout
           anchors.fill: parent
           spacing: Theme.spacing(1)
 
           GroupBox {
-            id: entityActorBlock
             title: qsTr("Actors")
             Layout.fillWidth: true
 
-            component ActorDelegate: Label {
-              required property int index
-              required property var model
-              property entityActor modelData: model.display
-
-              Layout.fillWidth: true
-              Layout.fillHeight: true
-              text: modelData.id
-              font.pointSize: 16
-
-              MouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.AllButtons
-                onClicked: function(event) {
-                  if (event.button === Qt.LeftButton) {
-                    const foundEntity = entityModelStore.getById(parent.modelData.model_id);
-                    if (foundEntity) {
-                      root.selectedEntityId = parent.modelData.id;
-                      root.ghostUrl = foundEntity.path;
-                    }
-                  } else if (event.button === Qt.RightButton) {
-                    entityActorEditWindow.open(modelData)
-                    const updateActor = roster.makeEntityUpdater(entityActorStore);
-                    JS.fireOnce(entityActorEditWindow.accepted, updateActor);
-                  }
+            RosterEntityActors {
+              modelsStore: modelsStore
+              actorsStore: actorsStore
+              selectedEntityId: root.selectedEntityId
+              anchors.left: parent.left
+              anchors.right: parent.right
+              onItemClicked: function(modelData) {
+                const foundEntityModel = modelsStore.getById(modelData.model_id);
+                if (foundEntityModel) {
+                  root.selectedEntityId = modelData.id;
+                  root.ghostUrl = foundEntityModel.path;
                 }
               }
-            }
-
-            ListView {
-              id: entityActorListView
-              model: entityActorStore
-              anchors.fill: parent
-              currentIndex: {
-                const { selectedEntityId }  = root;
-                const index = entityActorStore.findIndex((v) => v.id === selectedEntityId);
-                return index.valid ? index.row : -1;
-              }
-              highlight: Highlight {}
-              delegate: ActorDelegate {}
-            }
-
-            ActorDelegate {
-              id: actorDelegateParamsDonor
-              index: -1
-              model: JS.id({ display: EntityActorFactory.create() })
-              visible: false
-            }
-
-            Connections {
-              target: entityActorStore
-              function onModelReset() {
-                entityActorBlock.Layout.preferredHeight = (
-                  entityActorStore.rowCount() * actorDelegateParamsDonor.height
-                  + entityActorBlock.implicitLabelHeight
-                  + 2 * entityActorBlock.horizontalPadding
-                  + entityActorBlock.spacing
-                );
-              }
-            }
-          }
-
-          Button {
-            text: qsTr("Add Actor")
-            onClicked: {
-              entityActorEditWindow.open(EntityActorFactory.create());
-              const addActor = (entity) => entityActorStore.append(entity);
-              JS.fireOnce(entityActorEditWindow.accepted, addActor);
             }
           }
 
           GroupBox {
-            id: modelGroupBox
             title: qsTr("Models")
             Layout.fillWidth: true
 
-            GridLayout {
-              id: modelLayout
-              columns: 2
-              rowSpacing: 1
-              columnSpacing: 1
-              uniformCellWidths: true
-              uniformCellHeights: true
-              anchors.right: parent.right
+            RosterEntityModels {
+              modelsStore: modelsStore
+              selectedEntityId: root.selectedEntityId
+              appState: appState
               anchors.left: parent.left
-
-              Repeater {
-                id: entityModelRepeater
-                model: entityModelStore
-
-                EntityModelItem {
-                  required property var model
-                  property entityModel modelData: model.display
-                  id: item
-                  name: modelData.id
-                  Layout.fillWidth: true
-                  Layout.preferredHeight: modelGroupBox.width / 2
-                  source: modelData.path
-                  selected: root.selectedEntityId == modelData.id
-                  onClicked: function(event) {
-                    if (event.button === Qt.LeftButton) {
-                      root.ghostUrl = modelData.path;
-                      root.selectedEntityId = modelData.id;
-                    } else if (event.button === Qt.RightButton) {
-                      entityModelEditWindow.open(modelData);
-                      const updateModel = roster.makeEntityUpdater(entityModelStore);
-                      JS.fireOnce(entityModelEditWindow.accepted, updateModel);
-                    }
-                  }
-                }
+              anchors.right: parent.right
+              onItemClicked: function(modelData) {
+                root.selectedEntityId = modelData.id;
+                root.ghostUrl = modelData.path;
               }
             }
           }
-
-          Button {
-            text: qsTr("Add Model")
-            onClicked: {
-              entityModelEditWindow.open(EntityModelFactory.create());
-              const addModel = (entity) => entityModelStore.append(entity);
-              JS.fireOnce(entityModelEditWindow.accepted, addModel);
-            }
-          }
         }
-      }
-    }
-  }
-
-  LazyEditWindow {
-    id: entityModelEditWindow
-    window: Component {
-      EntityModelEditWindow {
-        modelsDir: appState.modelsDir
-        projectDir: appState.projectDir
-      }
-    }
-  }
-
-  LazyEditWindow {
-    id: entityActorEditWindow
-    window: Component {
-      EntityActorEditWindow {
-        modelsList: entityModelStore.toArray().map((v) => v.id)
       }
     }
   }
@@ -579,11 +456,11 @@ ApplicationWindow {
           const mapping = {
             "model": () => {
               const entity = EntityModelFactory.fromJson(id, value, appState.projectDir);
-              entityModelStore.append(entity);
+              modelsStore.append(entity);
             },
             "actor": () => {
               const entity = EntityActorFactory.fromJson(id, value);
-              entityActorStore.append(entity);
+              actorsStore.append(entity);
             }
           }
           const handler = mapping[value.kind];

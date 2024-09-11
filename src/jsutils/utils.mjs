@@ -48,3 +48,13 @@ export function findParentOf(item, ctor) {
   }
   return null;
 }
+
+
+export function updateEntity(entitiesStore, newEntity, oldEntity) {
+  const index = entitiesStore.findIndex((storedEntity) => storedEntity.id === oldEntity.id);
+  if (index.valid) {
+    entitiesStore.setData(index, newEntity);
+  } else {
+    console.error("Invalid index during an entity update");
+  }
+}
