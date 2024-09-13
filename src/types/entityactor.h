@@ -13,6 +13,7 @@ class EntityActor
   Q_PROPERTY(QString gun_id READ gun_id WRITE set_gun_id FINAL)
   Q_PROPERTY(QString hit_particles_id READ hit_particles_id WRITE set_hit_particles_id FINAL)
   Q_PROPERTY(QString debris_id READ debris_id WRITE set_debris_id FINAL)
+  Q_PROPERTY(int lives READ lives WRITE set_lives FINAL)
   Q_PROPERTY(float speed READ speed WRITE set_speed FINAL)
 
 public:
@@ -36,6 +37,9 @@ public:
   float speed() const;
   void set_speed(float new_speed);
 
+  int lives() const;
+  void set_lives(int newLives);
+
 private:
   QString m_id = "";
   QString m_model_id = "";
@@ -43,6 +47,7 @@ private:
   QString m_hit_particles_id = "";
   QString m_debris_id = "";
   float m_speed = 0;
+  int m_lives = 1;
 };
 
 Q_DECLARE_METATYPE(EntityActor)

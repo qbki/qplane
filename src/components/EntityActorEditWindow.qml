@@ -25,6 +25,7 @@ Window {
     idField.value = initialData.id;
     modelIdField.value = initialData.model_id;
     speedField.value = initialData.speed;
+    livesField.value = initialData.lives;
     store.initialData = initialData;
     root.show();
   }
@@ -48,7 +49,10 @@ Window {
       newEntity.model_id = modelIdField.value;
 
       const speed = Number.parseFloat(speedField.value);
-      newEntity.speed = Number.isNaN(speed) ? 0 : speed;
+      newEntity.speed = Number.isFinite(speed) ? speed : 0;
+
+      const lives = Number.parseInt(livesField.value);
+      newEntity.lives = Number.isFinite(lives) ? lives : 0;
 
       root.accepted(newEntity, store.initialData);
       root.close();
@@ -72,6 +76,12 @@ Window {
       FormTextInput {
         id: speedField
         label: qsTr("Speed")
+        Layout.fillWidth: true
+      }
+
+      FormTextInput {
+        id: livesField
+        label: qsTr("Lives")
         Layout.fillWidth: true
       }
 

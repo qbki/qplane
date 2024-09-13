@@ -34,7 +34,9 @@ Item {
       id: comboBox
       Layout.fillWidth: true
       onCurrentValueChanged: {
-        root.value = comboBox.currentValue;
+        if (root.value !== comboBox.currentValue) {
+          root.value = comboBox.currentValue;
+        }
       }
     }
   }

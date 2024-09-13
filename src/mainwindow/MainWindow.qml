@@ -92,7 +92,7 @@ ApplicationWindow {
     onTriggered: {
       view.forceActiveFocus();
       root.selectedInstance = null;
-      propertiesControl.position = Qt.vector3d(0, 0, 0);
+      propertiesControl.reset();
     }
   }
 
@@ -131,14 +131,12 @@ ApplicationWindow {
         };
         const statics = sceneModelItems.children
           .filter((child) => !child.isEmpty())
-          .map((child) => PositionStrategyManyFactory.toJson(child.getPositionStrategy()));
+          .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
+          .reduce((acc, v) => acc.concat(v), []);
         const actors = sceneActorItems.children
           .filter((child) => !child.isEmpty())
-          .map((child) => PositionStrategyManyFactory.toJson(child.getPositionStrategy()))
-          .map((strategy) => {
-            strategy.behaviour = "player";
-            return strategy;
-          });
+          .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
+          .reduce((acc, v) => acc.concat(v), []);
         const light = {
           kind: "void",
           behaviour: "light",
@@ -263,8 +261,12 @@ ApplicationWindow {
               if (sceneItem) {
                 root.selectedEntityId = sceneItem.name;
                 root.selectedInstance = sceneItem.getInstance(hitResult.instanceIndex);
-                propertiesControl.position = root.selectedInstance.position;
                 root.ghostUrl = sceneItem.source;
+                propertiesControl.setParams({
+                  position: root.selectedInstance.position,
+                  behaviour: root.selectedInstance.behaviour,
+                  behavioursList: sceneItem.availableBehaviours,
+                });
               }
             }
           }
@@ -300,6 +302,8 @@ ApplicationWindow {
 
             id: modelItem
             name: model.display.id
+            defaultBehaviour: "static"
+            availableBehaviours: ["static"]
             source: model.display.path
             Component.onCompleted: {
               root.sceneItemsMap[model.display.id] = modelItem;
@@ -316,6 +320,8 @@ ApplicationWindow {
 
             id: actorItem
             name: model.display.id
+            defaultBehaviour: "enemy"
+            availableBehaviours: ["enemy", "player"]
             source: modelsStore.getById(model.display.model_id).path
             Component.onCompleted: {
               root.sceneItemsMap[model.display.id] = actorItem;
@@ -351,11 +357,18 @@ ApplicationWindow {
         anchors.top: view.top
         anchors.rightMargin: Theme.spacing(1)
         anchors.topMargin: Theme.spacing(1)
-        position: Qt.vector3d(0, 0, 0)
         onPositionChanged: {
           if (root.selectedInstance) {
             root.selectedInstance.position = propertiesControl.position;
           }
+        }
+        onBehaviourChanged: {
+          if (root.selectedInstance && propertiesControl.behaviour) {
+            root.selectedInstance.behaviour = propertiesControl.behaviour;
+          }
+        }
+        Component.onCompleted: {
+          propertiesControl.reset();
         }
       }
     }
@@ -452,24 +465,18 @@ ApplicationWindow {
       appState.projectDir = folder;
       try {
         const { entities } = FileIO.loadJson(appState.levelsDir + "/entities.json");
-        for (const [id, value] of Object.entries(entities)) {
-          const mapping = {
-            "model": () => {
-              const entity = EntityModelFactory.fromJson(id, value, appState.projectDir);
-              modelsStore.append(entity);
-            },
-            "actor": () => {
-              const entity = EntityActorFactory.fromJson(id, value);
-              actorsStore.append(entity);
-            }
-          }
-          const handler = mapping[value.kind];
-          if (handler) {
-            handler();
-          } else {
-            console.warn(`Unknown kind: ${value.kind}`);
-          }
-        }
+        const entriesArray = Object.entries(entities);
+        const isKindOf = (expectedKind) => ([, { kind }]) => (kind === expectedKind);
+
+        const models = entriesArray
+          .filter(isKindOf("model"))
+          .map(([id, value]) => EntityModelFactory.fromJson(id, value, appState.projectDir));
+        modelsStore.appendList(models);
+
+        const actors = entriesArray
+          .filter(isKindOf("actor"))
+          .map(([id, value]) => EntityActorFactory.fromJson(id, value));
+        actorsStore.appendList(actors);
       } catch(error) {
         console.error(error);
       }
@@ -494,7 +501,7 @@ ApplicationWindow {
         for (const strategyJson of json.map) {
           if (strategyJson.kind === "many") {
             const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
-            scene[strategy.entity_id]?.addPositions(strategy.positions);
+            scene[strategy.entity_id]?.applyPositionStrategy(strategy);
           }
         }
       } catch(error) {

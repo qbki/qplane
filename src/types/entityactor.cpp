@@ -83,6 +83,7 @@ QJsonObject EntityActorFactory::toJson(const EntityActor &entity)
   json["kind"] = "actor";
   json["model_id"] = entity.model_id();
   json["speed"] = entity.speed();
+  json["lives"] = entity.lives();
   if (auto value = entity.gun_id(); !value.isEmpty()) {
     json["gun_id"] = value;
   }
@@ -106,8 +107,19 @@ EntityActor EntityActorFactory::fromJson(const QString &id, const QJsonObject &j
     entity.set_hit_particles_id(check.optionalString("hit_particles_id", ""));
     entity.set_model_id(check.string("model_id"));
     entity.set_speed(check.real("speed"));
+    entity.set_lives(check.real("lives"));
   } catch(const std::runtime_error& error) {
     qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
   }
   return entity;
+}
+
+int EntityActor::lives() const
+{
+  return m_lives;
+}
+
+void EntityActor::set_lives(int new_lives)
+{
+  m_lives = new_lives;
 }

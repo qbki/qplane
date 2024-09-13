@@ -6,10 +6,23 @@ import app
 
 OpacityHover {
   property alias position: positionField.value
+  property alias behaviour: behaviourField.value
+  property alias behavioursList: behaviourField.model
 
   id: root
   width: 150
   height: pane.height
+
+  function reset() {
+    root.position = Qt.vector3d(0, 0, 0);
+    root.behaviour = "";
+  }
+
+  function setParams({ behaviour, behavioursList, position }) {
+    propertiesControl.position = position;
+    propertiesControl.behavioursList = behavioursList;
+    propertiesControl.behaviour = behaviour;
+  }
 
   SystemPalette {
     id: palette
@@ -34,6 +47,12 @@ OpacityHover {
         id: positionField
         Layout.fillWidth: true
         label: qsTr("Position")
+      }
+
+      FormComboBoxInput {
+        id: behaviourField
+        Layout.fillWidth: true
+        label: qsTr("Behaviour")
       }
     }
   }

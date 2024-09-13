@@ -30,6 +30,7 @@ public:
   void updateWholeModel(const std::vector<QVariant>& new_data);
 
   Q_INVOKABLE void append(const QVariant& value);
+  Q_INVOKABLE void appendList(const QVariantList& value);
   Q_INVOKABLE QJSValue toArray();
   Q_INVOKABLE QModelIndex findIndex(const QJSValue& predicate) const;
 

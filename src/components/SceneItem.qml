@@ -6,14 +6,20 @@ import QtQuick3D.AssetUtils
 import app
 
 Node {
-  id: root
   required property string name
+  required property string defaultBehaviour
+  required property list<string> availableBehaviours
   property alias source: loader.source
 
-  function createInstanceEntry(position: vector3d): InstanceListEntry {
-    const component = Qt.createComponent("QtQuick3D", "InstanceListEntry", Component.PreferSynchronous, null);
+  id: root
+
+  function createInstanceEntry(position: vector3d, behaviour: var): InstanceListEntry {
+    const component = Qt.createComponent("app", "SceneListEntry", Component.PreferSynchronous, null);
     if (component.status === Component.Ready) {
-      return component.createObject(null, { position });
+      return component.createObject(null, {
+        position,
+        behaviour: behaviour ? behaviour : root.defaultBehaviour,
+      });
     } else if (component.status === Component.Error) {
       const where = root.source;
       const what = component.errorString();
@@ -21,15 +27,14 @@ Node {
     }
   }
 
-  function addInstance(position: vector3d) {
+  function addInstance(position: vector3d, behaviour: var) {
     // Avoiding placing the same model at the same place
     for (const item of instancesList.instances) {
       if (item.position.fuzzyEquals(position)) {
         return;
       }
     }
-    const entry = createInstanceEntry(position);
-    entry.name = root.name;
+    const entry = createInstanceEntry(position, behaviour);
     instancesList.instances.push(entry);
   }
 
@@ -74,17 +79,25 @@ Node {
     }
   }
 
-  function getPositionStrategy(): positionStrategyMany {
-    const strategy = PositionStrategyManyFactory.create();
-    strategy.entity_id = root.name;
-    strategy.behaviour = "static";
-    strategy.positions = instancesList.instances.map((instance) => instance.position);
-    return strategy;
+  function getPositionStrategies(): list<positionStrategyMany> {
+    const stragegiesMap = {};
+    for (const strategyName of availableBehaviours) {
+      const strategy = PositionStrategyManyFactory.create();
+      strategy.entity_id = root.name;
+      strategy.behaviour = strategyName;
+      stragegiesMap[strategyName] = strategy;
+    }
+    for (const { position, behaviour } of instancesList.instances) {
+      stragegiesMap[behaviour].positions.push(position);
+    }
+    return Object.values(stragegiesMap)
+      .filter((v) => v.positions.length > 0);
   }
 
-  function addPositions(positions) {
+  function applyPositionStrategy(strategy: positionStrategyMany) {
+    const { positions, behaviour } = strategy;
     for (const position of positions) {
-      const entry = createInstanceEntry(position);
+      const entry = createInstanceEntry(position, behaviour);
       instancesList.instances.push(entry);
     }
   }

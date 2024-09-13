@@ -160,6 +160,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/RosterEntityModels.qml
     src/components/SceneGhost.qml
     src/components/SceneItem.qml
+    src/components/SceneListEntry.qml
     src/components/ThemeEditWindow.qml
     src/components/form/FormAcceptButtonsGroup.qml
     src/components/form/FormCheckBoxInput.qml
@@ -179,7 +180,6 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/baselist.h
     src/models/fileio.h src/models/fileio.cpp
     src/models/gadgetlistmodel.h src/models/gadgetlistmodel.cpp
-    src/models/modelentitystate.h src/models/modelentitystate.cpp
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
     src/types/entityactor.h src/types/entityactor.cpp

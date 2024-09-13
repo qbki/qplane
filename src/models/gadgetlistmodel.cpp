@@ -45,6 +45,20 @@ void GadgetListModel::append(const QVariant &value)
   endInsertRows();
 }
 
+void GadgetListModel::appendList(const QVariantList &value)
+{
+  auto size = value.size();
+  if (size == 0) {
+    return;
+  }
+  auto idx = m_data.rowCount();
+  beginInsertRows(QModelIndex{}, idx, idx + size - 1);
+  for (auto& item : value) {
+    m_data.push(item);
+  }
+  endInsertRows();
+}
+
 QJSValue GadgetListModel::toArray()
 {
   auto engine = qmlEngine(this);
