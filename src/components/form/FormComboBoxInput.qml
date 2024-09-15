@@ -11,13 +11,14 @@ Item {
   property var value;
 
   id: root
-  height: label.height + comboBox.height
+  height: label.height + layout.spacing + comboBox.height
 
   onValueChanged: {
     comboBox.currentIndex = comboBox.find(root.value);
   }
 
   ColumnLayout {
+    id: layout
     anchors.fill: parent
 
     Label {
