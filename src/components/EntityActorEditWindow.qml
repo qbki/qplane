@@ -5,7 +5,7 @@ import QtQuick.Layouts
 import app
 
 Window {
-  property alias modelsList: modelIdField.model
+  required property var modelsList
 
   QtObject {
     id: store
@@ -26,6 +26,7 @@ Window {
     modelIdField.value = initialData.model_id;
     speedField.value = initialData.speed;
     livesField.value = initialData.lives;
+    debrisModelIdField.value = initialData.debris_id;
     store.initialData = initialData;
     root.show();
   }
@@ -47,6 +48,7 @@ Window {
 
       newEntity.id = idField.value;
       newEntity.model_id = modelIdField.value;
+      newEntity.debris_id = debrisModelIdField.value;
 
       const speed = Number.parseFloat(speedField.value);
       newEntity.speed = Number.isFinite(speed) ? speed : 0;
@@ -88,6 +90,14 @@ Window {
       FormComboBoxInput {
         id: modelIdField
         label: qsTr("Model")
+        model: root.modelsList
+        Layout.fillWidth: true
+      }
+
+      FormComboBoxInput {
+        id: debrisModelIdField
+        label: qsTr("Debris")
+        model: [""].concat(root.modelsList)
         Layout.fillWidth: true
       }
 
