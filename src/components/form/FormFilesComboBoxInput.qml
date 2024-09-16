@@ -14,17 +14,30 @@ Item {
   property alias nameFilters: folderModel.nameFilters;
   property url value;
 
+  id: root
+  height: label.height + comboBox.height
+
+  onValueChanged: {
+    internal.selectCurrentValue();
+  }
+
   QtObject {
     id: internal
     property string role: "fileUrl"
-  }
 
-  id: root
-  height: label.height + comboBox.height
+    function selectCurrentValue() {
+      comboBox.currentIndex = folderModel.indexOf(root.value);
+    }
+  }
 
   Platform.FolderListModel {
     id: folderModel
     showDirs: false
+    onStatusChanged: {
+      if (folderModel.status === Platform.FolderListModel.Ready) {
+        internal.selectCurrentValue();
+      }
+    }
   }
 
   TransformModel {

@@ -144,6 +144,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::SvgWidgets Qt6::SvgWidgets Qt:
 qt_add_qml_module(${PROJECT_NAME}
   URI app
   QML_FILES
+    src/components/EditWindowBase.qml
     src/components/EntityActorEditWindow.qml
     src/components/EntityModelEditWindow.qml
     src/components/EntityModelItem.qml

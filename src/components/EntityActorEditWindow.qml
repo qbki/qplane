@@ -4,35 +4,37 @@ import QtQuick.Layouts
 
 import app
 
-Window {
+EditWindowBase {
   required property var modelsList
-
-  QtObject {
-    id: store
-    property entityActor initialData
-  }
 
   signal canceled()
   signal accepted(newActor: entityActor, actor: entityActor)
 
   id: root
   title: qsTr("Edit an actor")
-  modality: Qt.WindowModal
-  minimumWidth: 640
-  minimumHeight: 480
+  cancelAction: cancelHandler
+  acceptAction: acceptHandler
 
   function open(initialData: entityActor) {
     idField.value = initialData.id;
     modelIdField.value = initialData.model_id;
     speedField.value = initialData.speed;
     livesField.value = initialData.lives;
+    hitParticlesIdField.value = initialData.hit_particles_id;
     debrisModelIdField.value = initialData.debris_id;
-    store.initialData = initialData;
+    internal.initialData = initialData;
     root.show();
   }
 
+  QtObject {
+    id: internal
+
+    property entityActor initialData
+    property var emptyableModelsList: [""].concat(root.modelsList)
+  }
+
   Action {
-    id: cancelAction
+    id: cancelHandler
     text: qsTr("Cancel")
     onTriggered: {
       root.canceled();
@@ -41,7 +43,7 @@ Window {
   }
 
   Action {
-    id: acceptAction
+    id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
       const newEntity = EntityActorFactory.create();
@@ -49,6 +51,7 @@ Window {
       newEntity.id = idField.value;
       newEntity.model_id = modelIdField.value;
       newEntity.debris_id = debrisModelIdField.value;
+      newEntity.hit_particles_id = hitParticlesIdField.value;
 
       const speed = Number.parseFloat(speedField.value);
       newEntity.speed = Number.isFinite(speed) ? speed : 0;
@@ -56,60 +59,47 @@ Window {
       const lives = Number.parseInt(livesField.value);
       newEntity.lives = Number.isFinite(lives) ? lives : 0;
 
-      root.accepted(newEntity, store.initialData);
+      root.accepted(newEntity, internal.initialData);
       root.close();
     }
   }
 
-  Pane {
-    anchors.fill: parent
+  FormTextInput {
+    id: idField
+    label: qsTr("ID")
+    Layout.fillWidth: true
+  }
 
-    ColumnLayout {
-      anchors.fill: parent
-      anchors.margins: Theme.spacing(1)
-      spacing: Theme.spacing(3)
+  FormTextInput {
+    id: speedField
+    label: qsTr("Speed")
+    Layout.fillWidth: true
+  }
 
-      FormTextInput {
-        id: idField
-        label: qsTr("ID")
-        Layout.fillWidth: true
-      }
+  FormTextInput {
+    id: livesField
+    label: qsTr("Lives")
+    Layout.fillWidth: true
+  }
 
-      FormTextInput {
-        id: speedField
-        label: qsTr("Speed")
-        Layout.fillWidth: true
-      }
+  FormComboBoxInput {
+    id: modelIdField
+    label: qsTr("Model")
+    model: root.modelsList
+    Layout.fillWidth: true
+  }
 
-      FormTextInput {
-        id: livesField
-        label: qsTr("Lives")
-        Layout.fillWidth: true
-      }
+  FormComboBoxInput {
+    id: hitParticlesIdField
+    label: qsTr("Hit particles")
+    model: internal.emptyableModelsList
+    Layout.fillWidth: true
+  }
 
-      FormComboBoxInput {
-        id: modelIdField
-        label: qsTr("Model")
-        model: root.modelsList
-        Layout.fillWidth: true
-      }
-
-      FormComboBoxInput {
-        id: debrisModelIdField
-        label: qsTr("Debris")
-        model: [""].concat(root.modelsList)
-        Layout.fillWidth: true
-      }
-
-      Item {
-        Layout.fillHeight: true
-      }
-
-      FormAcceptButtonsGroup {
-        Layout.fillWidth: true
-        cancelAction: cancelAction
-        acceptAction: acceptAction
-      }
-    }
+  FormComboBoxInput {
+    id: debrisModelIdField
+    label: qsTr("Debris")
+    model: internal.emptyableModelsList
+    Layout.fillWidth: true
   }
 }
