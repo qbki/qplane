@@ -4,15 +4,14 @@ import QtQuick.Layouts
 
 import app
 
-Window {
+EditWindowBase {
   required property url themePathUrl;
   required property url projectFolderUrl;
 
   id: root
   title: qsTr("Edit theme")
-  modality: Qt.WindowModal
-  minimumWidth: 640
-  minimumHeight: 480
+  cancelAction: cancelHandler
+  acceptAction: acceptHandler
 
   function open() {
     try {
@@ -28,13 +27,13 @@ Window {
   }
 
   Action {
-    id: closeAction
+    id: cancelHandler
     text: qsTr("Close")
     onTriggered: root.close()
   }
 
   Action {
-    id: saveAndCloseAction
+    id: acceptHandler
     text: qsTr("Save and close")
     onTriggered: {
       try {
@@ -49,31 +48,9 @@ Window {
     }
   }
 
-  Pane {
-    anchors.fill: parent
-
-    ColumnLayout {
-      anchors.fill: parent
-      anchors.margins: Theme.spacing(1)
-
-      FormTextInput {
-        id: fontField
-        Layout.fillWidth: true
-        Layout.alignment: Qt.AlignTop
-        label: qsTr("Path to the font")
-      }
-
-      Item {
-        Layout.fillHeight: true
-      }
-
-      FormAcceptButtonsGroup {
-        id: test
-        Layout.fillWidth: true
-        Layout.alignment: Qt.AlignBottom
-        acceptAction: saveAndCloseAction
-        cancelAction: closeAction
-      }
-    }
+  FormTextInput {
+    id: fontField
+    Layout.fillWidth: true
+    label: qsTr("Path to the font")
   }
 }

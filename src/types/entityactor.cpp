@@ -11,19 +11,19 @@ QString EntityActor::model_id() const
   return m_model_id;
 }
 
-void EntityActor::set_model_id(const QString &new_model_id)
+void EntityActor::set_model_id(const QString &value)
 {
-  m_model_id = new_model_id;
+  m_model_id = value;
 }
 
-QString EntityActor::gun_id() const
+QString EntityActor::weapon_id() const
 {
-  return m_gun_id;
+  return m_weapon_id;
 }
 
-void EntityActor::set_gun_id(const QString &new_gun_id)
+void EntityActor::set_weapon_id(const QString &value)
 {
-  m_gun_id = new_gun_id;
+  m_weapon_id = value;
 }
 
 QString EntityActor::hit_particles_id() const
@@ -31,9 +31,9 @@ QString EntityActor::hit_particles_id() const
   return m_hit_particles_id;
 }
 
-void EntityActor::set_hit_particles_id(const QString &new_hit_particles_id)
+void EntityActor::set_hit_particles_id(const QString &value)
 {
-  m_hit_particles_id = new_hit_particles_id;
+  m_hit_particles_id = value;
 }
 
 QString EntityActor::debris_id() const
@@ -41,9 +41,9 @@ QString EntityActor::debris_id() const
   return m_debris_id;
 }
 
-void EntityActor::set_debris_id(const QString &new_debris_id)
+void EntityActor::set_debris_id(const QString &value)
 {
-  m_debris_id = new_debris_id;
+  m_debris_id = value;
 }
 
 float EntityActor::speed() const
@@ -51,9 +51,9 @@ float EntityActor::speed() const
   return m_speed;
 }
 
-void EntityActor::set_speed(float new_speed)
+void EntityActor::set_speed(float value)
 {
-  m_speed = new_speed;
+  m_speed = value;
 }
 
 
@@ -62,9 +62,9 @@ QString EntityActor::id() const
   return m_id;
 }
 
-void EntityActor::set_id(const QString &new_id)
+void EntityActor::set_id(const QString &value)
 {
-  m_id = new_id;
+  m_id = value;
 }
 
 EntityActorFactory::EntityActorFactory(QObject *parent)
@@ -84,8 +84,8 @@ QJsonObject EntityActorFactory::toJson(const EntityActor &entity)
   json["model_id"] = entity.model_id();
   json["speed"] = entity.speed();
   json["lives"] = entity.lives();
-  if (auto value = entity.gun_id(); !value.isEmpty()) {
-    json["gun_id"] = value;
+  if (auto value = entity.weapon_id(); !value.isEmpty()) {
+    json["weapon_id"] = value;
   }
   if (auto value = entity.debris_id(); !value.isEmpty()) {
     json["debris_id"] = value;
@@ -103,7 +103,7 @@ EntityActor EntityActorFactory::fromJson(const QString &id, const QJsonObject &j
   try {
     entity.set_id(id);
     entity.set_debris_id(check.optionalString("debris_id", ""));
-    entity.set_gun_id(check.optionalString("gun_id", ""));
+    entity.set_weapon_id(check.optionalString("weapon_id", ""));
     entity.set_hit_particles_id(check.optionalString("hit_particles_id", ""));
     entity.set_model_id(check.string("model_id"));
     entity.set_speed(check.real("speed"));

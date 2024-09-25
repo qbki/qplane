@@ -1,5 +1,5 @@
 import QtQuick
-import "../jsutils/utils.mjs" as JS
+import "../../jsutils/utils.mjs" as JS
 
 Loader {
   required property Component window

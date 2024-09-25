@@ -144,34 +144,36 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::SvgWidgets Qt6::SvgWidgets Qt:
 qt_add_qml_module(${PROJECT_NAME}
   URI app
   QML_FILES
-    src/components/EditWindowBase.qml
-    src/components/EntityActorEditWindow.qml
-    src/components/EntityModelEditWindow.qml
     src/components/EntityModelItem.qml
     src/components/HeightControl.qml
     src/components/Highlight.qml
     src/components/IconButton.qml
-    src/components/LazyEditWindow.qml
-    src/components/LazyWindow.qml
-    src/components/LevelsEditWindow.qml
     src/components/MainMenuItem.qml
     src/components/OpacityHover.qml
     src/components/PropertiesControl.qml
     src/components/RosterEntityActors.qml
     src/components/RosterEntityModels.qml
+    src/components/RosterEntityWeapons.qml
     src/components/SceneGhost.qml
     src/components/SceneItem.qml
     src/components/SceneListEntry.qml
-    src/components/ThemeEditWindow.qml
     src/components/form/FormAcceptButtonsGroup.qml
     src/components/form/FormCheckBoxInput.qml
     src/components/form/FormComboBoxInput.qml
     src/components/form/FormFilesComboBoxInput.qml
     src/components/form/FormTextInput.qml
     src/components/form/FormVector3DInput.qml
-    src/components/icon/BaseIconShape.qml
-    src/components/icon/DownIcon.qml
-    src/components/icon/UpIcon.qml
+    src/components/icons/BaseIconShape.qml
+    src/components/icons/DownIcon.qml
+    src/components/icons/UpIcon.qml
+    src/components/windows/EditWindowBase.qml
+    src/components/windows/EntityActorEditWindow.qml
+    src/components/windows/EntityModelEditWindow.qml
+    src/components/windows/EntityWeaponEditWindow.qml
+    src/components/windows/LazyEditWindow.qml
+    src/components/windows/LazyWindow.qml
+    src/components/windows/LevelsEditWindow.qml
+    src/components/windows/ThemeEditWindow.qml
     src/mainwindow/MainWindow.qml
   QML_FILES
     src/jsutils/utils.mjs
@@ -181,10 +183,12 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/baselist.h
     src/models/fileio.h src/models/fileio.cpp
     src/models/gadgetlistmodel.h src/models/gadgetlistmodel.cpp
+    src/models/recursivedirectorylistmodel.h src/models/recursivedirectorylistmodel.cpp
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
     src/types/entityactor.h src/types/entityactor.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
+    src/types/entityweapon.h src/types/entityweapon.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp
 )

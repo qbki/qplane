@@ -21,7 +21,6 @@ public:
 
 signals:
   void mapChanged();
-
   void roleChanged();
 
 private:

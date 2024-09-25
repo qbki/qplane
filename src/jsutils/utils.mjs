@@ -36,6 +36,8 @@ export function reduceToObjectByField(fieldName) {
 }
 
 export function areStrsEqual(a, b) {
+  console.assert(typeof a === "string", "Expected a string");
+  console.assert(typeof b === "string", "Expected a string");
   return a.localeCompare(b) === 0;
 }
 
@@ -57,4 +59,14 @@ export function updateEntity(entitiesStore, newEntity, oldEntity) {
   } else {
     console.error("Invalid index during an entity update");
   }
+}
+
+export function toFinitFloat(value, defaultValue = 0.0) {
+  const result = Number.parseFloat(value);
+  return Number.isFinite(result) ? result : defaultValue;
+}
+
+export function toFinitInt(value, defaultValue = 0) {
+  const result = Number.parseInt(value);
+  return Number.isFinite(result) ? result : defaultValue;
 }

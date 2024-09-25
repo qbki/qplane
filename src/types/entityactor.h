@@ -1,4 +1,5 @@
 #pragma once
+#include <QJsonObject>
 #include <QObject>
 #include <QQmlEngine>
 #include <QString>
@@ -10,7 +11,7 @@ class EntityActor
 
   Q_PROPERTY(QString id READ id WRITE set_id FINAL)
   Q_PROPERTY(QString model_id READ model_id WRITE set_model_id FINAL)
-  Q_PROPERTY(QString gun_id READ gun_id WRITE set_gun_id FINAL)
+  Q_PROPERTY(QString weapon_id READ weapon_id WRITE set_weapon_id FINAL)
   Q_PROPERTY(QString hit_particles_id READ hit_particles_id WRITE set_hit_particles_id FINAL)
   Q_PROPERTY(QString debris_id READ debris_id WRITE set_debris_id FINAL)
   Q_PROPERTY(int lives READ lives WRITE set_lives FINAL)
@@ -20,30 +21,30 @@ public:
   EntityActor();
 
   QString id() const;
-  void set_id(const QString &new_id);
+  void set_id(const QString &value);
 
   QString model_id() const;
-  void set_model_id(const QString &new_model_id);
+  void set_model_id(const QString &value);
 
-  QString gun_id() const;
-  void set_gun_id(const QString &new_gun_id);
+  QString weapon_id() const;
+  void set_weapon_id(const QString &value);
 
   QString hit_particles_id() const;
-  void set_hit_particles_id(const QString &new_hit_particles_id);
+  void set_hit_particles_id(const QString &value);
 
   QString debris_id() const;
-  void set_debris_id(const QString &new_debris_id);
+  void set_debris_id(const QString &value);
 
   float speed() const;
-  void set_speed(float new_speed);
+  void set_speed(float value);
 
   int lives() const;
-  void set_lives(int newLives);
+  void set_lives(int value);
 
 private:
   QString m_id = "";
   QString m_model_id = "";
-  QString m_gun_id = "";
+  QString m_weapon_id = "";
   QString m_hit_particles_id = "";
   QString m_debris_id = "";
   float m_speed = 0;

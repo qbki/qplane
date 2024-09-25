@@ -36,6 +36,7 @@ AppState::setProjectDir(const QUrl& newProjectDir)
   emit isProjectLoadedChanged();
   emit levelsDirChanged();
   emit projectDirChanged();
+  emit soundsDirChanged();
 }
 
 QUrl
@@ -100,4 +101,9 @@ AppState::levelsMetaPath() const
 QUrl AppState::themePath() const
 {
   return levelsDir().resolved(PROJECT_THEME_FILE);
+}
+
+QUrl AppState::soundsDir() const
+{
+  return projectDir().resolved(PROJECT_SOUNDS_DIR);
 }

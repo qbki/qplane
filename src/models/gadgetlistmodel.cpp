@@ -71,38 +71,12 @@ QJSValue GadgetListModel::toArray()
   return jsArray;
 }
 
-QString
-GadgetListModel::selectedModel() const
-{
-  return m_selectedModel;
-}
-
-void
-GadgetListModel::setSelectedModel(const QString &value)
-{
-  if (m_selectedModel != value) {
-    m_selectedModel = value;
-    emit selectedModelChanged();
-  }
-}
-
 QModelIndex GadgetListModel::findIndex(const QJSValue &predicate) const
 {
-  auto engine = qmlEngine(this);
-  if (!predicate.isCallable()) {
-    engine->throwError(QString("Expected a callable object"));
-  }
-  int i = 0;
-  auto data = m_data.getData();
-  for (; i < m_data.rowCount(); i++) {
-    QJSValueList args;
-    args << engine->toScriptValue(data[i]);
-    auto result = predicate.call(args);
-    if (result.toBool()) {
-      return index(i, 0);
-    }
-  }
-  return {};
+  auto result = m_data.findIndex(*this, predicate);
+  return result < 0
+    ? QModelIndex {}
+    : index(result, 0);
 }
 
 void

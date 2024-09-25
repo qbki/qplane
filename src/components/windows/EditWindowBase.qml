@@ -9,6 +9,7 @@ Window {
 
   required property Action cancelAction
   required property Action acceptAction
+  property bool expand: true
 
   id: root
   modality: Qt.WindowModal
@@ -41,17 +42,16 @@ Window {
       }
 
       ColumnLayout {
-        Layout.fillHeight: true
+        Layout.fillHeight: root.expand
         Layout.fillWidth: true
         spacing: 0
 
         Item {
-          Layout.fillHeight: true
+          Layout.fillHeight: root.expand
         }
 
         FormAcceptButtonsGroup {
           Layout.fillWidth: true
-          Layout.alignment: Qt.AlignBottom
           cancelAction: root.cancelAction
           acceptAction: root.acceptAction
         }

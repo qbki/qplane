@@ -3,9 +3,11 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import app
+import "../../jsutils/utils.mjs" as JS
 
 EditWindowBase {
-  required property var modelsList
+  required property list<string> modelsList
+  required property list<string> weaponsList
 
   signal canceled()
   signal accepted(newActor: entityActor, actor: entityActor)
@@ -22,15 +24,16 @@ EditWindowBase {
     livesField.value = initialData.lives;
     hitParticlesIdField.value = initialData.hit_particles_id;
     debrisModelIdField.value = initialData.debris_id;
+    weaponIdField.value = initialData.weapon_id;
     internal.initialData = initialData;
     root.show();
   }
 
   QtObject {
     id: internal
-
     property entityActor initialData
-    property var emptyableModelsList: [""].concat(root.modelsList)
+    property list<string> emptyableModelsList: [""].concat(root.modelsList)
+    property list<string> emptyableWeaponsList: [""].concat(root.weaponsList)
   }
 
   Action {
@@ -47,18 +50,13 @@ EditWindowBase {
     text: qsTr("Ok")
     onTriggered: {
       const newEntity = EntityActorFactory.create();
-
       newEntity.id = idField.value;
       newEntity.model_id = modelIdField.value;
       newEntity.debris_id = debrisModelIdField.value;
+      newEntity.weapon_id = weaponIdField.value;
       newEntity.hit_particles_id = hitParticlesIdField.value;
-
-      const speed = Number.parseFloat(speedField.value);
-      newEntity.speed = Number.isFinite(speed) ? speed : 0;
-
-      const lives = Number.parseInt(livesField.value);
-      newEntity.lives = Number.isFinite(lives) ? lives : 0;
-
+      newEntity.speed = JS.toFinitFloat(speedField.value);
+      newEntity.lives = JS.toFinitInt(livesField.value);
       root.accepted(newEntity, internal.initialData);
       root.close();
     }
@@ -93,6 +91,13 @@ EditWindowBase {
     id: hitParticlesIdField
     label: qsTr("Hit particles")
     model: internal.emptyableModelsList
+    Layout.fillWidth: true
+  }
+
+  FormComboBoxInput {
+    id: weaponIdField
+    label: qsTr("Weapon")
+    model: internal.emptyableWeaponsList
     Layout.fillWidth: true
   }
 

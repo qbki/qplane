@@ -4,6 +4,7 @@
 
 class AppState : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   Q_PROPERTY(QUrl projectDir READ projectDir WRITE setProjectDir NOTIFY projectDirChanged FINAL)
@@ -12,6 +13,7 @@ class AppState : public QObject
   Q_PROPERTY(QUrl levelPath READ levelPath WRITE setLevelPath NOTIFY levelPathChanged FINAL)
   Q_PROPERTY(QUrl themePath READ themePath NOTIFY themePathChanged FINAL)
   Q_PROPERTY(QUrl modelsDir READ modelsDir NOTIFY modelsDirChanged FINAL)
+  Q_PROPERTY(QUrl soundsDir READ soundsDir NOTIFY soundsDirChanged FINAL)
   Q_PROPERTY(bool isProjectLoaded READ isProjectLoaded NOTIFY isProjectLoadedChanged FINAL)
   Q_PROPERTY(bool isLevelLoaded READ isLevelLoaded NOTIFY isLevelLoadedChanged FINAL)
   Q_PROPERTY(bool isModelsDirExists READ isModelsDirExists FINAL)
@@ -29,8 +31,9 @@ public:
   QUrl levelsMetaPath() const;
   QUrl themePath() const;
 
-  QUrl modelsDir() const;
   QUrl levelsDir() const;
+  QUrl modelsDir() const;
+  QUrl soundsDir() const;
 
   bool isModelsDirExists() const;
   bool isProjectLoaded() const;
@@ -47,6 +50,7 @@ signals:
   void isLevelLoadedChanged();
   void levelsMetaPathChanged();
   void themePathChanged();
+  void soundsDirChanged();
 
 private:
   QUrl m_projectDir;

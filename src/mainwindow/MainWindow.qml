@@ -107,9 +107,12 @@ ApplicationWindow {
           .map((value) => [value.id, EntityModelFactory.toJson(value, appState.projectDir)]);
         const actorsJson = actorsStore.toArray()
           .map((value) => [value.id, EntityActorFactory.toJson(value)]);
+        const weaponsJson = weaponsStore.toArray()
+          .map((value) => [value.id, EntityWeaponFactory.toJson(value, appState.projectDir)]);
         const entities = [
           ...modelsJson,
           ...actorsJson,
+          ...weaponsJson,
         ].reduce((acc, [id, value]) => {
           acc[id] = value;
           return acc;
@@ -172,6 +175,10 @@ ApplicationWindow {
   }
 
   GadgetListModel {
+    id: actorsStore
+  }
+
+  GadgetListModel {
     id: modelsStore
 
     function getById(id) {
@@ -181,7 +188,7 @@ ApplicationWindow {
   }
 
   GadgetListModel {
-    id: actorsStore
+    id: weaponsStore
   }
 
   AppState {
@@ -403,6 +410,7 @@ ApplicationWindow {
             RosterEntityActors {
               modelsStore: modelsStore
               actorsStore: actorsStore
+              weaponsStore: weaponsStore
               selectedEntityId: root.selectedEntityId
               anchors.left: parent.left
               anchors.right: parent.right
@@ -430,6 +438,19 @@ ApplicationWindow {
                 root.selectedEntityId = modelData.id;
                 root.ghostUrl = modelData.path;
               }
+            }
+          }
+
+          GroupBox {
+            title: qsTr("Weapons")
+            Layout.fillWidth: true
+
+            RosterEntityWeapons {
+              appState: appState
+              weaponsStore: weaponsStore
+              modelsStore: modelsStore
+              anchors.left: parent.left
+              anchors.right: parent.right
             }
           }
         }
@@ -477,6 +498,11 @@ ApplicationWindow {
           .filter(isKindOf("actor"))
           .map(([id, value]) => EntityActorFactory.fromJson(id, value));
         actorsStore.appendList(actors);
+
+        const weapons = entriesArray
+          .filter(isKindOf("weapon"))
+          .map(([id, value]) => EntityWeaponFactory.fromJson(id, value, appState.projectDir));
+        weaponsStore.appendList(weapons);
       } catch(error) {
         console.error(error);
       }
@@ -496,7 +522,7 @@ ApplicationWindow {
 
         const scene = [
           ...sceneModelItems.children,
-          ...sceneActorItems.children
+          ...sceneActorItems.children,
         ].reduce(JS.reduceToObjectByField("name"), {});
         for (const strategyJson of json.map) {
           if (strategyJson.kind === "many") {

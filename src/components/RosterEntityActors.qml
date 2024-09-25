@@ -8,6 +8,7 @@ import app
 ColumnLayout {
   property string selectedEntityId: ""
   required property var modelsStore
+  required property var weaponsStore
   required property var actorsStore
 
   signal itemClicked(model: entityActor)
@@ -54,6 +55,7 @@ ColumnLayout {
     window: Component {
       EntityActorEditWindow {
         modelsList: root.modelsStore.toArray().map((v) => v.id)
+        weaponsList: root.weaponsStore.toArray().map((v) => v.id)
       }
     }
   }

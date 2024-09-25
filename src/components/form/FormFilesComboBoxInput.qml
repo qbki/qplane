@@ -8,10 +8,10 @@ import "../../jsutils/utils.mjs" as JS
 import app
 
 Item {
-  required property url rootDir;
   property alias folder: folderModel.folder;
+  property alias rootFolder: folderModel.rootFolder;
   property alias label: label.text
-  property alias nameFilters: folderModel.nameFilters;
+  property alias extentions: folderModel.extentions;
   property url value;
 
   id: root
@@ -23,32 +23,16 @@ Item {
 
   QtObject {
     id: internal
-    property string role: "fileUrl"
 
     function selectCurrentValue() {
-      comboBox.currentIndex = folderModel.indexOf(root.value);
+      const predicate = (value) => JS.areStrsEqual(value.toString(), root.value.toString());
+      const index = folderModel.findIndex(predicate);
+      comboBox.currentIndex = index.valid ? index.row : -1;
     }
   }
 
-  Platform.FolderListModel {
+  RecursiveDirectoryListModel {
     id: folderModel
-    showDirs: false
-    onStatusChanged: {
-      if (folderModel.status === Platform.FolderListModel.Ready) {
-        internal.selectCurrentValue();
-      }
-    }
-  }
-
-  TransformModel {
-    id: outputModel
-    sourceModel: folderModel
-    role: "filePath"
-    map: function(value, role) {
-      return JS.areStrsEqual(role.toString(), internal.role)
-        ? FileIO.relativePath(root.rootDir, value)
-        : value;
-    }
   }
 
   ColumnLayout {
@@ -66,11 +50,15 @@ Item {
 
     ComboBox {
       id: comboBox
-      model: outputModel
-      textRole: internal.role
+      model: folderModel
+      valueRole: "value"
+      textRole: "text"
       Layout.fillWidth: true
+      currentIndex: -1
       onCurrentValueChanged: {
-        root.value = folderModel.get(comboBox.currentIndex, internal.role);
+        if (root.value !== comboBox.currentValue) {
+          root.value = comboBox.currentValue;
+        }
       }
     }
   }

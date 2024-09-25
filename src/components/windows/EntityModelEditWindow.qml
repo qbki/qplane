@@ -5,8 +5,8 @@ import QtQuick.Layouts
 import app
 
 EditWindowBase {
-  property url modelsDir
-  property url projectDir
+  required property url modelsDir
+  required property url projectDir
 
   signal canceled()
   signal accepted(newEntityModel: entityModel, initialData: entityModel)
@@ -60,8 +60,9 @@ EditWindowBase {
   FormFilesComboBoxInput {
     id: pathField
     label: qsTr("Path to a *.glb model")
-    folder: modelsDir
-    rootDir: projectDir
+    folder: root.modelsDir
+    rootFolder: root.projectDir
+    extentions: [".glb"]
     Layout.fillWidth: true
     onValueChanged: {
       if (idField.value === "" && !!pathField.value) {

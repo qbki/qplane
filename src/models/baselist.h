@@ -1,5 +1,8 @@
 #pragma once
 #include <QAbstractListModel>
+#include <QJSValue>
+#include <QModelIndex>
+#include <QQmlEngine>
 
 template<typename T>
 class BaseList
@@ -16,8 +19,7 @@ public:
 
   std::vector<T>& getData();
   const std::vector<T>& getData() const;
-
-public slots:
+  int findIndex(const QObject& qmlObject, const QJSValue& predicate) const;
   void push(const T& value);
 
 private:
@@ -85,4 +87,26 @@ void
 BaseList<T>::push(const T& value)
 {
   m_data.push_back(value);
+}
+
+
+template<typename T>
+int
+BaseList<T>::findIndex(const QObject& qmlObject, const QJSValue &predicate) const
+{
+  auto engine = qmlEngine(&qmlObject);
+  if (!predicate.isCallable()) {
+    engine->throwError(QString("Expected a callable object"));
+  }
+  int i = 0;
+  auto length = m_data.size();
+  for (; i < length; i++) {
+    QJSValueList args;
+    args << engine->toScriptValue(m_data[i]);
+    auto result = predicate.call(args);
+    if (result.toBool()) {
+      return i;
+    }
+  }
+  return -1;
 }
