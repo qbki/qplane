@@ -109,10 +109,13 @@ ApplicationWindow {
           .map((value) => [value.id, EntityActorFactory.toJson(value)]);
         const weaponsJson = weaponsStore.toArray()
           .map((value) => [value.id, EntityWeaponFactory.toJson(value, appState.projectDir)]);
+        const particlesJson = particlesStore.toArray()
+          .map((value) => [value.id, EntityParticlesFactory.toJson(value)]);
         const entities = [
           ...modelsJson,
           ...actorsJson,
           ...weaponsJson,
+          ...particlesJson,
         ].reduce((acc, [id, value]) => {
           acc[id] = value;
           return acc;
@@ -189,6 +192,10 @@ ApplicationWindow {
 
   GadgetListModel {
     id: weaponsStore
+  }
+
+  GadgetListModel {
+    id: particlesStore
   }
 
   AppState {
@@ -411,6 +418,7 @@ ApplicationWindow {
               modelsStore: modelsStore
               actorsStore: actorsStore
               weaponsStore: weaponsStore
+              particlesStore: particlesStore
               selectedEntityId: root.selectedEntityId
               anchors.left: parent.left
               anchors.right: parent.right
@@ -448,6 +456,18 @@ ApplicationWindow {
             RosterEntityWeapons {
               appState: appState
               weaponsStore: weaponsStore
+              modelsStore: modelsStore
+              anchors.left: parent.left
+              anchors.right: parent.right
+            }
+          }
+
+          GroupBox {
+            title: qsTr("Particles")
+            Layout.fillWidth: true
+
+            RosterEntityParticles {
+              particlesStore: particlesStore
               modelsStore: modelsStore
               anchors.left: parent.left
               anchors.right: parent.right
@@ -503,6 +523,11 @@ ApplicationWindow {
           .filter(isKindOf("weapon"))
           .map(([id, value]) => EntityWeaponFactory.fromJson(id, value, appState.projectDir));
         weaponsStore.appendList(weapons);
+
+        const particles = entriesArray
+          .filter(isKindOf("particles"))
+          .map(([id, value]) => EntityParticlesFactory.fromJson(id, value));
+        particlesStore.appendList(particles);
       } catch(error) {
         console.error(error);
       }

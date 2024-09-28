@@ -5,8 +5,6 @@
 
 #include "entitymodel.h"
 
-EntityModel::EntityModel() {}
-
 QString EntityModel::id() const
 {
   return m_id;

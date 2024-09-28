@@ -10,6 +10,7 @@ ColumnLayout {
   required property var modelsStore
   required property var weaponsStore
   required property var actorsStore
+  required property var particlesStore
 
   signal itemClicked(model: entityActor)
 
@@ -56,6 +57,7 @@ ColumnLayout {
       EntityActorEditWindow {
         modelsList: root.modelsStore.toArray().map((v) => v.id)
         weaponsList: root.weaponsStore.toArray().map((v) => v.id)
+        particlesList: root.particlesStore.toArray().map((v) => v.id)
       }
     }
   }

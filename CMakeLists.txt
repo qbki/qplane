@@ -153,6 +153,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/PropertiesControl.qml
     src/components/RosterEntityActors.qml
     src/components/RosterEntityModels.qml
+    src/components/RosterEntityParticles.qml
     src/components/RosterEntityWeapons.qml
     src/components/SceneGhost.qml
     src/components/SceneItem.qml
@@ -169,6 +170,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/windows/EditWindowBase.qml
     src/components/windows/EntityActorEditWindow.qml
     src/components/windows/EntityModelEditWindow.qml
+    src/components/windows/EntityParticlesEditWindow.qml
     src/components/windows/EntityWeaponEditWindow.qml
     src/components/windows/LazyEditWindow.qml
     src/components/windows/LazyWindow.qml
@@ -188,6 +190,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/transformmodel.h src/models/transformmodel.cpp
     src/types/entityactor.h src/types/entityactor.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
+    src/types/entityparticles.h src/types/entityparticles.cpp
     src/types/entityweapon.h src/types/entityweapon.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp

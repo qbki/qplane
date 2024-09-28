@@ -13,7 +13,7 @@ class PositionStrategyMany
   QML_NAMED_ELEMENT(positionStrategyMany)
 
 public:
-  PositionStrategyMany();
+  PositionStrategyMany() = default;
 
   QString entity_id() const;
   void set_entity_id(const QString &newEntity_id);

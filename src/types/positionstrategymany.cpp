@@ -6,10 +6,6 @@
 
 #include "positionstrategymany.h"
 
-PositionStrategyMany::PositionStrategyMany()
-{
-}
-
 QString PositionStrategyMany::entity_id() const
 {
   return m_entity_id;

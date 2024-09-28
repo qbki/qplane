@@ -20,7 +20,7 @@ private:
   bool m_is_opaque = true;
 
 public:
-  EntityModel();
+  EntityModel() = default;
 
   QString id() const;
   void set_id(const QString &new_id);

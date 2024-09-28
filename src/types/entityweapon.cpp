@@ -5,8 +5,6 @@
 
 #include "entityweapon.h"
 
-EntityWeapon::EntityWeapon() {}
-
 QString EntityWeapon::id() const
 {
   return m_id;

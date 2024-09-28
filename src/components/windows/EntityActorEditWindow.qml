@@ -8,6 +8,7 @@ import "../../jsutils/utils.mjs" as JS
 EditWindowBase {
   required property list<string> modelsList
   required property list<string> weaponsList
+  required property list<string> particlesList
 
   signal canceled()
   signal accepted(newActor: entityActor, actor: entityActor)
@@ -34,6 +35,7 @@ EditWindowBase {
     property entityActor initialData
     property list<string> emptyableModelsList: [""].concat(root.modelsList)
     property list<string> emptyableWeaponsList: [""].concat(root.weaponsList)
+    property list<string> emptyableParticlesList: [""].concat(root.particlesList)
   }
 
   Action {
@@ -90,7 +92,7 @@ EditWindowBase {
   FormComboBoxInput {
     id: hitParticlesIdField
     label: qsTr("Hit particles")
-    model: internal.emptyableModelsList
+    model: internal.emptyableParticlesList
     Layout.fillWidth: true
   }
 

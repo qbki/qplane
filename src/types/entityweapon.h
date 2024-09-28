@@ -26,7 +26,7 @@ private:
   QUrl m_shot_sound_path = QString("");
 
 public:
-  EntityWeapon();
+  EntityWeapon() = default;
 
   QString id() const;
   void set_id(const QString &new_id);

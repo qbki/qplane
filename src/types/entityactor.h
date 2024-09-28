@@ -18,7 +18,7 @@ class EntityActor
   Q_PROPERTY(float speed READ speed WRITE set_speed FINAL)
 
 public:
-  EntityActor();
+  EntityActor() = default;
 
   QString id() const;
   void set_id(const QString &value);

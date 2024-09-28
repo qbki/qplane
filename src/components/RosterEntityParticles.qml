@@ -6,18 +6,17 @@ import "../jsutils/utils.mjs" as JS
 import app
 
 ColumnLayout {
-  required property AppState appState
-  required property var weaponsStore
+  required property var particlesStore
   required property var modelsStore
 
-  signal itemClicked(model: entityWeapon)
+  signal itemClicked(model: entityParticles)
 
   id: root
 
   component Delegate: Label {
     required property int index
     required property var model
-    property entityWeapon modelData: model.display
+    property entityParticles modelData: model.display
 
     Layout.fillWidth: true
     Layout.fillHeight: true
@@ -32,7 +31,7 @@ ColumnLayout {
           root.itemClicked(parent.modelData);
         } else if (event.button === Qt.RightButton) {
           editWindow.open(modelData)
-          const updateEntity = JS.partial(JS.updateEntity, root.weaponsStore)
+          const updateEntity = JS.partial(JS.updateEntity, root.particlesStore)
           JS.fireOnce(editWindow.accepted, updateEntity);
         }
       }
@@ -42,24 +41,22 @@ ColumnLayout {
   LazyEditWindow {
     id: editWindow
     window: Component {
-      EntityWeaponEditWindow {
-        soundsDir: root.appState.soundsDir
-        projectDir: root.appState.projectDir
+      EntityParticlesEditWindow {
         modelsList: root.modelsStore.toArray().map((v) => v.id)
       }
     }
   }
 
   Repeater {
-    model: root.weaponsStore
+    model: root.particlesStore
     delegate: Delegate {}
   }
 
   Button {
-    text: qsTr("Add Weapon")
+    text: qsTr("Add Particles")
     onClicked: {
-      editWindow.open(EntityWeaponFactory.create());
-      const addEntity = (entity) => root.weaponsStore.append(entity);
+      editWindow.open(EntityParticlesFactory.create());
+      const addEntity = (entity) => root.particlesStore.append(entity);
       JS.fireOnce(editWindow.accepted, addEntity);
     }
   }

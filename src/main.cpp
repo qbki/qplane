@@ -4,6 +4,8 @@
 
 #include "types/entityactor.h"
 #include "types/entitymodel.h"
+#include "types/entityparticles.h"
+#include "types/entityweapon.h"
 #include "types/positionstrategymany.h"
 
 int main(int argc, char* argv[]) {
@@ -11,6 +13,8 @@ int main(int argc, char* argv[]) {
 
   qRegisterMetaType<EntityActor>();
   qRegisterMetaType<EntityModel>();
+  qRegisterMetaType<EntityParticles>();
+  qRegisterMetaType<EntityWeapon>();
   qRegisterMetaType<PositionStrategyMany>();
 
   QQmlApplicationEngine engine;

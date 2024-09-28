@@ -4,7 +4,15 @@
 
 #include "entityactor.h"
 
-EntityActor::EntityActor() {}
+QString EntityActor::id() const
+{
+  return m_id;
+}
+
+void EntityActor::set_id(const QString &value)
+{
+  m_id = value;
+}
 
 QString EntityActor::model_id() const
 {
@@ -56,15 +64,14 @@ void EntityActor::set_speed(float value)
   m_speed = value;
 }
 
-
-QString EntityActor::id() const
+int EntityActor::lives() const
 {
-  return m_id;
+  return m_lives;
 }
 
-void EntityActor::set_id(const QString &value)
+void EntityActor::set_lives(int new_lives)
 {
-  m_id = value;
+  m_lives = new_lives;
 }
 
 EntityActorFactory::EntityActorFactory(QObject *parent)
@@ -112,14 +119,4 @@ EntityActor EntityActorFactory::fromJson(const QString &id, const QJsonObject &j
     qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
   }
   return entity;
-}
-
-int EntityActor::lives() const
-{
-  return m_lives;
-}
-
-void EntityActor::set_lives(int new_lives)
-{
-  m_lives = new_lives;
 }
