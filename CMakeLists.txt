@@ -151,15 +151,12 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/MainMenuItem.qml
     src/components/OpacityHover.qml
     src/components/PropertiesControl.qml
-    src/components/RosterEntityActors.qml
-    src/components/RosterEntityModels.qml
-    src/components/RosterEntityParticles.qml
-    src/components/RosterEntityWeapons.qml
     src/components/SceneGhost.qml
     src/components/SceneItem.qml
     src/components/SceneListEntry.qml
     src/components/form/FormAcceptButtonsGroup.qml
     src/components/form/FormCheckBoxInput.qml
+    src/components/form/FormColorInput.qml
     src/components/form/FormComboBoxInput.qml
     src/components/form/FormFilesComboBoxInput.qml
     src/components/form/FormTextInput.qml
@@ -167,13 +164,21 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/icons/BaseIconShape.qml
     src/components/icons/DownIcon.qml
     src/components/icons/UpIcon.qml
+    src/components/rosters/RosterEntityActors.qml
+    src/components/rosters/RosterEntityDirectionalLights.qml
+    src/components/rosters/RosterEntityModels.qml
+    src/components/rosters/RosterEntityParticles.qml
+    src/components/rosters/RosterEntityWeapons.qml
+    src/components/rosters/RosterLabel.qml
     src/components/windows/EditWindowBase.qml
     src/components/windows/EntityActorEditWindow.qml
+    src/components/windows/EntityDirectionalLightEditWindow.qml
     src/components/windows/EntityModelEditWindow.qml
     src/components/windows/EntityParticlesEditWindow.qml
     src/components/windows/EntityWeaponEditWindow.qml
     src/components/windows/LazyEditWindow.qml
     src/components/windows/LazyWindow.qml
+    src/components/windows/LevelGlobalLight.qml
     src/components/windows/LevelsEditWindow.qml
     src/components/windows/ThemeEditWindow.qml
     src/mainwindow/MainWindow.qml
@@ -189,9 +194,11 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
     src/types/entityactor.h src/types/entityactor.cpp
+    src/types/entitydirectionallight.h src/types/entitydirectionallight.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
     src/types/entityparticles.h src/types/entityparticles.cpp
     src/types/entityweapon.h src/types/entityweapon.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp
+    src/types/positionstrategyvoid.h src/types/positionstrategyvoid.cpp
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp
 )

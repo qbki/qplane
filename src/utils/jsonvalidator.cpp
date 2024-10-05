@@ -61,6 +61,38 @@ JsonValidator::vectors3d(const QString &key) const
   throw create_error(QString("\"%1\" field must be an array type").arg(key));
 }
 
+QVector3D
+JsonValidator::vector3d(const QString &key) const
+{
+  must_contain_key(key);
+  if (const QJsonValue value = (*m_json)[key]; value.isArray()) {
+    const auto array = value.toArray();
+    auto size = array.size();
+    if (size != 3) {
+      throw create_error(QString("\"%1\" field has insufficient size, expected 3 doubles").arg(key));
+    }
+    const auto x = array[0];
+    const auto y = array[1];
+    const auto z = array[2];
+    if (!(x.isDouble() && y.isDouble() && z.isDouble())) {
+      throw create_error(QString("\"%1\" items must be a double type").arg(key));
+    }
+    return QVector3D(x.toDouble(), y.toDouble(), z.toDouble());
+  }
+  throw create_error(QString("\"%1\" field must be an array of 3 doubles").arg(key));
+}
+
+QColor
+JsonValidator::color(const QString &key) const
+{
+  auto vector = vector3d(key);
+  return QColor::fromRgbF(
+    std::clamp(vector.x(), 0.0f, 1.0f),
+    std::clamp(vector.y(), 0.0f, 1.0f),
+    std::clamp(vector.z(), 0.0f, 1.0f)
+  );
+}
+
 double
 JsonValidator::real(const QString& key) const
 {

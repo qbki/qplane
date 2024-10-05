@@ -6,6 +6,7 @@
 
 class PositionStrategyMany
 {
+private:
   Q_GADGET
   Q_PROPERTY(QString entity_id READ entity_id WRITE set_entity_id)
   Q_PROPERTY(QString behaviour READ behaviour WRITE set_behaviour)
@@ -34,6 +35,7 @@ Q_DECLARE_METATYPE(PositionStrategyMany)
 
 class PositionStrategyManyFactory : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON
@@ -41,7 +43,6 @@ class PositionStrategyManyFactory : public QObject
 public:
   PositionStrategyManyFactory(QObject* parent = Q_NULLPTR);
   Q_INVOKABLE PositionStrategyMany create();
-
   Q_INVOKABLE QJsonObject toJson(const PositionStrategyMany& strategy);
   Q_INVOKABLE PositionStrategyMany fromJson(const QJsonObject& json);
 };

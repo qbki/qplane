@@ -17,6 +17,7 @@ ApplicationWindow {
   property vector3d ghostPosition: Qt.vector3d(0, 0, 0)
   property var selectedInstance: null
   property string selectedEntityId: ""
+  property string globalLightId: ""
   property var sceneItemsMap: JS.id({})
 
   function isServiceObject(value) {
@@ -51,6 +52,18 @@ ApplicationWindow {
     const entityId = root.selectedEntityId;
   }
 
+  onGlobalLightIdChanged: {
+    const idx = directionalLightsStore.findIndex(({ id }) => id == root.globalLightId);
+    if (!idx.valid) {
+      return;
+    }
+    const light = directionalLightsStore.data(idx);
+    globalLight.color = light.color;
+    const direction = light.direction;
+    const rotation = Quaternion.lookAt(Qt.vector3d(0, 0, 0), light.direction, camera.forward, camera.up);
+    globalLight.rotation = rotation;
+  }
+
   id: root
   visible: true
   visibility: ApplicationWindow.Maximized
@@ -69,6 +82,7 @@ ApplicationWindow {
       MainMenuItem { action: newLevelAction }
       MainMenuItem { action: openLevelAction }
       MainMenuItem { action: openLevelsEditWindowAction }
+      MainMenuItem { action: openEditGlobalLightWindowAction }
     }
 
     Menu {
@@ -111,22 +125,18 @@ ApplicationWindow {
           .map((value) => [value.id, EntityWeaponFactory.toJson(value, appState.projectDir)]);
         const particlesJson = particlesStore.toArray()
           .map((value) => [value.id, EntityParticlesFactory.toJson(value)]);
+        const directionalLightsJson = directionalLightsStore.toArray()
+          .map((value) => [value.id, EntityDirectionalLightFactory.toJson(value)]);
         const entities = [
           ...modelsJson,
           ...actorsJson,
           ...weaponsJson,
           ...particlesJson,
+          ...directionalLightsJson,
         ].reduce((acc, [id, value]) => {
           acc[id] = value;
           return acc;
         }, {});
-        // TODO: Placeholder, it should be removed after implementation of light entity.
-        //       But I need it here for testing new features with the plane engine.
-        entities["sun_light"] = {
-          kind: "directional_light",
-          color: [1, 1, 1],
-          direction: [-0.8, -0.8, -1.0]
-        };
         FileIO.saveJson(appState.levelsDir + "/entities.json", { entities });
       }
       if (appState.isLevelLoaded) {
@@ -143,12 +153,14 @@ ApplicationWindow {
           .filter((child) => !child.isEmpty())
           .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
           .reduce((acc, v) => acc.concat(v), []);
-        const light = {
-          kind: "void",
-          behaviour: "light",
-          entity_id: "sun_light"
-        };
-        FileIO.saveJson(appState.levelPath, { camera, map: [...statics, ...actors, light] });
+        const lights = [];
+        if (root.globalLightId) {
+          const light = PositionStrategyVoidFactory.create();
+          light.behaviour = "light"
+          light.entity_id = root.globalLightId
+          lights.push(PositionStrategyVoidFactory.toJson(light));
+        }
+        FileIO.saveJson(appState.levelPath, { camera, map: [...statics, ...actors, ...lights] });
       }
     }
   }
@@ -177,6 +189,12 @@ ApplicationWindow {
     onTriggered: themeEditWindow.open()
   }
 
+  Action {
+    id: openEditGlobalLightWindowAction
+    text: qsTr("Select global light...")
+    onTriggered: editGlobalLightWindow.open(root.globalLightId)
+  }
+
   GadgetListModel {
     id: actorsStore
   }
@@ -196,6 +214,10 @@ ApplicationWindow {
 
   GadgetListModel {
     id: particlesStore
+  }
+
+  GadgetListModel {
+    id: directionalLightsStore
   }
 
   AppState {
@@ -287,6 +309,7 @@ ApplicationWindow {
         }
 
         DirectionalLight {
+          id: globalLight
           eulerRotation: "-30, -20, -40"
           ambientColor: "#333"
         }
@@ -473,6 +496,17 @@ ApplicationWindow {
               anchors.right: parent.right
             }
           }
+
+          GroupBox {
+            title: qsTr("Directional Light")
+            Layout.fillWidth: true
+
+            RosterEntityDirectionalLights {
+              directionalLightsStore: directionalLightsStore
+              anchors.left: parent.left
+              anchors.right: parent.right
+            }
+          }
         }
       }
     }
@@ -495,6 +529,18 @@ ApplicationWindow {
       ThemeEditWindow {
         themePathUrl: appState.themePath
         projectFolderUrl: appState.projectDir
+      }
+    }
+  }
+
+  LazyEditWindow {
+    id: editGlobalLightWindow
+    window: Component {
+      LevelGlobalLight {
+        model: directionalLightsStore.toArray().map(({ id }) => id)
+        onAccepted: function(value) {
+          root.globalLightId = value;
+        }
       }
     }
   }
@@ -528,6 +574,11 @@ ApplicationWindow {
           .filter(isKindOf("particles"))
           .map(([id, value]) => EntityParticlesFactory.fromJson(id, value));
         particlesStore.appendList(particles);
+
+        const directionalLights = entriesArray
+          .filter(isKindOf("directional_light"))
+          .map(([id, value]) => EntityDirectionalLightFactory.fromJson(id, value));
+        directionalLightsStore.appendList(directionalLights);
       } catch(error) {
         console.error(error);
       }
@@ -544,7 +595,6 @@ ApplicationWindow {
       appState.levelPath = openLevelDialog.file;
       try {
         const json = FileIO.loadJson(appState.levelPath);
-
         const scene = [
           ...sceneModelItems.children,
           ...sceneActorItems.children,
@@ -553,6 +603,14 @@ ApplicationWindow {
           if (strategyJson.kind === "many") {
             const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
             scene[strategy.entity_id]?.applyPositionStrategy(strategy);
+          } else if (strategyJson.kind === "void") {
+            const strategy = PositionStrategyVoidFactory.fromJson(strategyJson);
+            if (JS.areStrsEqual(strategy.behaviour, "light")) {
+              const idx = directionalLightsStore.findIndex((v) => JS.areStrsEqual(v.id, strategy.entity_id));
+              if (idx.valid) {
+                root.globalLightId = strategy.entity_id;
+              }
+            }
           }
         }
       } catch(error) {

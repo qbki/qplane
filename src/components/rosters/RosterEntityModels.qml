@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import "../jsutils/utils.mjs" as JS
+import "../../jsutils/utils.mjs" as JS
 import app
 
 ColumnLayout {
@@ -13,6 +13,16 @@ ColumnLayout {
   signal itemClicked(model: entityModel)
 
   id: root
+
+  LazyEditWindow {
+    id: editWindow
+    window: Component {
+      EntityModelEditWindow {
+        modelsDir: root.appState.modelsDir
+        projectDir: root.appState.projectDir
+      }
+    }
+  }
 
   GridLayout {
     columns: 2
@@ -53,16 +63,6 @@ ColumnLayout {
       editWindow.open(EntityModelFactory.create());
       const addModel = (entity) => root.modelsStore.append(entity);
       JS.fireOnce(editWindow.accepted, addModel);
-    }
-  }
-
-  LazyEditWindow {
-    id: editWindow
-    window: Component {
-      EntityModelEditWindow {
-        modelsDir: root.appState.modelsDir
-        projectDir: root.appState.projectDir
-      }
     }
   }
 }

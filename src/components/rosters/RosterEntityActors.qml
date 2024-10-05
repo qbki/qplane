@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import "../jsutils/utils.mjs" as JS
+import "../../jsutils/utils.mjs" as JS
 import app
 
 ColumnLayout {
@@ -15,37 +15,6 @@ ColumnLayout {
   signal itemClicked(model: entityActor)
 
   id: root
-
-  component ActorDelegate: Label {
-    required property int index
-    required property var model
-    property entityActor modelData: model.display
-
-    Layout.fillWidth: true
-    Layout.fillHeight: true
-    text: modelData.id
-    font.pointSize: 16
-
-    background: Rectangle {
-      anchors.fill: parent
-      visible: modelData.id === root.selectedEntityId
-      color: palette.highlight
-    }
-
-    MouseArea {
-      anchors.fill: parent
-      acceptedButtons: Qt.AllButtons
-      onClicked: function(event) {
-        if (event.button === Qt.LeftButton) {
-          root.itemClicked(parent.modelData);
-        } else if (event.button === Qt.RightButton) {
-          editWindow.open(modelData)
-          const updateActor = JS.partial(JS.updateEntity, root.actorsStore)
-          JS.fireOnce(editWindow.accepted, updateActor);
-        }
-      }
-    }
-  }
 
   SystemPalette {
     id: palette
@@ -64,7 +33,23 @@ ColumnLayout {
 
   Repeater {
     model: root.actorsStore
-    delegate: ActorDelegate {}
+    delegate: RosterLabel {
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+
+      background: Rectangle {
+        anchors.fill: parent
+        visible: modelData.id === root.selectedEntityId
+        color: palette.highlight
+      }
+
+      onLeftMouseClick: root.itemClicked(parent.modelData)
+      onRightMouseClick: {
+        editWindow.open(modelData);
+        const updateActor = JS.partial(JS.updateEntity, root.actorsStore);
+        JS.fireOnce(editWindow.accepted, updateActor);
+      }
+    }
   }
 
   Button {
