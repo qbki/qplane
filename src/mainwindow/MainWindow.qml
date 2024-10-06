@@ -17,7 +17,6 @@ ApplicationWindow {
   property vector3d ghostPosition: Qt.vector3d(0, 0, 0)
   property var selectedInstance: null
   property string selectedEntityId: ""
-  property string globalLightId: ""
   property var sceneItemsMap: JS.id({})
 
   function isServiceObject(value) {
@@ -50,18 +49,6 @@ ApplicationWindow {
 
   onSelectedEntityIdChanged: {
     const entityId = root.selectedEntityId;
-  }
-
-  onGlobalLightIdChanged: {
-    const idx = directionalLightsStore.findIndex(({ id }) => id == root.globalLightId);
-    if (!idx.valid) {
-      return;
-    }
-    const light = directionalLightsStore.data(idx);
-    globalLight.color = light.color;
-    const direction = light.direction;
-    const rotation = Quaternion.lookAt(Qt.vector3d(0, 0, 0), light.direction, camera.forward, camera.up);
-    globalLight.rotation = rotation;
   }
 
   id: root
@@ -140,11 +127,11 @@ ApplicationWindow {
         FileIO.saveJson(appState.levelsDir + "/entities.json", { entities });
       }
       if (appState.isLevelLoaded) {
-        // TODO: Placeholder, it should be removed after implementation of a camera screen (or its substitution).
-        //       But I need it here for testing new features with the plane engine.
-        const camera = {
-          "position": [0.0, 0.0, 30.0]
-        };
+        const camera = (() => {
+          const entity = EntityCameraFactory.create();
+          entity.position = levelSettingsStore.cameraPosition;
+          return EntityCameraFactory.toJson(entity);
+        })();
         const statics = sceneModelItems.children
           .filter((child) => !child.isEmpty())
           .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
@@ -154,10 +141,10 @@ ApplicationWindow {
           .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
           .reduce((acc, v) => acc.concat(v), []);
         const lights = [];
-        if (root.globalLightId) {
+        if (levelSettingsStore.globalLightId) {
           const light = PositionStrategyVoidFactory.create();
           light.behaviour = "light"
-          light.entity_id = root.globalLightId
+          light.entity_id = levelSettingsStore.globalLightId
           lights.push(PositionStrategyVoidFactory.toJson(light));
         }
         FileIO.saveJson(appState.levelPath, { camera, map: [...statics, ...actors, ...lights] });
@@ -191,8 +178,11 @@ ApplicationWindow {
 
   Action {
     id: openEditGlobalLightWindowAction
-    text: qsTr("Select global light...")
-    onTriggered: editGlobalLightWindow.open(root.globalLightId)
+    text: qsTr("Level settings...")
+    onTriggered: {
+      const { globalLightId, cameraPosition } = levelSettingsStore;
+      levelSettingsWindow.open({ globalLightId, cameraPosition });
+    }
   }
 
   GadgetListModel {
@@ -218,6 +208,22 @@ ApplicationWindow {
 
   GadgetListModel {
     id: directionalLightsStore
+  }
+
+  LevelSettings {
+    id: levelSettingsStore
+
+    onGlobalLightIdChanged: {
+      const idx = directionalLightsStore.findIndex(({ id }) => id === levelSettingsStore.globalLightId);
+      if (!idx.valid) {
+        return;
+      }
+      const light = directionalLightsStore.data(idx);
+      globalLight.color = light.color;
+      const direction = light.direction;
+      const rotation = Quaternion.lookAt(Qt.vector3d(0, 0, 0), light.direction, camera.forward, camera.up);
+      globalLight.rotation = rotation;
+    }
   }
 
   AppState {
@@ -311,7 +317,7 @@ ApplicationWindow {
         DirectionalLight {
           id: globalLight
           eulerRotation: "-30, -20, -40"
-          ambientColor: "#333"
+          ambientColor: Qt.rgba(0.05, 0.05, 0.05, 1.0)
         }
 
         PerspectiveCamera {
@@ -534,12 +540,13 @@ ApplicationWindow {
   }
 
   LazyEditWindow {
-    id: editGlobalLightWindow
+    id: levelSettingsWindow
     window: Component {
-      LevelGlobalLight {
+      LevelSettingsWindow {
         model: directionalLightsStore.toArray().map(({ id }) => id)
         onAccepted: function(value) {
-          root.globalLightId = value;
+          levelSettingsStore.globalLightId = value.globalLightId;
+          levelSettingsStore.cameraPosition = value.cameraPosition;
         }
       }
     }
@@ -595,6 +602,10 @@ ApplicationWindow {
       appState.levelPath = openLevelDialog.file;
       try {
         const json = FileIO.loadJson(appState.levelPath);
+
+        const camera = EntityCameraFactory.fromJson(json.camera);
+        levelSettingsStore.cameraPosition = camera.position;
+
         const scene = [
           ...sceneModelItems.children,
           ...sceneActorItems.children,
@@ -608,7 +619,7 @@ ApplicationWindow {
             if (JS.areStrsEqual(strategy.behaviour, "light")) {
               const idx = directionalLightsStore.findIndex((v) => JS.areStrsEqual(v.id, strategy.entity_id));
               if (idx.valid) {
-                root.globalLightId = strategy.entity_id;
+                levelSettingsStore.globalLightId = strategy.entity_id;
               }
             }
           }

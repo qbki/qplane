@@ -1,6 +1,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "src/utils/json.h"
 #include "src/utils/jsonvalidator.h"
 
 #include "entitydirectionallight.h"
@@ -59,11 +60,7 @@ EntityDirectionalLightFactory::toJson(const EntityDirectionalLight &entity)
   json["kind"] = "directional_light";
   auto color = entity.color();
   json["color"] = QJsonArray {color.redF(), color.greenF(), color.blueF()};
-  auto dir = entity.direction();
-  auto round = [](float value) -> double {
-    return std::round(value * 1000000.0) / 1000000.0;
-  };
-  json["direction"] = QJsonArray {round(dir.x()), round(dir.y()), round(dir.z())};
+  json["direction"] = Json::to_array(entity.direction());
   return json;
 }
 

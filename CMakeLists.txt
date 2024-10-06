@@ -148,6 +148,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/HeightControl.qml
     src/components/Highlight.qml
     src/components/IconButton.qml
+    src/components/LevelSettings.qml
     src/components/MainMenuItem.qml
     src/components/OpacityHover.qml
     src/components/PropertiesControl.qml
@@ -178,7 +179,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/windows/EntityWeaponEditWindow.qml
     src/components/windows/LazyEditWindow.qml
     src/components/windows/LazyWindow.qml
-    src/components/windows/LevelGlobalLight.qml
+    src/components/windows/LevelSettingsWindow.qml
     src/components/windows/LevelsEditWindow.qml
     src/components/windows/ThemeEditWindow.qml
     src/mainwindow/MainWindow.qml
@@ -194,11 +195,13 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
     src/types/entityactor.h src/types/entityactor.cpp
+    src/types/entitycamera.h src/types/entitycamera.cpp
     src/types/entitydirectionallight.h src/types/entitydirectionallight.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
     src/types/entityparticles.h src/types/entityparticles.cpp
     src/types/entityweapon.h src/types/entityweapon.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp
     src/types/positionstrategyvoid.h src/types/positionstrategyvoid.cpp
+    src/utils/json.h src/utils/json.cpp
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp
 )

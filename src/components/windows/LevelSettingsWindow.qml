@@ -8,22 +8,27 @@ EditWindowBase {
   property alias model: lightField.model
 
   signal canceled()
-  signal accepted(newLight: string, light: string)
+  signal accepted(newLight: var, light: var)
 
   id: root
-  title: qsTr("Select a global light")
+  title: qsTr("Level settings")
   cancelAction: cancelHandler
   acceptAction: acceptHandler
 
-  function open(value: string) {
-    lightField.value = value;
+  /**
+   * @param value.cameraPosition vector3d
+   * @param value.globalLightId string
+   */
+  function open(value: var) {
+    lightField.value = value.globalLightId;
+    cameraPositionField.value = value.cameraPosition;
     internal.initialData = value;
     root.show();
   }
 
   QtObject {
     id: internal
-    property string initialData
+    property var initialData
   }
 
   Action {
@@ -39,7 +44,11 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
-      root.accepted(lightField.value, internal.initialData);
+      const value = {
+        cameraPosition: cameraPositionField.value,
+        globalLightId: lightField.value,
+      };
+      root.accepted(value, internal.initialData);
       root.close();
     }
   }
@@ -47,6 +56,12 @@ EditWindowBase {
   FormComboBoxInput {
     id: lightField
     label: qsTr("Directional light")
+    Layout.fillWidth: true
+  }
+
+  FormVector3DInput {
+    id: cameraPositionField
+    label: qsTr("Default camera position")
     Layout.fillWidth: true
   }
 }

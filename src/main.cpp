@@ -3,6 +3,7 @@
 #include <QRect>
 
 #include "types/entityactor.h"
+#include "types/entitycamera.h"
 #include "types/entitydirectionallight.h"
 #include "types/entitymodel.h"
 #include "types/entityparticles.h"
@@ -14,10 +15,11 @@ int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
 
   qRegisterMetaType<EntityActor>();
+  qRegisterMetaType<EntityCamera>();
+  qRegisterMetaType<EntityDirectionalLight>();
   qRegisterMetaType<EntityModel>();
   qRegisterMetaType<EntityParticles>();
   qRegisterMetaType<EntityWeapon>();
-  qRegisterMetaType<EntityDirectionalLight>();
   qRegisterMetaType<PositionStrategyMany>();
   qRegisterMetaType<PositionStrategyVoid>();
 
