@@ -47,10 +47,6 @@ ApplicationWindow {
     }
   }
 
-  onSelectedEntityIdChanged: {
-    const entityId = root.selectedEntityId;
-  }
-
   id: root
   visible: true
   visibility: ApplicationWindow.Maximized
@@ -282,9 +278,13 @@ ApplicationWindow {
           id: mouseArea
           anchors.fill: parent
           hoverEnabled: true
-          onMouseXChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
-          onMouseYChanged: root.ghostPosition = view.getGridAlignedPlacingPosition()
-          onPressed: {
+          onPositionChanged: function (event) {
+            root.ghostPosition = view.getGridAlignedPlacingPosition()
+            if (mouseArea.pressedButtons & Qt.LeftButton) {
+              root.addInstance();
+            }
+          }
+          onPressed: function (event) {
             view.forceActiveFocus();
             root.addInstance();
           }
