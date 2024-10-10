@@ -9,8 +9,6 @@ ColumnLayout {
   required property var particlesStore
   required property var modelsStore
 
-  signal itemClicked(model: entityParticles)
-
   id: root
 
   LazyEditWindow {
@@ -27,8 +25,6 @@ ColumnLayout {
     delegate: RosterLabel {
       Layout.fillWidth: true
       Layout.fillHeight: true
-
-      onLeftMouseClick: root.itemClicked(parent.modelData)
       onRightMouseClick: {
         editWindow.open(modelData);
         const updateEntity = JS.partial(JS.updateEntity, root.particlesStore);

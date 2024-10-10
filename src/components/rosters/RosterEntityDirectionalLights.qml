@@ -8,8 +8,6 @@ import app
 ColumnLayout {
   required property var directionalLightsStore
 
-  signal itemClicked(model: entityDirectionalLight)
-
   id: root
 
   LazyEditWindow {
@@ -24,7 +22,6 @@ ColumnLayout {
     delegate: RosterLabel {
       Layout.fillWidth: true
       Layout.fillHeight: true
-      onLeftMouseClick: root.itemClicked(parent.modelData)
       onRightMouseClick: {
         editWindow.open(modelData);
         const updateEntity = JS.partial(JS.updateEntity, root.directionalLightsStore);

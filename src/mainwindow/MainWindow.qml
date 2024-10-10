@@ -253,6 +253,8 @@ ApplicationWindow {
           clearColor: "#dddddd"
         }
 
+
+
         function pickSceneObjects () {
           return view.pickAll(mouseArea.mouseX, mouseArea.mouseY);
         }
@@ -278,32 +280,63 @@ ApplicationWindow {
           id: mouseArea
           anchors.fill: parent
           hoverEnabled: true
-          onPositionChanged: function (event) {
+          onPositionChanged: function(event) {
             root.ghostPosition = view.getGridAlignedPlacingPosition()
             if (mouseArea.pressedButtons & Qt.LeftButton) {
               root.addInstance();
             }
           }
-          onPressed: function (event) {
+          onPressed: function(event) {
             view.forceActiveFocus();
             root.addInstance();
+          }
+          onWheel: function(event) {
+            const step = Qt.vector3d(0, 0, 3);
+            if (event.angleDelta.y > 0) {
+              camera.moveBackward();
+            } else if (event.angleDelta.y < 0) {
+              camera.moveForward();
+            }
           }
         }
 
         Keys.onPressed: function(event) {
-          if (event.key === Qt.Key_X) {
+          switch (event.key) {
+          case Qt.Key_X: {
             root.removeInstance();
-          } else if (event.key === Qt.Key_Q) {
+            break;
+          }
+          case Qt.Key_W: {
+            camera.moveUp();
+            break;
+          }
+          case Qt.Key_S: {
+            camera.moveDown();
+            break;
+          }
+          case Qt.Key_A: {
+            camera.moveLeft();
+            break;
+          }
+          case Qt.Key_D: {
+            camera.moveRight();
+            break;
+          }
+          case Qt.Key_Q: {
             const list = view.pickSceneObjects()
-              .filter((v) => !root.isServiceObject(v.objectHit));
+            .filter((v) => !root.isServiceObject(v.objectHit));
             if (list[0]) {
               const hitResult = list[0];
               const model = hitResult.objectHit;
               const sceneItem = JS.findParentOf(model, SceneItem);
               if (sceneItem) {
+                const instance = sceneItem.getInstance(hitResult.instanceIndex);
                 root.selectedEntityId = sceneItem.name;
-                root.selectedInstance = sceneItem.getInstance(hitResult.instanceIndex);
+                root.selectedInstance = instance;
                 root.ghostUrl = sceneItem.source;
+                if (event.modifiers & Qt.ControlModifier) {
+                  intersectionPlane.z = instance.position.z;
+                }
                 propertiesControl.setParams({
                   position: root.selectedInstance.position,
                   behaviour: root.selectedInstance.behaviour,
@@ -311,6 +344,23 @@ ApplicationWindow {
                 });
               }
             }
+            break;
+          }
+          }
+        }
+
+        Keys.onReleased: function(event) {
+          switch (event.key) {
+          case Qt.Key_S:
+          case Qt.Key_W: {
+            camera.stopY();
+            break;
+          }
+          case Qt.Key_A:
+          case Qt.Key_D: {
+            camera.stopX();
+            break;
+          }
           }
         }
 
@@ -321,12 +371,52 @@ ApplicationWindow {
         }
 
         PerspectiveCamera {
+          QtObject {
+            id: inner
+            property real sidewayStep: 1.0
+            property real heightStep: 2.0
+            property vector2d sidewayDirection: Qt.vector2d(0, 0)
+          }
+
+          function moveUp() { inner.sidewayDirection.y = 1; }
+          function moveDown() { inner.sidewayDirection.y = -1; }
+          function moveLeft() { inner.sidewayDirection.x = -1; }
+          function moveRight() { inner.sidewayDirection.x = 1; }
+          function stopY() { inner.sidewayDirection.y = 0 }
+          function stopX() { inner.sidewayDirection.x = 0 }
+          function moveForward() { camera.z += inner.heightStep; }
+          function moveBackward() { camera.z -= inner.heightStep; }
+
           id: camera
           clipNear: 0.001
           clipFar: 1000
-          position: Qt.vector3d(0, 0, 20)
-          frustumCullingEnabled: true
-          Component.onCompleted: lookAt(Qt.vector3d(0, 0, 0))
+          z: 20
+
+          Component.onCompleted: {
+            camera.lookAt(Qt.vector3d(0, 0, 0));
+          }
+
+          component Animation : NumberAnimation {
+            duration: 400
+            easing.type: Easing.OutExpo
+          }
+
+          Behavior on z { Animation {} }
+          Behavior on x { Animation {} }
+          Behavior on y { Animation {} }
+
+          Timer {
+            interval: 1000 / 60
+            running: true
+            repeat: true
+            onTriggered: {
+              if (inner.sidewayDirection.length() > 0) {
+                const step = inner.sidewayDirection.normalized().times(inner.sidewayStep);
+                camera.x += step.x;
+                camera.y += step.y;
+              }
+            }
+          }
         }
 
         AxisHelper {

@@ -43,7 +43,9 @@ ColumnLayout {
         color: palette.highlight
       }
 
-      onLeftMouseClick: root.itemClicked(parent.modelData)
+      onLeftMouseClick: {
+        root.itemClicked(modelData);
+      }
       onRightMouseClick: {
         editWindow.open(modelData);
         const updateActor = JS.partial(JS.updateEntity, root.actorsStore);
