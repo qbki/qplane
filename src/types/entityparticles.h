@@ -37,6 +37,8 @@ public:
 
   int quantity() const;
   void set_quantity(int value);
+
+  Q_INVOKABLE EntityParticles copy() const;
 };
 
 Q_DECLARE_METATYPE(EntityParticles)

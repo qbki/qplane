@@ -6,7 +6,7 @@
 
 #include "baselist.h"
 
-class GadgetListModel: public QAbstractListModel
+class GadgetListModel : public QAbstractListModel
 {
 private:
   Q_OBJECT
@@ -27,4 +27,5 @@ public:
   Q_INVOKABLE void appendList(const QVariantList& value);
   Q_INVOKABLE QJSValue toArray();
   Q_INVOKABLE QModelIndex findIndex(const QJSValue& predicate) const;
+  Q_INVOKABLE void remove(const QJSValue& predicate);
 };

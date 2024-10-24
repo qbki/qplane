@@ -30,6 +30,8 @@ public:
 
   bool is_opaque() const;
   void set_is_opaque(bool new_is_opaque);
+
+  Q_INVOKABLE EntityModel copy() const;
 };
 
 Q_DECLARE_METATYPE(EntityModel)

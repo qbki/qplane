@@ -10,6 +10,9 @@ ColumnLayout {
 
   id: root
 
+  signal itemAdded(model: entityDirectionalLight)
+  signal itemUpdated(model: entityDirectionalLight, initialModel: entityDirectionalLight)
+
   LazyEditWindow {
     id: editWindow
     window: Component {
@@ -24,8 +27,7 @@ ColumnLayout {
       Layout.fillHeight: true
       onRightMouseClick: {
         editWindow.open(modelData);
-        const updateEntity = JS.partial(JS.updateEntity, root.directionalLightsStore);
-        JS.fireOnce(editWindow.accepted, updateEntity);
+        JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
       }
     }
   }
@@ -34,8 +36,7 @@ ColumnLayout {
     text: qsTr("Add Directional Light")
     onClicked: {
       editWindow.open(EntityDirectionalLightFactory.create());
-      const addEntity = (entity) => root.directionalLightsStore.append(entity);
-      JS.fireOnce(editWindow.accepted, addEntity);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }
   }
 }

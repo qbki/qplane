@@ -79,6 +79,13 @@ QModelIndex GadgetListModel::findIndex(const QJSValue &predicate) const
     : index(result, 0);
 }
 
+void GadgetListModel::remove(const QJSValue &predicate)
+{
+  beginResetModel();
+  m_data.removeIf(*this, predicate);
+  endResetModel();
+}
+
 void
 GadgetListModel::updateWholeModel(const std::vector<QVariant>& new_data)
 {

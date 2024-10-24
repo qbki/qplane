@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QRect>
 
+#include "models/actionmanager/actionmanageritem.h"
 #include "types/entityactor.h"
 #include "types/entitycamera.h"
 #include "types/entitydirectionallight.h"
@@ -14,6 +15,7 @@
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
 
+  qRegisterMetaType<ActionManagerItem>();
   qRegisterMetaType<EntityActor>();
   qRegisterMetaType<EntityCamera>();
   qRegisterMetaType<EntityDirectionalLight>();

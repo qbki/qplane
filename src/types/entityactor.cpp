@@ -74,6 +74,11 @@ void EntityActor::set_lives(int new_lives)
   m_lives = new_lives;
 }
 
+EntityActor EntityActor::copy() const
+{
+  return *this;
+}
+
 EntityActorFactory::EntityActorFactory(QObject *parent)
   : QObject(parent)
 {

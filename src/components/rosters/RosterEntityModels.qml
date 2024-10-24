@@ -11,6 +11,8 @@ ColumnLayout {
   required property var modelsStore
 
   signal itemClicked(model: entityModel)
+  signal itemAdded(model: entityModel)
+  signal itemUpdated(model: entityModel, initialModel: entityModel)
 
   id: root
 
@@ -49,8 +51,7 @@ ColumnLayout {
             itemClicked(modelData);
           } else if (event.button === Qt.RightButton) {
             editWindow.open(modelData);
-            const updateModel = JS.partial(JS.updateEntity, root.modelsStore)
-            JS.fireOnce(editWindow.accepted, updateModel);
+            JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
           }
         }
       }
@@ -61,8 +62,7 @@ ColumnLayout {
     text: qsTr("Add Model")
     onClicked: {
       editWindow.open(EntityModelFactory.create());
-      const addModel = (entity) => root.modelsStore.append(entity);
-      JS.fireOnce(editWindow.accepted, addModel);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }
   }
 }

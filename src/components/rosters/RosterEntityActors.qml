@@ -13,6 +13,8 @@ ColumnLayout {
   required property var particlesStore
 
   signal itemClicked(model: entityActor)
+  signal itemAdded(model: entityActor)
+  signal itemUpdated(model: entityActor, initialModel: entityActor)
 
   id: root
 
@@ -48,8 +50,7 @@ ColumnLayout {
       }
       onRightMouseClick: {
         editWindow.open(modelData);
-        const updateActor = JS.partial(JS.updateEntity, root.actorsStore);
-        JS.fireOnce(editWindow.accepted, updateActor);
+        JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
       }
     }
   }
@@ -58,8 +59,7 @@ ColumnLayout {
     text: qsTr("Add Actor")
     onClicked: {
       editWindow.open(EntityActorFactory.create());
-      const addActor = (entity) => root.actorsStore.append(entity);
-      JS.fireOnce(editWindow.accepted, addActor);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }
   }
 }

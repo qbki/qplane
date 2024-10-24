@@ -9,6 +9,9 @@ ColumnLayout {
   required property var particlesStore
   required property var modelsStore
 
+  signal itemAdded(model: entityParticles)
+  signal itemUpdated(model: entityParticles, initialModel: entityParticles)
+
   id: root
 
   LazyEditWindow {
@@ -27,8 +30,7 @@ ColumnLayout {
       Layout.fillHeight: true
       onRightMouseClick: {
         editWindow.open(modelData);
-        const updateEntity = JS.partial(JS.updateEntity, root.particlesStore);
-        JS.fireOnce(editWindow.accepted, updateEntity);
+        JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
       }
     }
   }
@@ -37,8 +39,7 @@ ColumnLayout {
     text: qsTr("Add Particles")
     onClicked: {
       editWindow.open(EntityParticlesFactory.create());
-      const addEntity = (entity) => root.particlesStore.append(entity);
-      JS.fireOnce(editWindow.accepted, addEntity);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }
   }
 }

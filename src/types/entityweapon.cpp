@@ -75,6 +75,11 @@ void EntityWeapon::set_shot_sound_path(const QUrl &value)
   m_shot_sound_path = value;
 }
 
+EntityWeapon EntityWeapon::copy() const
+{
+  return *this;
+}
+
 EntityWeaponFactory::EntityWeaponFactory(QObject *parent)
   : QObject(parent)
 {

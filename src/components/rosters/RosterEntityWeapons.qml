@@ -10,6 +10,9 @@ ColumnLayout {
   required property var weaponsStore
   required property var modelsStore
 
+  signal itemAdded(model: entityWeapon)
+  signal itemUpdated(model: entityWeapon, initialModel: entityWeapon)
+
   id: root
 
   LazyEditWindow {
@@ -30,8 +33,7 @@ ColumnLayout {
       Layout.fillHeight: true
       onRightMouseClick: {
         editWindow.open(modelData);
-        const updateEntity = JS.partial(JS.updateEntity, root.weaponsStore);
-        JS.fireOnce(editWindow.accepted, updateEntity);
+        JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
       }
     }
   }
@@ -40,8 +42,7 @@ ColumnLayout {
     text: qsTr("Add Weapon")
     onClicked: {
       editWindow.open(EntityWeaponFactory.create());
-      const addEntity = (entity) => root.weaponsStore.append(entity);
-      JS.fireOnce(editWindow.accepted, addEntity);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }
   }
 }

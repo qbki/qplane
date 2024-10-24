@@ -52,6 +52,11 @@ EntityParticles::set_quantity(int value)
   m_quantity = value;
 }
 
+EntityParticles EntityParticles::copy() const
+{
+  return *this;
+}
+
 double
 EntityParticles::speed() const
 {

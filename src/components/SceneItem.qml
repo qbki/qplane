@@ -4,6 +4,7 @@ import QtQuick3D
 import QtQuick3D.AssetUtils
 
 import app
+import "../jsutils/utils.mjs" as JS
 
 Node {
   required property string name
@@ -13,12 +14,13 @@ Node {
 
   id: root
 
-  function createInstanceEntry(position: vector3d, behaviour: var): InstanceListEntry {
+  function createInstanceEntry(props: var): InstanceListEntry {
     const component = Qt.createComponent("app", "SceneListEntry", Component.PreferSynchronous, null);
     if (component.status === Component.Ready) {
       return component.createObject(null, {
-        position,
-        behaviour: behaviour ? behaviour : root.defaultBehaviour,
+        id: props.id ? props.id : JS.uniqId(),
+        behaviour: props.behaviour ? props.behaviour : root.defaultBehaviour,
+        position: props.position,
       });
     } else if (component.status === Component.Error) {
       const where = root.source;
@@ -27,20 +29,47 @@ Node {
     }
   }
 
-  function addInstance(position: vector3d, behaviour: var) {
-    // Avoiding placing the same model at the same place
+  function canBePlaced(position: vector3d): bool {
     for (const item of instancesList.instances) {
       if (item.position.fuzzyEquals(position)) {
-        return;
+        return false;
       }
     }
-    const entry = createInstanceEntry(position, behaviour);
+    return true;
+  }
+
+  function addInstance(position: vector3d, behaviour: var): SceneListEntry {
+    // Avoiding placing the same model at the same place
+    if (canBePlaced(position)) {
+      return null;
+    }
+    const entry = createInstanceEntry({ position, behaviour });
+    instancesList.instances.push(entry);
+    return entry;
+  }
+
+  function pushInstance(entry: SceneListEntry) {
     instancesList.instances.push(entry);
   }
 
   function removeInstanceByIndex(index: int) {
-    if (index >= 0 && index < instancesList.instanceCount) {
-      instancesList.instances.splice(index, 1);
+    const lastIndex = instancesList.instanceCount - 1;
+    if (index >= 0 && index <= lastIndex) {
+      const tmp = instancesList.instances[index];
+      instancesList.instances[index] = instancesList.instances[lastIndex];
+      instancesList.instances[lastIndex] = tmp;
+      instancesList.instances.pop();
+    }
+  }
+
+  function removeInstanceById(id: int) {
+    const lastIdx = instancesList.instances.length - 1;
+    for (let i = lastIdx; i >= 0; i -= 1) {
+      const item = instancesList.instances[i];
+      if (item.id === id) {
+        removeInstanceByIndex(i);
+        return;
+      }
     }
   }
 
@@ -97,7 +126,7 @@ Node {
   function applyPositionStrategy(strategy: positionStrategyMany) {
     const { positions, behaviour } = strategy;
     for (const position of positions) {
-      const entry = createInstanceEntry(position, behaviour);
+      const entry = createInstanceEntry({ position, behaviour });
       instancesList.instances.push(entry);
     }
   }
@@ -110,11 +139,28 @@ Node {
     return instancesList.instanceCount === 0;
   }
 
-  function getInstance(index) {
+  function getInstanceById(id: int): SceneListEntry {
+    for (const instance of instancesList.instances) {
+      if (instance.id === id) {
+        return instance;
+      }
+    }
+    return null;
+  }
+
+  function getInstance(index: int): SceneListEntry {
     if (index < 0 || index >= instancesList.instanceCount) {
       throw new RangeError("Instance index is out of range");
     }
     return instancesList.instances[index];
+  }
+
+  function copyInstance(instance: SceneListEntry): SceneListEntry {
+    return createInstanceEntry({
+      id: instance.id,
+      behavior: instance.behavior,
+      position: JS.copy3dVector(instance.position),
+    });
   }
 
   InstanceList {

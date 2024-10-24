@@ -35,6 +35,11 @@ void EntityModel::set_is_opaque(bool new_is_opaque)
   m_is_opaque = new_is_opaque;
 }
 
+EntityModel EntityModel::copy() const
+{
+  return *this;
+}
+
 EntityModelFactory::EntityModelFactory(QObject* parent)
   : QObject(parent)
 {

@@ -22,6 +22,14 @@ export function id(value) {
   return value;
 }
 
+export const uniqId = (function() {
+  let counter = 0;
+  return function() {
+    counter += 1;
+    return counter;
+  };
+})();
+
 export function arity(fn, amount = 1) {
   return function(...args) {
     return fn(...args.slice(0, amount));
@@ -69,4 +77,8 @@ export function toFinitFloat(value, defaultValue = 0.0) {
 export function toFinitInt(value, defaultValue = 0) {
   const result = Number.parseInt(value);
   return Number.isFinite(result) ? result : defaultValue;
+}
+
+export function copy3dVector(vector) {
+  return Qt.vector3d(vector.x, vector.y, vector.z);
 }

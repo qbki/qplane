@@ -48,6 +48,8 @@ public:
 
   QUrl shot_sound_path() const;
   void set_shot_sound_path(const QUrl &value);
+
+  Q_INVOKABLE EntityWeapon copy() const;
 };
 
 Q_DECLARE_METATYPE(EntityWeapon)

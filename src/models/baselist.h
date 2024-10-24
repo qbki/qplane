@@ -20,6 +20,7 @@ public:
   std::vector<T>& getData();
   const std::vector<T>& getData() const;
   int findIndex(const QObject& qmlObject, const QJSValue& predicate) const;
+  void removeIf(const QObject& qmlObject, const QJSValue& predicate);
   void push(const T& value);
 
 private:
@@ -109,4 +110,21 @@ BaseList<T>::findIndex(const QObject& qmlObject, const QJSValue &predicate) cons
     }
   }
   return -1;
+}
+
+template<typename T>
+void
+BaseList<T>::removeIf(const QObject& qmlObject, const QJSValue &predicate)
+{
+  auto engine = qmlEngine(&qmlObject);
+  if (!predicate.isCallable()) {
+    engine->throwError(QString("Expected a callable object"));
+  }
+  auto handler = [&](const T& value) {
+    QJSValueList args;
+    args << engine->toScriptValue(value);
+    auto result = predicate.call(args);
+    return result.toBool();
+  };
+  m_data.erase(std::remove_if(m_data.begin(), m_data.end(), handler));
 }

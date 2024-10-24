@@ -23,14 +23,40 @@ ApplicationWindow {
     return intersectionPlane === value;
   }
 
-  function addInstance() {
-    const sceneItem = sceneItemsMap[root.selectedEntityId];
-    if (sceneItem) {
-      sceneItem.addInstance(root.ghostPosition);
-    }
+  function findSceneItem(sceneItemId: string): SceneItem {
+    const sceneItem = sceneItemsMap[sceneItemId];
+    return sceneItem ? sceneItem : null;
   }
 
-  function removeInstance() {
+  function addInstance(): actionManagerItem {
+    const entityId = root.selectedEntityId;
+    const sceneItem = root.findSceneItem(entityId);
+    if (!sceneItem?.canBePlaced(root.ghostPosition)) {
+      return null;
+    }
+    const instanceCopy = sceneItem.createInstanceEntry({ position: root.ghostPosition });
+    if (!instanceCopy) {
+      return null;
+    }
+    const action = ActionManagerItemFactory.create(
+      () => {
+        const sceneItem = root.findSceneItem(entityId);
+        if (sceneItem) {
+          sceneItem.pushInstance(sceneItem.createInstanceEntry(instanceCopy));
+        }
+      },
+      () => {
+        const sceneItem = root.findSceneItem(entityId);
+        if (sceneItem) {
+          sceneItem.removeInstanceById(instanceCopy.id)
+        }
+      }
+    );
+    action.execute();
+    return action;
+  }
+
+  function removeInstance(): actionManagerItem {
     const closestItem = view.pickSceneObjects()
       .filter((v) => !root.isServiceObject(v.objectHit))
       .reduce((acc, v) => {
@@ -43,8 +69,39 @@ ApplicationWindow {
       }, null);
     if (closestItem) {
       const sceneItem = JS.findParentOf(closestItem.objectHit, SceneItem);
-      sceneItem.removeInstanceByIndex(closestItem.instanceIndex);
+      const sceneItemName = sceneItem.name;
+      const instance = sceneItem.getInstance(closestItem.instanceIndex);
+      const instanceCopy = sceneItem.copyInstance(instance);
+      const action = ActionManagerItemFactory.create(
+        () => root.findSceneItem(sceneItemName)?.removeInstanceById(instanceCopy.id),
+        () => root.findSceneItem(sceneItemName)?.pushInstance(instanceCopy),
+      );
+      action.execute();
+      return action;
     }
+    return null;
+  }
+
+  function appendEntity(store, item) {
+    const action = ActionManagerItemFactory.create(
+      () => store.append(item.copy()),
+      () => store.remove((value) => JS.areStrsEqual(value.id, item.id))
+    );
+    action.execute();
+    actionManager.push(action);
+  }
+
+  function updateEntity(store, newItem, oldItem) {
+    const updater = (current, replacement) => () => {
+      const index = store.findIndex((item) => JS.areStrsEqual(item.id, current.id));
+      if (index.valid) {
+        store.setData(index, replacement.copy(), "display");
+      }
+    };
+    const action = ActionManagerItemFactory.create(updater(oldItem, newItem),
+                                                   updater(newItem, oldItem));
+    action.execute();
+    actionManager.push(action);
   }
 
   id: root
@@ -56,6 +113,14 @@ ApplicationWindow {
 
       MainMenuItem { action: openAssetsAction }
       MainMenuItem { action: saveAssetsAction }
+    }
+
+    Menu {
+      title: qsTr("Edit")
+      enabled: appState.isProjectLoaded
+
+      MainMenuItem { action: undoAction }
+      MainMenuItem { action: redoAction }
     }
 
     Menu {
@@ -181,6 +246,22 @@ ApplicationWindow {
     }
   }
 
+  Action {
+    id: undoAction
+    text: qsTr("Undo")
+    shortcut: StandardKey.Undo
+    enabled: actionManager.canUndo
+    onTriggered: actionManager.undo()
+  }
+
+  Action {
+    id: redoAction
+    text: qsTr("Redo")
+    shortcut: StandardKey.Redo
+    enabled: actionManager.canRedo
+    onTriggered: actionManager.redo();
+  }
+
   GadgetListModel {
     id: actorsStore
   }
@@ -189,7 +270,7 @@ ApplicationWindow {
     id: modelsStore
 
     function getById(id) {
-      const index = modelsStore.findIndex((v) => v.id === id);
+      const index = modelsStore.findIndex((v) => JS.areStrsEqual(v.id, id));
       return modelsStore.data(index, "display");
     }
   }
@@ -206,6 +287,32 @@ ApplicationWindow {
     id: directionalLightsStore
   }
 
+  ActionManager {
+    id: actionManager
+
+    function makeCluster(list: list<var>): var {
+      const execteListCopy = [...list];
+      const undoListCopy = [...list].reverse();
+      return ActionManagerItemFactory.create(
+        () => {
+          for (const action of execteListCopy) {
+            action.execute();
+          }
+        },
+        () => {
+          for (const action of undoListCopy) {
+            action.undo();
+          }
+        }
+      );
+    }
+
+    function addCluster(list: list<var>) {
+      const action = makeCluster(list);
+      actionManager.push(action);
+    }
+  }
+
   LevelSettings {
     id: levelSettingsStore
 
@@ -215,10 +322,9 @@ ApplicationWindow {
         return;
       }
       const light = directionalLightsStore.data(idx);
-      globalLight.color = light.color;
       const direction = light.direction;
-      const rotation = Quaternion.lookAt(Qt.vector3d(0, 0, 0), light.direction, camera.forward, camera.up);
-      globalLight.rotation = rotation;
+      globalLight.color = light.color;
+      globalLight.rotation = Quaternion.lookAt(Qt.vector3d(0, 0, 0), light.direction, camera.forward, camera.up);
     }
   }
 
@@ -244,6 +350,9 @@ ApplicationWindow {
       SplitView.fillHeight: true
 
       View3D {
+        property list<var> bufferOfRemoveActions: []
+        property bool shouldRemoveInstances: false
+
         id: view
         anchors.fill: parent
         focus: true
@@ -252,8 +361,6 @@ ApplicationWindow {
           antialiasingMode: SceneEnvironment.MSAA
           clearColor: "#dddddd"
         }
-
-
 
         function pickSceneObjects () {
           return view.pickAll(mouseArea.mouseX, mouseArea.mouseY);
@@ -277,18 +384,30 @@ ApplicationWindow {
         }
 
         MouseArea {
+          property list<var> bufferOfActions: []
+
           id: mouseArea
           anchors.fill: parent
           hoverEnabled: true
           onPositionChanged: function(event) {
             root.ghostPosition = view.getGridAlignedPlacingPosition()
             if (mouseArea.pressedButtons & Qt.LeftButton) {
-              root.addInstance();
+              const action = root.addInstance();
+              if (action) {
+                bufferOfActions.push(action);
+              }
             }
           }
           onPressed: function(event) {
             view.forceActiveFocus();
-            root.addInstance();
+            const action = root.addInstance();
+            if (action) {
+              bufferOfActions.push(action);
+            }
+          }
+          onReleased: function(event) {
+            actionManager.addCluster(bufferOfActions);
+            bufferOfActions = [];
           }
           onWheel: function(event) {
             const step = Qt.vector3d(0, 0, 3);
@@ -303,7 +422,9 @@ ApplicationWindow {
         Keys.onPressed: function(event) {
           switch (event.key) {
           case Qt.Key_X: {
-            root.removeInstance();
+            if (!event.isAutoRepeat) {
+              view.shouldRemoveInstances = true;
+            }
             break;
           }
           case Qt.Key_W: {
@@ -351,6 +472,17 @@ ApplicationWindow {
 
         Keys.onReleased: function(event) {
           switch (event.key) {
+          case Qt.Key_X: {
+            if (event.isAutoRepeat) {
+              break;
+            }
+            view.shouldRemoveInstances = false
+            if (bufferOfRemoveActions.length > 0) {
+              actionManager.addCluster(bufferOfRemoveActions);
+              bufferOfRemoveActions = [];
+            }
+            break;
+          }
           case Qt.Key_S:
           case Qt.Key_W: {
             camera.stopY();
@@ -361,6 +493,16 @@ ApplicationWindow {
             camera.stopX();
             break;
           }
+          }
+        }
+
+        FrameAnimation {
+          running: view.shouldRemoveInstances
+          onTriggered: {
+            const action = root.removeInstance();
+            if (action) {
+              view.bufferOfRemoveActions.push(action);
+            }
           }
         }
 
@@ -484,6 +626,8 @@ ApplicationWindow {
       }
 
       PropertiesControl {
+        property int lastInstanceId: -1;
+
         id: propertiesControl
         enabled: Boolean(root.selectedInstance)
         anchors.right: view.right
@@ -491,14 +635,76 @@ ApplicationWindow {
         anchors.rightMargin: Theme.spacing(1)
         anchors.topMargin: Theme.spacing(1)
         onPositionChanged: {
-          if (root.selectedInstance) {
-            root.selectedInstance.position = propertiesControl.position;
+          if (!root.selectedInstance) {
+            return;
           }
+          if (lastInstanceId !== root.selectedInstance.id) {
+            lastInstanceId = root.selectedInstance.id;
+            return;
+          }
+          const instanceId = root.selectedInstance.id;
+          const sceneItemName = JS.findParentOf(root.selectedInstance, SceneItem).name;
+          const originalPosition = JS.copy3dVector(root.selectedInstance.position);
+          const newPosition = JS.copy3dVector(propertiesControl.position);
+          if (originalPosition.fuzzyEquals(newPosition)) {
+            return;
+          }
+          const handler = (position) => {
+            const sceneItem = root.findSceneItem(sceneItemName);
+            const instance = sceneItem?.getInstanceById(instanceId);
+            if (!instance) {
+              return;
+            }
+            root.selectedInstance = instance;
+            root.selectedInstance.position = position;
+            propertiesControl.setParams({
+              position: root.selectedInstance.position,
+              behaviour: root.selectedInstance.behaviour,
+              behavioursList: sceneItem.availableBehaviours,
+            });
+          }
+          const action = ActionManagerItemFactory.create(
+            () => handler(newPosition),
+            () => handler(originalPosition),
+          );
+          action.execute();
+          actionManager.push(action);
         }
         onBehaviourChanged: {
-          if (root.selectedInstance && propertiesControl.behaviour) {
-            root.selectedInstance.behaviour = propertiesControl.behaviour;
+          if (!root.selectedInstance || !propertiesControl.behaviour) {
+            return;
           }
+          if (lastInstanceId !== root.selectedInstance.id) {
+            lastInstanceId = root.selectedInstance.id;
+            return;
+          }
+          const instanceId = root.selectedInstance.id;
+          const sceneItemName = JS.findParentOf(root.selectedInstance, SceneItem).name;
+          const originalBehaviour = root.selectedInstance.behaviour;
+          const newBehaviour = propertiesControl.behaviour;
+          if (JS.areStrsEqual(originalBehaviour, newBehaviour)) {
+            return;
+          }
+          const handler = (behaviour) => {
+            const sceneItem = root.findSceneItem(sceneItemName);
+            const instance = sceneItem?.getInstanceById(instanceId);
+            if (!instance) {
+              return;
+            }
+            root.selectedInstance = instance;
+            root.selectedInstance.behaviour = behaviour;
+            propertiesControl.setParams({
+              position: root.selectedInstance.position,
+              behaviour: root.selectedInstance.behaviour,
+              behavioursList: sceneItem.availableBehaviours,
+            });
+          }
+          const action = ActionManagerItemFactory.create(
+            () => handler(newBehaviour),
+            () => handler(originalBehaviour),
+          );
+          action.execute();
+          actionManager.push(action);
         }
         Component.onCompleted: {
           propertiesControl.reset();
@@ -541,12 +747,18 @@ ApplicationWindow {
               selectedEntityId: root.selectedEntityId
               anchors.left: parent.left
               anchors.right: parent.right
-              onItemClicked: function(modelData) {
-                const foundEntityModel = modelsStore.getById(modelData.model_id);
+              onItemClicked: function(item) {
+                const foundEntityModel = modelsStore.getById(item.model_id);
                 if (foundEntityModel) {
-                  root.selectedEntityId = modelData.id;
+                  root.selectedEntityId = item.id;
                   root.ghostUrl = foundEntityModel.path;
                 }
+              }
+              onItemAdded: function(item) {
+                root.appendEntity(actorsStore, item);
+              }
+              onItemUpdated: function(newItem, oldItem) {
+                root.updateEntity(actorsStore, newItem, oldItem);
               }
             }
           }
@@ -561,9 +773,15 @@ ApplicationWindow {
               appState: appState
               anchors.left: parent.left
               anchors.right: parent.right
-              onItemClicked: function(modelData) {
-                root.selectedEntityId = modelData.id;
-                root.ghostUrl = modelData.path;
+              onItemClicked: function(item) {
+                root.selectedEntityId = item.id;
+                root.ghostUrl = item.path;
+              }
+              onItemAdded: function(item) {
+                root.appendEntity(modelsStore, item);
+              }
+              onItemUpdated: function(newItem, oldItem) {
+                root.updateEntity(modelsStore, newItem, oldItem);
               }
             }
           }
@@ -578,6 +796,12 @@ ApplicationWindow {
               modelsStore: modelsStore
               anchors.left: parent.left
               anchors.right: parent.right
+              onItemAdded: function(item) {
+                root.appendEntity(weaponsStore, item);
+              }
+              onItemUpdated: function(newItem, oldItem) {
+                root.updateEntity(weaponsStore, newItem, oldItem);
+              }
             }
           }
 
@@ -590,6 +814,12 @@ ApplicationWindow {
               modelsStore: modelsStore
               anchors.left: parent.left
               anchors.right: parent.right
+              onItemAdded: function(item) {
+                root.appendEntity(particlesStore, item);
+              }
+              onItemUpdated: function(newItem, oldItem) {
+                root.updateEntity(particlesStore, newItem, oldItem);
+              }
             }
           }
 
@@ -601,6 +831,12 @@ ApplicationWindow {
               directionalLightsStore: directionalLightsStore
               anchors.left: parent.left
               anchors.right: parent.right
+              onItemAdded: function(item) {
+                root.appendEntity(directionalLightsStore, item);
+              }
+              onItemUpdated: function(newItem, oldItem) {
+                root.updateEntity(directionalLightsStore, newItem, oldItem);
+              }
             }
           }
         }

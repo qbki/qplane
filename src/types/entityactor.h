@@ -8,7 +8,6 @@ class EntityActor
 {
   Q_GADGET
   QML_NAMED_ELEMENT(entityActor)
-
   Q_PROPERTY(QString id READ id WRITE set_id FINAL)
   Q_PROPERTY(QString model_id READ model_id WRITE set_model_id FINAL)
   Q_PROPERTY(QString weapon_id READ weapon_id WRITE set_weapon_id FINAL)
@@ -40,6 +39,8 @@ public:
 
   int lives() const;
   void set_lives(int value);
+
+  Q_INVOKABLE EntityActor copy() const;
 
 private:
   QString m_id = "";

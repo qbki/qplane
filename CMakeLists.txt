@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(
   ${CMAKE_SOURCE_DIR}
   # <> Without it Qt can't find classes tagged with QML_ELEMENT or QT_GADGET
+  ${CMAKE_SOURCE_DIR}/src/models/actionmanager
   ${CMAKE_SOURCE_DIR}/src/models
   ${CMAKE_SOURCE_DIR}/src/types
   # </>
@@ -155,6 +156,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/SceneGhost.qml
     src/components/SceneItem.qml
     src/components/SceneListEntry.qml
+    src/components/form/BlockableTextInput.qml
     src/components/form/FormAcceptButtonsGroup.qml
     src/components/form/FormCheckBoxInput.qml
     src/components/form/FormColorInput.qml
@@ -187,6 +189,8 @@ qt_add_qml_module(${PROJECT_NAME}
     src/jsutils/utils.mjs
   SOURCES
     src/consts.h
+    src/models/actionmanager/actionmanager.h src/models/actionmanager/actionmanager.cpp
+    src/models/actionmanager/actionmanageritem.h src/models/actionmanager/actionmanageritem.cpp
     src/models/appstate.h src/models/appstate.cpp
     src/models/baselist.h
     src/models/fileio.h src/models/fileio.cpp

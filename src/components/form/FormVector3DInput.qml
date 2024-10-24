@@ -3,10 +3,11 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import app
+import "../../jsutils/utils.mjs" as JS
 
 Item {
   property alias label: label.text
-  property vector3d value
+  property vector3d value: Qt.vector3d(0, 0, 0)
   property bool enabled: true
 
   id: root
@@ -18,14 +19,14 @@ Item {
   onValueChanged: {
     internal.holdInputsUpdate = true;
     const vector = internal.vector3dToStrings(root.value);
-    if (!xField.activeFocus) {
-      xField.text = vector.x;
+    if (!JS.areStrsEqual(xField.value, vector.x)) {
+      xField.value = vector.x;
     }
-    if (!yField.activeFocus) {
-      yField.text = vector.y;
+    if (!JS.areStrsEqual(yField.value, vector.y)) {
+      yField.value = vector.y;
     }
-    if (!zField.activeFocus) {
-      zField.text = vector.z;
+    if (!JS.areStrsEqual(zField.value, vector.z)) {
+      zField.value = vector.z;
     }
     internal.holdInputsUpdate = false;
   }
@@ -43,9 +44,9 @@ Item {
 
     function parseFields(): vector3d {
       return Qt.vector3d(
-        internal.stringToValidNumber(xField.text),
-        internal.stringToValidNumber(yField.text),
-        internal.stringToValidNumber(zField.text)
+        internal.stringToValidNumber(xField.value),
+        internal.stringToValidNumber(yField.value),
+        internal.stringToValidNumber(zField.value)
       );
     }
 
@@ -90,14 +91,14 @@ Item {
 
     ColumnLayout {
       id: axisFields
-      spacing: 1
+      spacing: 0
 
       RowLayout {
-        TextField {
+        BlockableTextInput {
           id: xField
           Layout.fillWidth: true
           onActiveFocusChanged: internal.handleLoosingFocus(xField, "x")
-          onTextChanged: internal.assignWhenNew()
+          onValueChanged: internal.assignWhenNew()
           enabled: root.enabled
         }
 
@@ -108,11 +109,11 @@ Item {
       }
 
       RowLayout {
-        TextField {
+        BlockableTextInput {
           id: yField
           Layout.fillWidth: true
           onActiveFocusChanged: internal.handleLoosingFocus(yField, "y")
-          onTextChanged: internal.assignWhenNew()
+          onValueChanged: internal.assignWhenNew()
           enabled: root.enabled
         }
 
@@ -123,11 +124,11 @@ Item {
       }
 
       RowLayout {
-        TextField {
+        BlockableTextInput {
           id: zField
           Layout.fillWidth: true
           onActiveFocusChanged: internal.handleLoosingFocus(zField, "z")
-          onTextChanged: internal.assignWhenNew()
+          onValueChanged: internal.assignWhenNew()
           enabled: root.enabled
         }
 

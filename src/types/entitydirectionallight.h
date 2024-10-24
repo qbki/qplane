@@ -28,6 +28,8 @@ public:
 
   QVector3D direction() const;
   void set_direction(const QVector3D &value);
+
+  Q_INVOKABLE EntityDirectionalLight copy() const;
 };
 
 Q_DECLARE_METATYPE(EntityDirectionalLight)

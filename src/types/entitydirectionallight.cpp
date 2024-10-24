@@ -42,6 +42,11 @@ EntityDirectionalLight::set_direction(const QVector3D &value)
   m_direction = value;
 }
 
+EntityDirectionalLight EntityDirectionalLight::copy() const
+{
+  return *this;
+}
+
 EntityDirectionalLightFactory::EntityDirectionalLightFactory(QObject *parent)
   : QObject(parent)
 {
