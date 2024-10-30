@@ -1,13 +1,10 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-
 import Qt.labs.platform as Platform
-import QtCore
-
 import QtQuick3D
 import QtQuick3D.Helpers
-import QtQuick3D.AssetUtils
 
 import "../jsutils/utils.mjs" as JS
 import app
@@ -508,7 +505,7 @@ ApplicationWindow {
 
         DirectionalLight {
           id: globalLight
-          eulerRotation: "-30, -20, -40"
+          eulerRotation: Qt.vector3d(-30, -20, -40)
           ambientColor: Qt.rgba(0.05, 0.05, 0.05, 1.0)
         }
 

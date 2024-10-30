@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 
 import "../../jsutils/utils.mjs" as JS
 
@@ -14,6 +13,10 @@ Item {
     if (!JS.areStrsEqual(input.text, root.value)) {
       input.text = root.value;
     }
+  }
+
+  function forceActiveFocus() {
+    root.switchToInput();
   }
 
   function switchToInput() {

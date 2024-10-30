@@ -85,7 +85,7 @@ Item {
 
       MouseArea {
         anchors.fill: parent
-        onClicked: textField.forceActiveFocus()
+        onClicked: xField.forceActiveFocus()
       }
     }
 

@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -48,7 +49,7 @@ ColumnLayout {
         selected: root.selectedEntityId === modelData.id
         onClicked: function(event) {
           if (event.button === Qt.LeftButton) {
-            itemClicked(modelData);
+            root.itemClicked(modelData);
           } else if (event.button === Qt.RightButton) {
             editWindow.open(modelData);
             JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));

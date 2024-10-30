@@ -2,8 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import Qt.labs.folderlistmodel as Platform
-
 Item {
   property alias label: label.text
   property alias model: comboBox.model

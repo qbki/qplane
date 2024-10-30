@@ -3,8 +3,8 @@ import QtQuick
 import QtQuick3D
 import QtQuick3D.AssetUtils
 
-import app
 import "../jsutils/utils.mjs" as JS
+import app
 
 Node {
   required property string name
@@ -14,7 +14,7 @@ Node {
 
   id: root
 
-  function createInstanceEntry(props: var): InstanceListEntry {
+  function createInstanceEntry(props: var): SceneListEntry {
     const component = Qt.createComponent("app", "SceneListEntry", Component.PreferSynchronous, null);
     if (component.status === Component.Ready) {
       return component.createObject(null, {
@@ -38,7 +38,7 @@ Node {
     return true;
   }
 
-  function addInstance(position: vector3d, behaviour: var): SceneListEntry {
+  function addInstance(position: vector3d, behaviour: string): SceneListEntry {
     // Avoiding placing the same model at the same place
     if (canBePlaced(position)) {
       return null;
@@ -158,7 +158,7 @@ Node {
   function copyInstance(instance: SceneListEntry): SceneListEntry {
     return createInstanceEntry({
       id: instance.id,
-      behavior: instance.behavior,
+      behavior: instance.behaviour,
       position: JS.copy3dVector(instance.position),
     });
   }
@@ -178,7 +178,7 @@ Node {
       }
     }
     onBoundsChanged: {
-      setPickable(this);
+      root.setPickable(this);
     }
   }
 }

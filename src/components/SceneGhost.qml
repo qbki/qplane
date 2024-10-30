@@ -3,8 +3,6 @@ import QtQuick
 import QtQuick3D
 import QtQuick3D.AssetUtils
 
-import app
-
 Node {
   id: root
   property string name

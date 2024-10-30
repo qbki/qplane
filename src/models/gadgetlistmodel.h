@@ -1,7 +1,7 @@
 #pragma once
 #include <QAbstractListModel>
 #include <QJsonValue>
-#include <QQmlEngine>
+#include <QtQml/qqmlregistration.h>
 #include <vector>
 
 #include "baselist.h"
@@ -17,9 +17,9 @@ private:
 public:
   explicit GadgetListModel(QObject* parent = nullptr);
 
-  int rowCount(const QModelIndex &parent) const;
-  QVariant data(const QModelIndex &index, int role) const;
-  bool setData(const QModelIndex &index, const QVariant &value, int role);
+  int rowCount(const QModelIndex &parent) const override;
+  QVariant data(const QModelIndex &index, int role) const override;
+  bool setData(const QModelIndex &index, const QVariant &value, int role) override;
   std::vector<QVariant>& internalData();
   void updateWholeModel(const std::vector<QVariant>& new_data);
 

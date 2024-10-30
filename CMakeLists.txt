@@ -11,15 +11,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}
-  # <> Without it Qt can't find classes tagged with QML_ELEMENT or QT_GADGET
-  ${CMAKE_SOURCE_DIR}/src/models/actionmanager
-  ${CMAKE_SOURCE_DIR}/src/models
-  ${CMAKE_SOURCE_DIR}/src/types
-  # </>
-)
-
 # find_package and target_link_libraries were taken from vcpkg's install log
 find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Gui CONFIG REQUIRED)
@@ -141,6 +132,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils Qt6::Quick3DUtils
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Svg Qt6::Svg Qt::SvgPrivate Qt6::SvgPrivate)
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt::SvgWidgets Qt6::SvgWidgets Qt::SvgWidgetsPrivate Qt6::SvgWidgetsPrivate)
+
+include_directories(
+  ${CMAKE_SOURCE_DIR}
+  # <> Without it Qt can't find classes tagged with QML_ELEMENT or QT_GADGET
+  ${CMAKE_SOURCE_DIR}/src/components
+  ${CMAKE_SOURCE_DIR}/src/components/form
+  ${CMAKE_SOURCE_DIR}/src/components/icons
+  ${CMAKE_SOURCE_DIR}/src/components/rosters
+  ${CMAKE_SOURCE_DIR}/src/components/windows
+  ${CMAKE_SOURCE_DIR}/src/models
+  ${CMAKE_SOURCE_DIR}/src/models/actionmanager
+  ${CMAKE_SOURCE_DIR}/src/types
+  # </>
+)
 
 qt_add_qml_module(${PROJECT_NAME}
   URI app

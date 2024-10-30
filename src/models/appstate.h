@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
-#include <QQmlEngine>
+#include <QUrl>
+#include <QtQml/qqmlregistration.h>
 
 class AppState : public QObject
 {

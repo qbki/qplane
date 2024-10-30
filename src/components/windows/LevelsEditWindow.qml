@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -31,7 +32,7 @@ EditWindowBase {
   FolderListModel {
     id: candidatesModel
     showDirs: false
-    nameFilters: "*.level.json"
+    nameFilters: ["*.level.json"]
 
     function toArray() {
       const result = [];
@@ -74,9 +75,11 @@ EditWindowBase {
   }
 
   component LevelItem: Label {
+    required property int index
+    required property var model
     property int modelId: (model.id === null || model.id === undefined) ? -1 : model.id
     property url fileUrl: model.fileUrl
-    text: fileUrl.toString().replace(root.levelsFolderUrl, "");
+    text: fileUrl.toString().replace(candidatesModel.folder, "");
     padding: Theme.spacing(0.5)
   }
 
@@ -84,7 +87,9 @@ EditWindowBase {
     id: addItemAction
     enabled: candidatesView.currentIndex >= 0
     onTriggered: {
-      levelsModel.insertItem(levelsView.currentIndex + 1, candidatesView.currentItem.fileUrl);
+      levelsModel.insertItem(
+        levelsView.currentIndex + 1,
+        candidatesView.currentItem.fileUrl); // qmllint disable missing-property
     }
   }
 
@@ -167,9 +172,11 @@ EditWindowBase {
         highlight: Highlight {}
         clip: true
         delegate: LevelItem {
+          required property int index
+          id: candidateDelegate
           MouseArea {
             anchors.fill: parent
-            onClicked: candidatesView.currentIndex = index
+            onClicked: candidatesView.currentIndex = candidateDelegate.index
             onDoubleClicked: addItemAction.trigger()
           }
         }

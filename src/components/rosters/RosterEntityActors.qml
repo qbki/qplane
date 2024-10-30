@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -36,12 +37,13 @@ ColumnLayout {
   Repeater {
     model: root.actorsStore
     delegate: RosterLabel {
+      id: rosterLabel
       Layout.fillWidth: true
       Layout.fillHeight: true
 
       background: Rectangle {
         anchors.fill: parent
-        visible: modelData.id === root.selectedEntityId
+        visible: rosterLabel.modelData.id === root.selectedEntityId
         color: palette.highlight
       }
 

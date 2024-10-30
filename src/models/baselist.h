@@ -1,5 +1,4 @@
 #pragma once
-#include <QAbstractListModel>
 #include <QJSValue>
 #include <QModelIndex>
 #include <QQmlEngine>

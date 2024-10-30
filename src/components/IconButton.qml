@@ -1,7 +1,4 @@
 import QtQuick
-import QtQuick.Shapes
-
-import app
 
 Item {
   required property var icon
@@ -14,12 +11,16 @@ Item {
     property color savedColor
   }
 
+  SystemPalette {
+    id: palette
+  }
+
   HoverHandler {
     id: hover
     onHoveredChanged: {
-      icon.strokeColor = hover.hovered
-          ? palette.highlight
-          : inner.savedColor;
+      root.icon.strokeColor = hover.hovered
+        ? palette.highlight
+        : inner.savedColor;
     }
   }
 

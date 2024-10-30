@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlEngine>
 #include <QRect>
 
 #include "models/actionmanager/actionmanageritem.h"

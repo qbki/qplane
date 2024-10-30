@@ -1,7 +1,7 @@
 #pragma once
 #include <QAbstractListModel>
 #include <QObject>
-#include <QQmlEngine>
+#include <QtQml/qqmlregistration.h>
 
 #include "actionmanageritem.h"
 

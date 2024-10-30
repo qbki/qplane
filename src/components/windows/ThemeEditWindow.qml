@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -38,7 +39,7 @@ EditWindowBase {
     onTriggered: {
       try {
         const data = {
-          font: FileIO.relativePath(projectFolderUrl, FileIO.fromLocalFile(fontField.value)),
+          font: FileIO.relativePath(root.projectFolderUrl, FileIO.fromLocalFile(fontField.value)),
         };
         FileIO.saveJson(root.themePathUrl, data);
         root.close();

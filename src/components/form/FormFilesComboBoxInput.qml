@@ -2,8 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import Qt.labs.folderlistmodel as Platform
-
 import "../../jsutils/utils.mjs" as JS
 import app
 
