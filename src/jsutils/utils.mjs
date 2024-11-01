@@ -49,6 +49,10 @@ export function areStrsEqual(a, b) {
   return a.localeCompare(b) === 0;
 }
 
+export function areFloatsEqual(a, b) {
+  return Math.abs(a - b) < Number.EPSILON;
+}
+
 export function findParentOf(item, ctor) {
   if (item instanceof ctor) {
     return item;
@@ -81,4 +85,8 @@ export function toFinitInt(value, defaultValue = 0) {
 
 export function copy3dVector(vector) {
   return Qt.vector3d(vector.x, vector.y, vector.z);
+}
+
+export function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }

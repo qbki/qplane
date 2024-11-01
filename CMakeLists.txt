@@ -150,6 +150,7 @@ include_directories(
 qt_add_qml_module(${PROJECT_NAME}
   URI app
   QML_FILES
+    src/components/CameraController.qml
     src/components/EntityModelItem.qml
     src/components/HeightControl.qml
     src/components/Highlight.qml

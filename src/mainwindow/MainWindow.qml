@@ -406,14 +406,6 @@ ApplicationWindow {
             actionManager.addCluster(bufferOfActions);
             bufferOfActions = [];
           }
-          onWheel: function(event) {
-            const step = Qt.vector3d(0, 0, 3);
-            if (event.angleDelta.y > 0) {
-              camera.moveBackward();
-            } else if (event.angleDelta.y < 0) {
-              camera.moveForward();
-            }
-          }
         }
 
         Keys.onPressed: function(event) {
@@ -422,22 +414,6 @@ ApplicationWindow {
             if (!event.isAutoRepeat) {
               view.shouldRemoveInstances = true;
             }
-            break;
-          }
-          case Qt.Key_W: {
-            camera.moveUp();
-            break;
-          }
-          case Qt.Key_S: {
-            camera.moveDown();
-            break;
-          }
-          case Qt.Key_A: {
-            camera.moveLeft();
-            break;
-          }
-          case Qt.Key_D: {
-            camera.moveRight();
             break;
           }
           case Qt.Key_Q: {
@@ -480,16 +456,6 @@ ApplicationWindow {
             }
             break;
           }
-          case Qt.Key_S:
-          case Qt.Key_W: {
-            camera.stopY();
-            break;
-          }
-          case Qt.Key_A:
-          case Qt.Key_D: {
-            camera.stopX();
-            break;
-          }
           }
         }
 
@@ -510,52 +476,17 @@ ApplicationWindow {
         }
 
         PerspectiveCamera {
-          QtObject {
-            id: inner
-            property real sidewayStep: 1.0
-            property real heightStep: 2.0
-            property vector2d sidewayDirection: Qt.vector2d(0, 0)
-          }
-
-          function moveUp() { inner.sidewayDirection.y = 1; }
-          function moveDown() { inner.sidewayDirection.y = -1; }
-          function moveLeft() { inner.sidewayDirection.x = -1; }
-          function moveRight() { inner.sidewayDirection.x = 1; }
-          function stopY() { inner.sidewayDirection.y = 0 }
-          function stopX() { inner.sidewayDirection.x = 0 }
-          function moveForward() { camera.z += inner.heightStep; }
-          function moveBackward() { camera.z -= inner.heightStep; }
-
           id: camera
           clipNear: 0.001
           clipFar: 1000
           z: 20
+          Component.onCompleted: camera.lookAt(Qt.vector3d(0, 0, 0))
+        }
 
-          Component.onCompleted: {
-            camera.lookAt(Qt.vector3d(0, 0, 0));
-          }
-
-          component Animation : NumberAnimation {
-            duration: 400
-            easing.type: Easing.OutExpo
-          }
-
-          Behavior on z { Animation {} }
-          Behavior on x { Animation {} }
-          Behavior on y { Animation {} }
-
-          Timer {
-            interval: 1000 / 60
-            running: true
-            repeat: true
-            onTriggered: {
-              if (inner.sidewayDirection.length() > 0) {
-                const step = inner.sidewayDirection.normalized().times(inner.sidewayStep);
-                camera.x += step.x;
-                camera.y += step.y;
-              }
-            }
-          }
+        CameraController {
+          camera: camera
+          keysCatcher: view
+          mouseCatcher: mouseArea
         }
 
         AxisHelper {
