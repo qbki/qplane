@@ -6,7 +6,7 @@ import QtQuick.Layouts
 import "../../jsutils/utils.mjs" as JS
 import app
 
-ColumnLayout {
+GroupBox {
   property string selectedEntityId: ""
   required property AppState appState
   required property var modelsStore
@@ -14,8 +14,14 @@ ColumnLayout {
   signal itemClicked(model: entityModel)
   signal itemAdded(model: entityModel)
   signal itemUpdated(model: entityModel, initialModel: entityModel)
+  signal itemRemoved(model: entityModel)
 
   id: root
+  label: RosterTitle {
+    text: qsTr("Models")
+    groupBox: root
+    onButtonClicked: inner.openAddWindow()
+  }
 
   LazyEditWindow {
     id: editWindow
@@ -33,7 +39,7 @@ ColumnLayout {
     columnSpacing: 1
     uniformCellWidths: true
     uniformCellHeights: true
-    Layout.fillWidth: true
+    anchors.fill: parent
 
     Repeater {
       model: root.modelsStore
@@ -49,19 +55,31 @@ ColumnLayout {
         selected: root.selectedEntityId === modelData.id
         onClicked: function(event) {
           if (event.button === Qt.LeftButton) {
-            root.itemClicked(modelData);
+            root.itemClicked(item.modelData);
           } else if (event.button === Qt.RightButton) {
-            editWindow.open(modelData);
-            JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
+            root.itemClicked(item.modelData);
+            contextMenu.open(item.modelData);
           }
         }
       }
     }
   }
 
-  Button {
-    text: qsTr("Add Model")
-    onClicked: {
+  RosterContextMenu {
+    id: contextMenu
+    onAdded: inner.openAddWindow()
+    onEdited: function(model) {
+      editWindow.open(model);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
+    }
+    onRemoved: function(model) {
+      root.itemRemoved(model);
+    }
+  }
+
+  QtObject {
+    id: inner
+    function openAddWindow() {
       editWindow.open(EntityModelFactory.create());
       JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }

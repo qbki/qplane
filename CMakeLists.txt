@@ -173,12 +173,14 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/icons/BaseIconShape.qml
     src/components/icons/DownIcon.qml
     src/components/icons/UpIcon.qml
+    src/components/rosters/RosterContextMenu.qml
     src/components/rosters/RosterEntityActors.qml
     src/components/rosters/RosterEntityDirectionalLights.qml
     src/components/rosters/RosterEntityModels.qml
     src/components/rosters/RosterEntityParticles.qml
     src/components/rosters/RosterEntityWeapons.qml
     src/components/rosters/RosterLabel.qml
+    src/components/rosters/RosterTitle.qml
     src/components/windows/EditWindowBase.qml
     src/components/windows/EntityActorEditWindow.qml
     src/components/windows/EntityDirectionalLightEditWindow.qml

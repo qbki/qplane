@@ -6,15 +6,21 @@ import QtQuick.Layouts
 import "../../jsutils/utils.mjs" as JS
 import app
 
-ColumnLayout {
+GroupBox {
   required property AppState appState
   required property var weaponsStore
   required property var modelsStore
 
   signal itemAdded(model: entityWeapon)
   signal itemUpdated(model: entityWeapon, initialModel: entityWeapon)
+  signal itemRemoved(model: entityWeapon)
 
   id: root
+  label: RosterTitle {
+    text: qsTr("Weapons")
+    groupBox: root
+    onButtonClicked: inner.openAddWindow()
+  }
 
   LazyEditWindow {
     id: editWindow
@@ -27,21 +33,32 @@ ColumnLayout {
     }
   }
 
-  Repeater {
-    model: root.weaponsStore
-    delegate: RosterLabel {
-      Layout.fillWidth: true
-      Layout.fillHeight: true
-      onRightMouseClick: {
-        editWindow.open(modelData);
-        JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
+  RosterContextMenu {
+    id: contextMenu
+    onAdded: inner.openAddWindow()
+    onEdited: function(model) {
+      editWindow.open(model);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
+    }
+    onRemoved: function(model) {
+      root.itemRemoved(model);
+    }
+  }
+
+  ColumnLayout {
+    Repeater {
+      model: root.weaponsStore
+      delegate: RosterLabel {
+        id: rosterLabel
+        Layout.fillWidth: true
+        onRightMouseClick: contextMenu.open(rosterLabel.modelData)
       }
     }
   }
 
-  Button {
-    text: qsTr("Add Weapon")
-    onClicked: {
+  QtObject {
+    id: inner
+    function openAddWindow() {
       editWindow.open(EntityWeaponFactory.create());
       JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }

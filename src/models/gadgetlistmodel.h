@@ -22,6 +22,7 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value, int role) override;
   std::vector<QVariant>& internalData();
   void updateWholeModel(const std::vector<QVariant>& new_data);
+  bool removeRows(int row, int count, const QModelIndex &parent) override;
 
   Q_INVOKABLE void append(const QVariant& value);
   Q_INVOKABLE void appendList(const QVariantList& value);

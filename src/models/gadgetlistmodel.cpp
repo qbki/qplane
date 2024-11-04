@@ -95,3 +95,12 @@ GadgetListModel::updateWholeModel(const std::vector<QVariant>& new_data)
   std::ranges::copy(new_data, std::back_inserter(data));
   endResetModel();
 }
+
+bool GadgetListModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+  beginRemoveRows(QModelIndex{}, row, row + count - 1);
+  auto& data = m_data.getData();
+  data.erase(data.begin() + row, data.begin() + row + count);
+  endRemoveRows();
+  return true;
+}

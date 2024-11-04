@@ -6,13 +6,19 @@ import QtQuick.Layouts
 import "../../jsutils/utils.mjs" as JS
 import app
 
-ColumnLayout {
+GroupBox {
   required property var directionalLightsStore
-
-  id: root
 
   signal itemAdded(model: entityDirectionalLight)
   signal itemUpdated(model: entityDirectionalLight, initialModel: entityDirectionalLight)
+  signal itemRemoved(model: entityDirectionalLight)
+
+  id: root
+  label: RosterTitle {
+    text: qsTr("Directional Light")
+    groupBox: root
+    onButtonClicked: inner.openAddWindow()
+  }
 
   LazyEditWindow {
     id: editWindow
@@ -21,21 +27,32 @@ ColumnLayout {
     }
   }
 
-  Repeater {
-    model: root.directionalLightsStore
-    delegate: RosterLabel {
-      Layout.fillWidth: true
-      Layout.fillHeight: true
-      onRightMouseClick: {
-        editWindow.open(modelData);
-        JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
+  RosterContextMenu {
+    id: contextMenu
+    onAdded: inner.openAddWindow()
+    onEdited: function(model) {
+      editWindow.open(model);
+      JS.fireOnce(editWindow.accepted, JS.arity(root.itemUpdated, 2));
+    }
+    onRemoved: function(model) {
+      root.itemRemoved(model);
+    }
+  }
+
+  ColumnLayout {
+    Repeater {
+      model: root.directionalLightsStore
+      delegate: RosterLabel {
+        id: rosterLabel
+        Layout.fillWidth: true
+        onRightMouseClick: contextMenu.open(rosterLabel.modelData)
       }
     }
   }
 
-  Button {
-    text: qsTr("Add Directional Light")
-    onClicked: {
+  QtObject {
+    id: inner
+    function openAddWindow() {
       editWindow.open(EntityDirectionalLightFactory.create());
       JS.fireOnce(editWindow.accepted, JS.arity(root.itemAdded));
     }

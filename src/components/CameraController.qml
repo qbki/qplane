@@ -2,8 +2,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick3D
 
-import "../jsutils/utils.mjs" as JS
-
 Item {
   required property Camera camera
   required property Item keysCatcher
@@ -130,7 +128,7 @@ Item {
     property real heightMultiplier: 0
 
     function removeItselfFromCatcher() {
-      if (!root.savedKeysCatcher) {
+      if (!inner.savedKeysCatcher) {
         return;
       }
       const idx = root.keysCatcher.Keys.forwardTo.indexOf(inner.savedKeysCatcher);

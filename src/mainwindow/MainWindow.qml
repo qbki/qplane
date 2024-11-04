@@ -80,9 +80,10 @@ ApplicationWindow {
   }
 
   function appendEntity(store, item) {
+    const itemCopy = item.copy();
     const action = ActionManagerItemFactory.create(
-      () => store.append(item.copy()),
-      () => store.remove((value) => JS.areStrsEqual(value.id, item.id))
+      () => store.append(itemCopy.copy()),
+      () => store.remove((value) => JS.areStrsEqual(value.id, itemCopy.id)),
     );
     action.execute();
     actionManager.push(action);
@@ -97,6 +98,16 @@ ApplicationWindow {
     };
     const action = ActionManagerItemFactory.create(updater(oldItem, newItem),
                                                    updater(newItem, oldItem));
+    action.execute();
+    actionManager.push(action);
+  }
+
+  function removeEntity(store, item) {
+    const itemCopy = item.copy();
+    const action = ActionManagerItemFactory.create(
+      () => store.remove((value) => JS.areStrsEqual(value.id, itemCopy.id)),
+      () => store.append(item.copy()),
+    );
     action.execute();
     actionManager.push(action);
   }
@@ -334,7 +345,7 @@ ApplicationWindow {
       root.title = `${appState.name}: ${relativeLevelPath}`;
     }
     Component.onCompleted: {
-      root.title = appState.name
+      root.title = appState.name;
     }
   }
 
@@ -663,108 +674,86 @@ ApplicationWindow {
           anchors.fill: parent
           spacing: Theme.spacing(1)
 
-          GroupBox {
-            title: qsTr("Actors")
-            Layout.fillWidth: true
-
-            RosterEntityActors {
-              modelsStore: modelsStore
-              actorsStore: actorsStore
-              weaponsStore: weaponsStore
-              particlesStore: particlesStore
-              selectedEntityId: root.selectedEntityId
-              anchors.left: parent.left
-              anchors.right: parent.right
-              onItemClicked: function(item) {
-                const foundEntityModel = modelsStore.getById(item.model_id);
-                if (foundEntityModel) {
-                  root.selectedEntityId = item.id;
-                  root.ghostUrl = foundEntityModel.path;
-                }
-              }
-              onItemAdded: function(item) {
-                root.appendEntity(actorsStore, item);
-              }
-              onItemUpdated: function(newItem, oldItem) {
-                root.updateEntity(actorsStore, newItem, oldItem);
-              }
+          component CrudSignals: Connections {
+            required property GadgetListModel store
+            function onItemAdded(item) {
+              root.appendEntity(store, item);
+            }
+            function onItemUpdated(newItem, oldItem) {
+              root.updateEntity(store, newItem, oldItem);
+            }
+            function onItemRemoved(item) {
+              root.removeEntity(store, item);
             }
           }
 
-          GroupBox {
-            title: qsTr("Models")
+          RosterEntityActors {
+            id: rosterActors
             Layout.fillWidth: true
-
-            RosterEntityModels {
-              modelsStore: modelsStore
-              selectedEntityId: root.selectedEntityId
-              appState: appState
-              anchors.left: parent.left
-              anchors.right: parent.right
-              onItemClicked: function(item) {
+            modelsStore: modelsStore
+            actorsStore: actorsStore
+            weaponsStore: weaponsStore
+            particlesStore: particlesStore
+            selectedEntityId: root.selectedEntityId
+            onItemClicked: function(item) {
+              const foundEntityModel = modelsStore.getById(item.model_id);
+              if (foundEntityModel) {
                 root.selectedEntityId = item.id;
-                root.ghostUrl = item.path;
+                root.ghostUrl = foundEntityModel.path;
               }
-              onItemAdded: function(item) {
-                root.appendEntity(modelsStore, item);
-              }
-              onItemUpdated: function(newItem, oldItem) {
-                root.updateEntity(modelsStore, newItem, oldItem);
-              }
+            }
+            CrudSignals {
+              target: rosterActors
+              store: actorsStore
             }
           }
 
-          GroupBox {
-            title: qsTr("Weapons")
+          RosterEntityModels {
+            id: rosterModels
             Layout.fillWidth: true
-
-            RosterEntityWeapons {
-              appState: appState
-              weaponsStore: weaponsStore
-              modelsStore: modelsStore
-              anchors.left: parent.left
-              anchors.right: parent.right
-              onItemAdded: function(item) {
-                root.appendEntity(weaponsStore, item);
-              }
-              onItemUpdated: function(newItem, oldItem) {
-                root.updateEntity(weaponsStore, newItem, oldItem);
-              }
+            modelsStore: modelsStore
+            selectedEntityId: root.selectedEntityId
+            appState: appState
+            onItemClicked: function(item) {
+              root.selectedEntityId = item.id;
+              root.ghostUrl = item.path;
+            }
+            CrudSignals {
+              target: rosterModels
+              store: modelsStore
             }
           }
 
-          GroupBox {
-            title: qsTr("Particles")
+          RosterEntityWeapons {
+            id: rosterWeapons
             Layout.fillWidth: true
-
-            RosterEntityParticles {
-              particlesStore: particlesStore
-              modelsStore: modelsStore
-              anchors.left: parent.left
-              anchors.right: parent.right
-              onItemAdded: function(item) {
-                root.appendEntity(particlesStore, item);
-              }
-              onItemUpdated: function(newItem, oldItem) {
-                root.updateEntity(particlesStore, newItem, oldItem);
-              }
+            appState: appState
+            weaponsStore: weaponsStore
+            modelsStore: modelsStore
+            CrudSignals {
+              target: rosterWeapons
+              store: weaponsStore
             }
           }
 
-          GroupBox {
-            title: qsTr("Directional Light")
+          RosterEntityParticles {
+            id: rosterParticles
             Layout.fillWidth: true
+            particlesStore: particlesStore
+            modelsStore: modelsStore
+            CrudSignals {
+              target: rosterParticles
+              store: particlesStore
+            }
+          }
 
-            RosterEntityDirectionalLights {
-              directionalLightsStore: directionalLightsStore
-              anchors.left: parent.left
-              anchors.right: parent.right
-              onItemAdded: function(item) {
-                root.appendEntity(directionalLightsStore, item);
-              }
-              onItemUpdated: function(newItem, oldItem) {
-                root.updateEntity(directionalLightsStore, newItem, oldItem);
-              }
+          RosterEntityDirectionalLights {
+            id: rosterDirectionalLights
+            Layout.fillWidth: true
+            directionalLightsStore: directionalLightsStore
+            CrudSignals {
+              target: rosterDirectionalLights
+              store: directionalLightsStore
             }
           }
         }
