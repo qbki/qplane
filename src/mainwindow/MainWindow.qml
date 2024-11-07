@@ -196,11 +196,7 @@ ApplicationWindow {
         FileIO.saveJson(appState.levelsDir + "/entities.json", { entities });
       }
       if (appState.isLevelLoaded) {
-        const camera = (() => {
-          const entity = EntityCameraFactory.create();
-          entity.position = levelSettingsStore.cameraPosition;
-          return EntityCameraFactory.toJson(entity);
-        })();
+        const meta = LevelMetaFactory.toJson(levelSettingsStore.meta);
         const statics = sceneModelItems.children
           .filter((child) => !child.isEmpty())
           .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
@@ -216,7 +212,7 @@ ApplicationWindow {
           light.entity_id = levelSettingsStore.globalLightId
           lights.push(PositionStrategyVoidFactory.toJson(light));
         }
-        FileIO.saveJson(appState.levelPath, { camera, map: [...statics, ...actors, ...lights] });
+        FileIO.saveJson(appState.levelPath, { meta, map: [...statics, ...actors, ...lights] });
       }
     }
   }
@@ -249,8 +245,8 @@ ApplicationWindow {
     id: openEditGlobalLightWindowAction
     text: qsTr("Level settings...")
     onTriggered: {
-      const { globalLightId, cameraPosition } = levelSettingsStore;
-      levelSettingsWindow.open({ globalLightId, cameraPosition });
+      const { globalLightId, meta } = levelSettingsStore;
+      levelSettingsWindow.open({ globalLightId, meta });
     }
   }
 
@@ -786,10 +782,10 @@ ApplicationWindow {
     id: levelSettingsWindow
     window: Component {
       LevelSettingsWindow {
-        model: directionalLightsStore.toArray().map(({ id }) => id)
+        lightsModel: directionalLightsStore.toArray().map(({ id }) => id)
         onAccepted: function(value) {
           levelSettingsStore.globalLightId = value.globalLightId;
-          levelSettingsStore.cameraPosition = value.cameraPosition;
+          levelSettingsStore.meta = value.meta;
         }
       }
     }
@@ -845,9 +841,7 @@ ApplicationWindow {
       appState.levelPath = openLevelDialog.file;
       try {
         const json = FileIO.loadJson(appState.levelPath);
-
-        const camera = EntityCameraFactory.fromJson(json.camera);
-        levelSettingsStore.cameraPosition = camera.position;
+        levelSettingsStore.meta = LevelMetaFactory.fromJson(json.meta);
 
         const scene = [
           ...sceneModelItems.children,

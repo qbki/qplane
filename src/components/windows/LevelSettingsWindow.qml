@@ -5,10 +5,14 @@ import QtQuick.Layouts
 import app
 
 EditWindowBase {
-  property alias model: lightField.model
+  property alias lightsModel: lightField.model
 
   signal canceled()
-  signal accepted(newLight: var, light: var)
+  /**
+   * @param value.meta levelMeta
+   * @param value.globalLightId string
+   */
+  signal accepted(value: var)
 
   id: root
   title: qsTr("Level settings")
@@ -16,12 +20,14 @@ EditWindowBase {
   acceptAction: acceptHandler
 
   /**
-   * @param value.cameraPosition vector3d
+   * @param value.meta levelMeta
    * @param value.globalLightId string
    */
   function open(value: var) {
     lightField.value = value.globalLightId;
-    cameraPositionField.value = value.cameraPosition;
+    cameraPositionField.value = value.meta.camera.position;
+    minBoundaryField.value = value.meta.boundaries.min;
+    maxBoundaryField.value = value.meta.boundaries.max;
     internal.initialData = value;
     root.show();
   }
@@ -44,11 +50,14 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
-      const value = {
-        cameraPosition: cameraPositionField.value,
-        globalLightId: lightField.value,
-      };
-      root.accepted(value, internal.initialData);
+      const meta = LevelMetaFactory.create();
+      meta.camera.position = cameraPositionField.value;
+      meta.boundaries.min = minBoundaryField.value;
+      meta.boundaries.max = maxBoundaryField.value;
+
+      const globalLightId = lightField.value;
+
+      root.accepted({ meta, globalLightId });
       root.close();
     }
   }
@@ -62,6 +71,18 @@ EditWindowBase {
   FormVector3DInput {
     id: cameraPositionField
     label: qsTr("Default camera position")
+    Layout.fillWidth: true
+  }
+
+  FormVector3DInput {
+    id: minBoundaryField
+    label: qsTr("Minimal boundary")
+    Layout.fillWidth: true
+  }
+
+  FormVector3DInput {
+    id: maxBoundaryField
+    label: qsTr("Maximum boundary")
     Layout.fillWidth: true
   }
 }

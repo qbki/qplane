@@ -11,7 +11,6 @@ class EntityCamera
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityCamera)
-
   Q_PROPERTY(QVector3D position READ position WRITE set_position FINAL)
 
   QVector3D m_position;

@@ -74,7 +74,7 @@ EditWindowBase {
     }
   }
 
-  component LevelItem: Label {
+  component LevelItem : Label {
     required property int index
     required property var model
     property int modelId: (model.id === null || model.id === undefined) ? -1 : model.id
@@ -172,7 +172,6 @@ EditWindowBase {
         highlight: Highlight {}
         clip: true
         delegate: LevelItem {
-          required property int index
           id: candidateDelegate
           MouseArea {
             anchors.fill: parent

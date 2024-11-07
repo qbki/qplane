@@ -207,13 +207,16 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
     src/types/entityactor.h src/types/entityactor.cpp
+    src/types/entityboundaries.h src/types/entityboundaries.cpp
     src/types/entitycamera.h src/types/entitycamera.cpp
     src/types/entitydirectionallight.h src/types/entitydirectionallight.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
     src/types/entityparticles.h src/types/entityparticles.cpp
     src/types/entityweapon.h src/types/entityweapon.cpp
+    src/types/levelmeta.h src/types/levelmeta.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp
     src/types/positionstrategyvoid.h src/types/positionstrategyvoid.cpp
     src/utils/json.h src/utils/json.cpp
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp
+    src/utils/utils.h
 )

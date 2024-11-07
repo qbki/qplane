@@ -16,6 +16,7 @@ public:
   bool boolean(const QString& key) const;
   double real(const QString& key) const;
   QString string(const QString& key) const;
+  QJsonObject obj(const QString& key) const;
   QString optionalString(const QString& key, const QString& defaultValue) const;
   QVariantList vectors3d(const QString& key) const;
   QVector3D vector3d(const QString &key) const;

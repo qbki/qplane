@@ -1,6 +1,8 @@
 import QtQuick
 
+import app
+
 QtObject {
-  property vector3d cameraPosition: Qt.vector3d(0, 0, 0)
+  property levelMeta meta: LevelMetaFactory.create()
   property string globalLightId: ""
 }

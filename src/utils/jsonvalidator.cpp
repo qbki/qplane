@@ -25,6 +25,15 @@ JsonValidator::string(const QString& key) const
   return optionalString(key, "");
 }
 
+QJsonObject JsonValidator::obj(const QString &key) const
+{
+  must_contain_key(key);
+  if (const QJsonValue value = (*m_json)[key]; value.isObject()) {
+    return value.toObject();
+  }
+  throw create_error(QString("\"%1\" field must be an object type").arg(key));
+}
+
 QString JsonValidator::optionalString(const QString &key, const QString &defaultValue) const
 {
   if (!m_json->contains(key)) {

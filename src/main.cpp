@@ -5,6 +5,7 @@
 
 #include "models/actionmanager/actionmanageritem.h"
 #include "types/entityactor.h"
+#include "types/entityboundaries.h"
 #include "types/entitycamera.h"
 #include "types/entitydirectionallight.h"
 #include "types/entitymodel.h"
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]) {
 
   qRegisterMetaType<ActionManagerItem>();
   qRegisterMetaType<EntityActor>();
+  qRegisterMetaType<EntityBoundaries>();
   qRegisterMetaType<EntityCamera>();
   qRegisterMetaType<EntityDirectionalLight>();
   qRegisterMetaType<EntityModel>();
