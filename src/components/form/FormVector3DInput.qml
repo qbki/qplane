@@ -36,17 +36,11 @@ Item {
     property bool holdInputsUpdate: false
     property real axisLabelWidth: Theme.spacing(1)
 
-    function stringToValidNumber(value: string): real {
-      const num = Number.parseFloat(value);
-      // Also: isFinite(NaN) returns false
-      return Number.isFinite(num) ? num : 0;
-    }
-
     function parseFields(): vector3d {
       return Qt.vector3d(
-        internal.stringToValidNumber(xField.value),
-        internal.stringToValidNumber(yField.value),
-        internal.stringToValidNumber(zField.value)
+        JS.stringToValidNumber(xField.value),
+        JS.stringToValidNumber(yField.value),
+        JS.stringToValidNumber(zField.value)
       );
     }
 

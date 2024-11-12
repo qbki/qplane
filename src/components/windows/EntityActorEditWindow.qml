@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -21,17 +22,19 @@ EditWindowBase {
   function open(initialData: entityActor) {
     idField.value = initialData.id;
     modelIdField.value = initialData.model_id;
-    speedField.value = initialData.speed;
+    speedField.acceleration = initialData.speed.acceleration;
+    speedField.damping = initialData.speed.damping;
+    speedField.speed = initialData.speed.speed;
     livesField.value = initialData.lives;
     hitParticlesIdField.value = initialData.hit_particles_id;
     debrisModelIdField.value = initialData.debris_id;
     weaponIdField.value = initialData.weapon_id;
-    internal.initialData = initialData;
+    inner.initialData = initialData;
     root.show();
   }
 
   QtObject {
-    id: internal
+    id: inner
     property entityActor initialData
     property list<string> emptyableModelsList: [""].concat(root.modelsList)
     property list<string> emptyableWeaponsList: [""].concat(root.weaponsList)
@@ -51,15 +54,20 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
+      const speed = EntityPropVelocityFactory.create();
+      speed.acceleration = speedField.acceleration;
+      speed.damping = speedField.damping;
+      speed.speed = speedField.speed;
+
       const newEntity = EntityActorFactory.create();
       newEntity.id = idField.value;
       newEntity.model_id = modelIdField.value;
       newEntity.debris_id = debrisModelIdField.value;
       newEntity.weapon_id = weaponIdField.value;
       newEntity.hit_particles_id = hitParticlesIdField.value;
-      newEntity.speed = JS.toFinitFloat(speedField.value);
+      newEntity.speed = speed;
       newEntity.lives = JS.toFinitInt(livesField.value);
-      root.accepted(newEntity, internal.initialData);
+      root.accepted(newEntity, inner.initialData);
       root.close();
     }
   }
@@ -70,10 +78,12 @@ EditWindowBase {
     Layout.fillWidth: true
   }
 
-  FormTextInput {
+  FormVelocityInput {
     id: speedField
-    label: qsTr("Speed")
     Layout.fillWidth: true
+    acceleration: null
+    damping: null
+    speed: null
   }
 
   FormTextInput {
@@ -92,21 +102,21 @@ EditWindowBase {
   FormComboBoxInput {
     id: hitParticlesIdField
     label: qsTr("Hit particles")
-    model: internal.emptyableParticlesList
+    model: inner.emptyableParticlesList
     Layout.fillWidth: true
   }
 
   FormComboBoxInput {
     id: weaponIdField
     label: qsTr("Weapon")
-    model: internal.emptyableWeaponsList
+    model: inner.emptyableWeaponsList
     Layout.fillWidth: true
   }
 
   FormComboBoxInput {
     id: debrisModelIdField
     label: qsTr("Debris")
-    model: internal.emptyableModelsList
+    model: inner.emptyableModelsList
     Layout.fillWidth: true
   }
 }

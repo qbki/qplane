@@ -25,6 +25,7 @@ Q_DECLARE_METATYPE(EntityCamera)
 
 class EntityCameraFactory : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON

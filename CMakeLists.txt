@@ -168,8 +168,10 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/form/FormColorInput.qml
     src/components/form/FormComboBoxInput.qml
     src/components/form/FormFilesComboBoxInput.qml
+    src/components/form/FormNullableTextInput.qml
     src/components/form/FormTextInput.qml
     src/components/form/FormVector3DInput.qml
+    src/components/form/FormVelocityInput.qml
     src/components/icons/BaseIconShape.qml
     src/components/icons/DownIcon.qml
     src/components/icons/UpIcon.qml
@@ -212,6 +214,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/types/entitydirectionallight.h src/types/entitydirectionallight.cpp
     src/types/entitymodel.h src/types/entitymodel.cpp
     src/types/entityparticles.h src/types/entityparticles.cpp
+    src/types/entitypropvelocity.h src/types/entitypropvelocity.cpp
     src/types/entityweapon.h src/types/entityweapon.cpp
     src/types/levelmeta.h src/types/levelmeta.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp

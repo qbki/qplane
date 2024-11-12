@@ -90,3 +90,22 @@ export function copy3dVector(vector) {
 export function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
+
+export function valueOrDefault(value, defaultValue) {
+  return (value === null || value === undefined) ? defaultValue : value;
+}
+
+export function isNil(value) {
+  return value === null || value === undefined;
+}
+
+export function isNotNil(value) {
+  return !isNil(value);
+}
+
+export function stringToValidNumber(value) {
+  const num = Number.parseFloat(value);
+  // Also: isFinite(NaN) returns false
+  return Number.isFinite(num) ? num : 0;
+}
+

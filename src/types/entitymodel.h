@@ -38,6 +38,7 @@ Q_DECLARE_METATYPE(EntityModel)
 
 class EntityModelFactory : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON

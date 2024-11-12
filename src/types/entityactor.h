@@ -4,6 +4,8 @@
 #include <QQmlEngine>
 #include <QString>
 
+#include "entitypropvelocity.h"
+
 class EntityActor
 {
   Q_GADGET
@@ -14,7 +16,7 @@ class EntityActor
   Q_PROPERTY(QString hit_particles_id READ hit_particles_id WRITE set_hit_particles_id FINAL)
   Q_PROPERTY(QString debris_id READ debris_id WRITE set_debris_id FINAL)
   Q_PROPERTY(int lives READ lives WRITE set_lives FINAL)
-  Q_PROPERTY(float speed READ speed WRITE set_speed FINAL)
+  Q_PROPERTY(EntityPropVelocity speed READ speed WRITE set_speed FINAL)
 
 public:
   EntityActor() = default;
@@ -34,8 +36,8 @@ public:
   QString debris_id() const;
   void set_debris_id(const QString &value);
 
-  float speed() const;
-  void set_speed(float value);
+  EntityPropVelocity speed() const;
+  void set_speed(const EntityPropVelocity& value);
 
   int lives() const;
   void set_lives(int value);
@@ -48,7 +50,7 @@ private:
   QString m_weapon_id = "";
   QString m_hit_particles_id = "";
   QString m_debris_id = "";
-  float m_speed = 0;
+  EntityPropVelocity m_speed {};
   int m_lives = 1;
 };
 
@@ -56,6 +58,7 @@ Q_DECLARE_METATYPE(EntityActor)
 
 class EntityActorFactory : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON

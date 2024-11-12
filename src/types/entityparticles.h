@@ -45,6 +45,7 @@ Q_DECLARE_METATYPE(EntityParticles)
 
 class EntityParticlesFactory : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON

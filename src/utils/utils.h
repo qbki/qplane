@@ -5,10 +5,10 @@
 #include <memory>
 #include <string>
 
-void noop() {}
+inline void noop() {}
 
 template<typename T>
-std::string
+inline std::string
 demangledName()
 {
   int status = 0;
@@ -34,14 +34,14 @@ demangledName()
 }
 
 template<typename T>
-T&
+inline T&
 getQmlSingleton(const QObject* obj)
 {
   return *qmlEngine(obj)->singletonInstance<T*>("app", demangledName<T>());
 }
 
 template<typename T>
-T&
+inline T&
 getQmlSingleton(const QObject& obj)
 {
   return *getQmlSingleton<T>(&obj);

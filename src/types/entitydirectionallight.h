@@ -36,6 +36,7 @@ Q_DECLARE_METATYPE(EntityDirectionalLight)
 
 class EntityDirectionalLightFactory : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON

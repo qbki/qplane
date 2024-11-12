@@ -35,6 +35,7 @@ Q_DECLARE_METATYPE(LevelMeta)
 
 class LevelMetaFactory : public QObject
 {
+private:
   Q_OBJECT
   QML_ELEMENT
   QML_SINGLETON
