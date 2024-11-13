@@ -28,21 +28,21 @@ private:
 public:
   explicit RecursiveDirectoryListModel(QObject* parent = nullptr);
 
-  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-  QVariant data(const QModelIndex& index,
+  [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  [[nodiscard]] QVariant data(const QModelIndex& index,
                 int role = Qt::DisplayRole) const override;
 
-  QUrl folder() const;
+  [[nodiscard]] QUrl folder() const;
   void setFolder(const QUrl &value);
 
-  QUrl rootFolder() const;
+  [[nodiscard]] QUrl rootFolder() const;
   void setRootFolder(const QUrl &value);
 
-  QVariantList extentions() const;
+  [[nodiscard]] QVariantList extentions() const;
   void setExtentions(const QVariantList &value);
 
-  QHash<int, QByteArray> roleNames() const override;
-  Q_INVOKABLE QModelIndex findIndex(const QJSValue &predicate) const;
+  [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
+  [[nodiscard]] Q_INVOKABLE QModelIndex findIndex(const QJSValue &predicate) const;
 
 signals:
   void folderChanged(const QUrl& value);

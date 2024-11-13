@@ -17,30 +17,32 @@ private:
   Q_PROPERTY(QUrl soundsDir READ soundsDir NOTIFY soundsDirChanged FINAL)
   Q_PROPERTY(bool isProjectLoaded READ isProjectLoaded NOTIFY isProjectLoadedChanged FINAL)
   Q_PROPERTY(bool isLevelLoaded READ isLevelLoaded NOTIFY isLevelLoadedChanged FINAL)
-  Q_PROPERTY(bool isModelsDirExists READ isModelsDirExists FINAL)
+  Q_PROPERTY(bool isModelsDirExists READ isModelsDirExists NOTIFY isModelsDirExistsChanged FINAL)
+
+  QUrl m_projectDir;
+  QUrl m_levelPath;
 
 public:
   explicit AppState(QObject* parent = nullptr);
 
-  QUrl projectDir() const;
+  [[nodiscard]] QUrl projectDir() const;
   void setProjectDir(const QUrl &newProjectDir);
-  Q_INVOKABLE QString projectLocalDir() const;
+  [[nodiscard]] Q_INVOKABLE QString projectLocalDir() const;
 
-  QUrl levelPath() const;
+  [[nodiscard]] QUrl levelPath() const;
   void setLevelPath(const QUrl &newLevelPath);
 
-  QUrl levelsMetaPath() const;
-  QUrl themePath() const;
+  [[nodiscard]] QUrl levelsMetaPath() const;
+  [[nodiscard]] QUrl themePath() const;
 
-  QUrl levelsDir() const;
-  QUrl modelsDir() const;
-  QUrl soundsDir() const;
+  [[nodiscard]] QUrl levelsDir() const;
+  [[nodiscard]] QUrl modelsDir() const;
+  [[nodiscard]] QUrl soundsDir() const;
 
-  bool isModelsDirExists() const;
-  bool isProjectLoaded() const;
-  bool isNewLevel() const;
-  bool isLevelLoaded() const;
-
+  [[nodiscard]] bool isModelsDirExists() const;
+  [[nodiscard]] bool isProjectLoaded() const;
+  [[nodiscard]] bool isNewLevel() const;
+  [[nodiscard]] bool isLevelLoaded() const;
 
 signals:
   void projectDirChanged();
@@ -52,8 +54,5 @@ signals:
   void levelsMetaPathChanged();
   void themePathChanged();
   void soundsDirChanged();
-
-private:
-  QUrl m_projectDir;
-  QUrl m_levelPath;
+  void isModelsDirExistsChanged();
 };

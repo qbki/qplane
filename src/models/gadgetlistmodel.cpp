@@ -47,7 +47,7 @@ void GadgetListModel::append(const QVariant &value)
 
 void GadgetListModel::appendList(const QVariantList &value)
 {
-  auto size = value.size();
+  auto size = static_cast<int>(value.size());
   if (size == 0) {
     return;
   }

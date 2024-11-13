@@ -7,9 +7,9 @@ template<typename T>
 class BaseList
 {
 public:
-  int rowCount(const QModelIndex& parent = QModelIndex()) const;
+  [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
-  QVariant data(const QModelIndex& index,
+  [[nodiscard]] QVariant data(const QModelIndex& index,
                 int role = Qt::DisplayRole) const;
 
   bool setData(const QModelIndex& index,
@@ -18,7 +18,7 @@ public:
 
   std::vector<T>& getData();
   const std::vector<T>& getData() const;
-  int findIndex(const QObject& qmlObject, const QJSValue& predicate) const;
+  [[nodiscard]] int findIndex(const QObject& qmlObject, const QJSValue& predicate) const;
   void removeIf(const QObject& qmlObject, const QJSValue& predicate);
   void push(const T& value);
 
@@ -41,11 +41,11 @@ QVariant
 BaseList<T>::data(const QModelIndex& index, int /*role*/) const
 {
   if (!index.isValid()) {
-    return QVariant();
+    return {};
   }
   auto idx = index.row();
   if (idx < 0 || idx >= m_data.size()) {
-    return QVariant();
+    return {};
   }
   QVariant result;
   result.setValue(m_data.at(idx));

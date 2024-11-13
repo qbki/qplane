@@ -7,7 +7,7 @@ Theme::Theme(QObject* parent)
 
 int Theme::spacing(float value)
 {
-  return SPACING * value;
+  return static_cast<int>(SPACING * value);
 }
 
 double Theme::sceneOpacity() const

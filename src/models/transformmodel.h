@@ -12,11 +12,11 @@ class TransformModel : public QIdentityProxyModel
 public:
   TransformModel(QObject *parent = nullptr);
 
-  QVariant data(const QModelIndex &index, int role) const;
-  QJSValue map() const;
+  [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
+  [[nodiscard]] QJSValue map() const;
   void setMap(const QJSValue &newMap);
 
-  QString role() const;
+  [[nodiscard]] QString role() const;
   void setRole(const QString &newRole);
 
 signals:

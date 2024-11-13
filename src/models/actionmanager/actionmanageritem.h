@@ -15,12 +15,12 @@ private:
   QJSValue m_undoCb = QJSValue::NullValue;
 
 public:
-  ActionManagerItem();
+  ActionManagerItem() = default;
 
-  QJSValue executeCb() const;
+  [[nodiscard]] QJSValue executeCb() const;
   void setExecuteCb(const QJSValue &value);
 
-  QJSValue undoCb() const;
+  [[nodiscard]] QJSValue undoCb() const;
   void setUndoCb(const QJSValue &value);
 
   Q_INVOKABLE void execute();

@@ -54,7 +54,7 @@ void RecursiveDirectoryListModel::setRootFolder(const QUrl &value)
   }
   m_rootFolder = value;
   emit rootFolderChanged();
-  dataChanged(index(0), index(rowCount()), {Roles::Text});
+  emit dataChanged(index(0), index(rowCount()), {Roles::Text});
 }
 
 QVariantList

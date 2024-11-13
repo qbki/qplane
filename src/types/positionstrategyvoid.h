@@ -12,18 +12,17 @@ private:
   Q_PROPERTY(QString behaviour READ behaviour WRITE set_behaviour)
   QML_NAMED_ELEMENT(positionStrategyVoid)
 
+  QString m_entity_id {};
+  QString m_behaviour {};
+
 public:
   PositionStrategyVoid() = default;
 
-  QString entity_id() const;
+  [[nodiscard]] QString entity_id() const;
   void set_entity_id(const QString &value);
 
-  QString behaviour() const;
+  [[nodiscard]] QString behaviour() const;
   void set_behaviour(const QString &value);
-
-private:
-  QString m_entity_id;
-  QString m_behaviour;
 };
 
 Q_DECLARE_METATYPE(PositionStrategyVoid)

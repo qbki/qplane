@@ -13,19 +13,17 @@ private:
 public:
   JsonValidator(const QObject* object, const QJsonObject* json);
 
-  bool boolean(const QString& key) const;
-  double real(const QString& key) const;
-  QVariant optionalReal(const QString &key, const QVariant& defaultValue) const;
-  QString string(const QString& key) const;
-  QJsonObject obj(const QString& key) const;
-  QString optionalString(const QString& key, const QString& defaultValue) const;
-  QVariantList vectors3d(const QString& key) const;
-  QVector3D vector3d(const QString &key) const;
-  QColor color(const QString &key) const;
-
-
+  [[nodiscard]] bool boolean(const QString& key) const;
+  [[nodiscard]] double real(const QString& key) const;
+  [[nodiscard]] QVariant optionalReal(const QString &key, const QVariant& defaultValue) const;
+  [[nodiscard]] QString string(const QString& key) const;
+  [[nodiscard]] QJsonObject obj(const QString& key) const;
+  [[nodiscard]] QString optionalString(const QString& key, const QString& defaultValue) const;
+  [[nodiscard]] QVariantList vectors3d(const QString& key) const;
+  [[nodiscard]] QVector3D vector3d(const QString &key) const;
+  [[nodiscard]] QColor color(const QString &key) const;
 
 private:
   void must_contain_key(const QString& key) const;
-  std::runtime_error create_error(const QString& message) const;
+  [[nodiscard]] std::runtime_error create_error(const QString& message) const;
 };

@@ -122,7 +122,7 @@ EntityActor EntityActorFactory::fromJson(const QString &id, const QJsonObject &j
     entity.set_hit_particles_id(check.optionalString("hit_particles_id", ""));
     entity.set_model_id(check.string("model_id"));
     entity.set_speed(velocity.fromJson(check.obj("speed")));
-    entity.set_lives(check.real("lives"));
+    entity.set_lives(static_cast<int>(check.real("lives")));
   } catch(const std::runtime_error& error) {
     qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
   }

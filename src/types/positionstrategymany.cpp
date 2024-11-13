@@ -54,7 +54,7 @@ QJsonObject PositionStrategyManyFactory::toJson(const PositionStrategyMany &stra
   json["entity_id"] = strategy.entity_id();
   QJsonArray positions;
   for (const auto& variant : strategy.positions()) {
-    QVector3D vector = variant.value<QVector3D>();
+    auto vector = variant.value<QVector3D>();
     positions.push_back(vector.x());
     positions.push_back(vector.y());
     positions.push_back(vector.z());

@@ -20,16 +20,16 @@ private:
 public:
   EntityDirectionalLight() = default;
 
-  QString id() const;
+  [[nodiscard]] QString id() const;
   void set_id(const QString &value);
 
-  QColor color() const;
+  [[nodiscard]] QColor color() const;
   void set_color(const QColor &value);
 
-  QVector3D direction() const;
+  [[nodiscard]] QVector3D direction() const;
   void set_direction(const QVector3D &value);
 
-  Q_INVOKABLE EntityDirectionalLight copy() const;
+  [[nodiscard]] Q_INVOKABLE EntityDirectionalLight copy() const;
 };
 
 Q_DECLARE_METATYPE(EntityDirectionalLight)

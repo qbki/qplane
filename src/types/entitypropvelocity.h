@@ -21,13 +21,13 @@ private:
 public:
   EntityPropVelocity() = default;
 
-  QVariant speed() const;
+  [[nodiscard]] QVariant speed() const;
   void set_speed(const QVariant &newSpeed);
 
-  QVariant acceleration() const;
+  [[nodiscard]] QVariant acceleration() const;
   void set_acceleration(const QVariant &newAcceleration);
 
-  QVariant damping() const;
+  [[nodiscard]] QVariant damping() const;
   void set_damping(const QVariant &newDamping);
 };
 

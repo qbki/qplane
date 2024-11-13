@@ -18,10 +18,10 @@ private:
 public:
   EntityBoundaries() = default;
 
-  QVector3D min() const;
+  [[nodiscard]] QVector3D min() const;
   void set_min(const QVector3D &newMin);
 
-  QVector3D max() const;
+  [[nodiscard]] QVector3D max() const;
   void set_max(const QVector3D &newMax);
 };
 
@@ -36,7 +36,7 @@ private:
 
 public:
   EntityBoundariesFactory(QObject* parent = Q_NULLPTR);
-  Q_INVOKABLE EntityBoundaries create() const;
-  Q_INVOKABLE QJsonObject toJson(const EntityBoundaries& entity) const;
-  Q_INVOKABLE EntityBoundaries fromJson(const QJsonObject& json) const;
+  [[nodiscard]] Q_INVOKABLE EntityBoundaries create() const;
+  [[nodiscard]] Q_INVOKABLE QJsonObject toJson(const EntityBoundaries& entity) const;
+  [[nodiscard]] Q_INVOKABLE EntityBoundaries fromJson(const QJsonObject& json) const;
 };

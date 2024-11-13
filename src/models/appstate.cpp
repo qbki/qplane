@@ -34,6 +34,7 @@ AppState::setProjectDir(const QUrl& newProjectDir)
   }
   m_projectDir = directory;
   emit isProjectLoadedChanged();
+  emit isModelsDirExistsChanged();
   emit levelsDirChanged();
   emit projectDirChanged();
   emit soundsDirChanged();

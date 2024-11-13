@@ -13,11 +13,11 @@ private:
   QML_NAMED_ELEMENT(entityCamera)
   Q_PROPERTY(QVector3D position READ position WRITE set_position FINAL)
 
-  QVector3D m_position;
+  QVector3D m_position {0, 0, 0};
 
 public:
   EntityCamera() = default;
-  QVector3D position() const;
+  [[nodiscard]] QVector3D position() const;
   void set_position(const QVector3D &newPosition);
 };
 

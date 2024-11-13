@@ -63,7 +63,11 @@ JsonValidator::vectors3d(const QString &key) const
       if (!(x.isDouble() && y.isDouble() && z.isDouble())) {
         throw create_error(QString("\"%1\" items must be a double type").arg(key));
       }
-      result.push_back(QVector3D(x.toDouble(), y.toDouble(), z.toDouble()));
+      result.push_back(QVector3D(
+        static_cast<float>(x.toDouble()),
+        static_cast<float>(y.toDouble()),
+        static_cast<float>(z.toDouble())
+      ));
     }
     return result;
   }
@@ -80,13 +84,17 @@ JsonValidator::vector3d(const QString &key) const
     if (size != 3) {
       throw create_error(QString("\"%1\" field has insufficient size, expected 3 doubles").arg(key));
     }
-    const auto x = array[0];
-    const auto y = array[1];
-    const auto z = array[2];
+    const auto x {array[0]};
+    const auto y {array[1]};
+    const auto z {array[2]};
     if (!(x.isDouble() && y.isDouble() && z.isDouble())) {
       throw create_error(QString("\"%1\" items must be a double type").arg(key));
     }
-    return QVector3D(x.toDouble(), y.toDouble(), z.toDouble());
+    return {
+      static_cast<float>(x.toDouble()),
+      static_cast<float>(y.toDouble()),
+      static_cast<float>(z.toDouble())
+    };
   }
   throw create_error(QString("\"%1\" field must be an array of 3 doubles").arg(key));
 }

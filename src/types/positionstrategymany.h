@@ -13,22 +13,21 @@ private:
   Q_PROPERTY(QVariantList positions READ positions WRITE set_positions)
   QML_NAMED_ELEMENT(positionStrategyMany)
 
+  QString m_entity_id {};
+  QString m_behaviour {};
+  QVariantList m_positions {};
+
 public:
   PositionStrategyMany() = default;
 
-  QString entity_id() const;
+  [[nodiscard]] QString entity_id() const;
   void set_entity_id(const QString &newEntity_id);
 
-  QString behaviour() const;
+  [[nodiscard]] QString behaviour() const;
   void set_behaviour(const QString &newBehaviour);
 
-  QVariantList positions() const;
+  [[nodiscard]] QVariantList positions() const;
   void set_positions(const QVariantList &newPositions);
-
-private:
-  QString m_entity_id;
-  QString m_behaviour;
-  QVariantList m_positions;
 };
 
 Q_DECLARE_METATYPE(PositionStrategyMany)

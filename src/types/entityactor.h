@@ -21,37 +21,37 @@ class EntityActor
 public:
   EntityActor() = default;
 
-  QString id() const;
+  [[nodiscard]] QString id() const;
   void set_id(const QString &value);
 
-  QString model_id() const;
+  [[nodiscard]] QString model_id() const;
   void set_model_id(const QString &value);
 
-  QString weapon_id() const;
+  [[nodiscard]] QString weapon_id() const;
   void set_weapon_id(const QString &value);
 
-  QString hit_particles_id() const;
+  [[nodiscard]] QString hit_particles_id() const;
   void set_hit_particles_id(const QString &value);
 
-  QString debris_id() const;
+  [[nodiscard]] QString debris_id() const;
   void set_debris_id(const QString &value);
 
-  EntityPropVelocity speed() const;
+  [[nodiscard]] EntityPropVelocity speed() const;
   void set_speed(const EntityPropVelocity& value);
 
-  int lives() const;
+  [[nodiscard]] int lives() const;
   void set_lives(int value);
 
-  Q_INVOKABLE EntityActor copy() const;
+  [[nodiscard]] Q_INVOKABLE EntityActor copy() const;
 
 private:
-  QString m_id = "";
-  QString m_model_id = "";
-  QString m_weapon_id = "";
-  QString m_hit_particles_id = "";
-  QString m_debris_id = "";
+  QString m_id {};
+  QString m_model_id {};
+  QString m_weapon_id {};
+  QString m_hit_particles_id {};
+  QString m_debris_id {};
   EntityPropVelocity m_speed {};
-  int m_lives = 1;
+  int m_lives {1};
 };
 
 Q_DECLARE_METATYPE(EntityActor)

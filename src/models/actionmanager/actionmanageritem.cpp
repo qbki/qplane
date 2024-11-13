@@ -1,7 +1,5 @@
 #include "actionmanageritem.h"
 
-ActionManagerItem::ActionManagerItem() {}
-
 QJSValue ActionManagerItem::executeCb() const
 {
   return m_executeCb;

@@ -22,12 +22,12 @@ private:
 public:
   explicit ActionManager(QObject* parent = nullptr);
 
-  bool canRedo() const;
-  bool canUndo() const;
+  [[nodiscard]] bool canRedo() const;
+  [[nodiscard]] bool canUndo() const;
 
   Q_INVOKABLE void push(const ActionManagerItem& value);
-  Q_INVOKABLE bool isEmpty() const;
-  Q_INVOKABLE QVariant getCurrent() const;
+  [[nodiscard]] Q_INVOKABLE bool isEmpty() const;
+  [[nodiscard]] Q_INVOKABLE QVariant getCurrent() const;
   Q_INVOKABLE void clear();
   Q_INVOKABLE void redo();
   Q_INVOKABLE void undo();

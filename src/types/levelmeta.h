@@ -18,16 +18,16 @@ private:
   Q_PROPERTY(EntityCamera camera READ camera WRITE set_camera FINAL)
   Q_PROPERTY(EntityBoundaries boundaries READ boundaries WRITE set_boundaries FINAL)
 
-  EntityCamera m_camera;
-  EntityBoundaries m_boundaries;
+  EntityCamera m_camera {};
+  EntityBoundaries m_boundaries {};
 
 public:
   LevelMeta() = default;
 
-  EntityCamera camera() const;
+  [[nodiscard]] EntityCamera camera() const;
   void set_camera(const EntityCamera &value);
 
-  EntityBoundaries boundaries() const;
+  [[nodiscard]] EntityBoundaries boundaries() const;
   void set_boundaries(const EntityBoundaries &value);
 };
 

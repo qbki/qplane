@@ -17,39 +17,39 @@ private:
   Q_PROPERTY(QString projectile_model_id READ projectile_model_id WRITE set_projectile_model_id FINAL)
   Q_PROPERTY(QUrl shot_sound_path READ shot_sound_path WRITE set_shot_sound_path FINAL)
 
-  QString m_id = "";
-  double m_projectile_speed = 0;
-  double m_fire_rate = 0;
-  double m_lifetime = 0;
-  double m_spread = 0;
-  QString m_projectile_model_id = "";
-  QUrl m_shot_sound_path = QString("");
+  QString m_id {};
+  double m_projectile_speed {0};
+  double m_fire_rate {0};
+  double m_lifetime {0};
+  double m_spread {0};
+  QString m_projectile_model_id {};
+  QUrl m_shot_sound_path {};
 
 public:
   EntityWeapon() = default;
 
-  QString id() const;
+  [[nodiscard]] QString id() const;
   void set_id(const QString &new_id);
 
-  double projectile_speed() const;
+  [[nodiscard]] double projectile_speed() const;
   void set_projectile_speed(double value);
 
-  double fire_rate() const;
+  [[nodiscard]] double fire_rate() const;
   void set_fire_rate(double value);
 
-  double lifetime() const;
+  [[nodiscard]] double lifetime() const;
   void set_lifetime(double value);
 
-  double spread() const;
+  [[nodiscard]] double spread() const;
   void set_spread(double value);
 
-  QString projectile_model_id() const;
+  [[nodiscard]] QString projectile_model_id() const;
   void set_projectile_model_id(const QString &value);
 
-  QUrl shot_sound_path() const;
+  [[nodiscard]] QUrl shot_sound_path() const;
   void set_shot_sound_path(const QUrl &value);
 
-  Q_INVOKABLE EntityWeapon copy() const;
+  [[nodiscard]] Q_INVOKABLE EntityWeapon copy() const;
 };
 
 Q_DECLARE_METATYPE(EntityWeapon)

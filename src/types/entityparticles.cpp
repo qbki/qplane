@@ -100,7 +100,7 @@ EntityParticlesFactory::fromJson(const QString &id, const QJsonObject &json)
     entity.set_id(id);
     entity.set_lifetime(check.real("lifetime"));
     entity.set_model_id(check.string("model_id"));
-    entity.set_quantity(check.real("quantity"));
+    entity.set_quantity(static_cast<int>(check.real("quantity")));
     entity.set_speed(check.real("speed"));
   } catch(const std::runtime_error& error) {
     qmlEngine(this)->throwError(QJSValue::TypeError, error.what());

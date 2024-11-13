@@ -13,17 +13,17 @@ class FileIO : public QObject
 public:
   explicit FileIO(QObject* parent = nullptr);
 
-  Q_INVOKABLE bool isExists(const QString& filePath) const;
-  Q_INVOKABLE bool isExists(const QFile& file) const;
-  Q_INVOKABLE bool isExists(const QUrl& file) const;
-  Q_INVOKABLE QJsonValue loadJson(const QUrl& fileUrl) const;
+  [[nodiscard]] Q_INVOKABLE bool isExists(const QString& filePath) const;
+  [[nodiscard]] Q_INVOKABLE bool isExists(const QFile& file) const;
+  [[nodiscard]] Q_INVOKABLE bool isExists(const QUrl& file) const;
+  [[nodiscard]] Q_INVOKABLE QJsonValue loadJson(const QUrl& fileUrl) const;
   Q_INVOKABLE void saveJson(const QUrl& fileUrl, const QJsonValue& json) const;
-  Q_INVOKABLE QString relativePath(const QUrl& dir, const QUrl& path) const;
-  Q_INVOKABLE QUrl absolutePath(const QUrl& dir, const QUrl& path) const;
-  Q_INVOKABLE QString fileName(const QUrl& path) const;
-  Q_INVOKABLE QUrl toUrl(const QString& path) const;
-  Q_INVOKABLE QString toLocalFile(const QUrl& path) const;
-  Q_INVOKABLE QUrl fromLocalFile(const QString& path) const;
+  [[nodiscard]] Q_INVOKABLE QString relativePath(const QUrl& dir, const QUrl& path) const;
+  [[nodiscard]] Q_INVOKABLE QUrl absolutePath(const QUrl& dir, const QUrl& path) const;
+  [[nodiscard]] Q_INVOKABLE QString fileName(const QUrl& path) const;
+  [[nodiscard]] Q_INVOKABLE QUrl toUrl(const QString& path) const;
+  [[nodiscard]] Q_INVOKABLE QString toLocalFile(const QUrl& path) const;
+  [[nodiscard]] Q_INVOKABLE QUrl fromLocalFile(const QString& path) const;
 
 private:
   void throwJSError(const QString& message) const;

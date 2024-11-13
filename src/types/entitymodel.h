@@ -15,23 +15,23 @@ private:
   Q_PROPERTY(QUrl path READ path WRITE set_path FINAL)
   Q_PROPERTY(bool is_opaque READ is_opaque WRITE set_is_opaque FINAL)
 
-  QString m_id;
-  QUrl m_path;
-  bool m_is_opaque = true;
+  QString m_id {};
+  QUrl m_path {""};
+  bool m_is_opaque {true};
 
 public:
   EntityModel() = default;
 
-  QString id() const;
+  [[nodiscard]] QString id() const;
   void set_id(const QString &new_id);
 
-  QUrl path() const;
+  [[nodiscard]] QUrl path() const;
   void set_path(const QUrl &new_path);
 
-  bool is_opaque() const;
+  [[nodiscard]] bool is_opaque() const;
   void set_is_opaque(bool new_is_opaque);
 
-  Q_INVOKABLE EntityModel copy() const;
+  [[nodiscard]] Q_INVOKABLE EntityModel copy() const;
 };
 
 Q_DECLARE_METATYPE(EntityModel)

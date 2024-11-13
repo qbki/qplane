@@ -8,7 +8,8 @@ QJsonArray
 to_array(const QVector3D &value)
 {
   auto round = [](float value) -> double {
-    return std::round(value * 1000000.0) / 1000000.0;
+    constexpr double precision = 1'000'000.0;
+    return std::round(value * precision) / precision;
   };
   return {round(value.x()), round(value.y()), round(value.z())};
 }
