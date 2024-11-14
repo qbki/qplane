@@ -660,10 +660,8 @@ ApplicationWindow {
       Flickable {
         anchors.fill: parent
         clip: true
-        contentHeight: rosterRootLayout.height
-
-        ScrollBar.vertical: ScrollBar {
-        }
+        contentHeight: rosterRootLayout.implicitHeight
+        ScrollBar.vertical: ScrollBar {}
 
         ColumnLayout {
           id: rosterRootLayout
