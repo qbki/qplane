@@ -168,6 +168,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/form/FormColorInput.qml
     src/components/form/FormComboBoxInput.qml
     src/components/form/FormFilesComboBoxInput.qml
+    src/components/form/FormInfoLabel.qml
     src/components/form/FormNullableTextInput.qml
     src/components/form/FormTextInput.qml
     src/components/form/FormVector3DInput.qml
@@ -175,6 +176,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/icons/BaseIconShape.qml
     src/components/icons/DownIcon.qml
     src/components/icons/UpIcon.qml
+    src/components/rosters/RosterBase.qml
     src/components/rosters/RosterContextMenu.qml
     src/components/rosters/RosterEntityActors.qml
     src/components/rosters/RosterEntityDirectionalLights.qml
@@ -203,12 +205,15 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/actionmanager/actionmanageritem.h src/models/actionmanager/actionmanageritem.cpp
     src/models/appstate.h src/models/appstate.cpp
     src/models/baselist.h
+    src/models/clipboard.h src/models/clipboard.cpp
     src/models/fileio.h src/models/fileio.cpp
     src/models/gadgetlistmodel.h src/models/gadgetlistmodel.cpp
     src/models/recursivedirectorylistmodel.h src/models/recursivedirectorylistmodel.cpp
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
+    src/models/uuidgenerator.h src/models/uuidgenerator.cpp
     src/types/entityactor.h src/types/entityactor.cpp
+    src/types/entitybase.h src/types/entitybase.cpp
     src/types/entityboundaries.h src/types/entityboundaries.cpp
     src/types/entitycamera.h src/types/entitycamera.cpp
     src/types/entitydirectionallight.h src/types/entitydirectionallight.cpp

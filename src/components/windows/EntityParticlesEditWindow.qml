@@ -18,16 +18,17 @@ EditWindowBase {
 
   function open(initialData: entityParticles) {
     idField.value = initialData.id;
+    nameField.value = initialData.name;
     lifetimeField.value = initialData.lifetime;
     speedField.value = initialData.speed;
     quantityField.value = initialData.quantity;
     modelIdField.value = initialData.model_id;
-    internal.initialData = initialData;
+    inner.initialData = initialData;
     root.show();
   }
 
   QtObject {
-    id: internal
+    id: inner
     property entityParticles initialData
   }
 
@@ -45,19 +46,31 @@ EditWindowBase {
     text: qsTr("Ok")
     onTriggered: {
       const newEntity = EntityParticlesFactory.create();
-      newEntity.id = idField.value;
+      newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
+      newEntity.name = nameField.value;
       newEntity.lifetime = JS.toFinitFloat(lifetimeField.value);
       newEntity.speed = JS.toFinitFloat(speedField.value);
       newEntity.quantity = JS.toFinitInt(quantityField.value);
       newEntity.model_id = modelIdField.value;
-      root.accepted(newEntity, internal.initialData);
+      root.accepted(newEntity, inner.initialData);
       root.close();
     }
   }
 
-  FormTextInput {
+  UuidGenerator {
+    id: uuid
+  }
+
+  FormInfoLabel {
     id: idField
     label: qsTr("ID")
+    Layout.fillWidth: true
+    visible: Boolean(idField.value)
+  }
+
+  FormTextInput {
+    id: nameField
+    label: qsTr("Name")
     Layout.fillWidth: true
   }
 

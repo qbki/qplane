@@ -12,7 +12,7 @@ Window {
   property bool expand: true
 
   id: root
-  modality: Qt.WindowModal
+  modality: Qt.ApplicationModal
   minimumWidth: 640
   minimumHeight: 480
 

@@ -59,14 +59,10 @@ QJsonObject EntityPropVelocityFactory::toJson(const EntityPropVelocity &entity)
 
 EntityPropVelocity EntityPropVelocityFactory::fromJson(const QJsonObject &json)
 {
-  JsonValidator check(this, &json);
-  EntityPropVelocity entity;
-  try {
-    entity.set_acceleration(check.optionalReal("acceleration", {}));
-    entity.set_speed(check.optionalReal("speed", {}));
-    entity.set_damping(check.optionalReal("damping", {}));
-  } catch(const std::runtime_error& error) {
-    qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
-  }
-  return entity;
+  return JsonValidator(this, &json, "Velocity property")
+    .handle<EntityPropVelocity>([&](auto& check, auto& entity) {
+      entity.set_acceleration(check.optionalReal("acceleration", {}));
+      entity.set_speed(check.optionalReal("speed", {}));
+      entity.set_damping(check.optionalReal("damping", {}));
+    });
 }

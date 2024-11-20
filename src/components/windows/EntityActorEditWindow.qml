@@ -21,6 +21,7 @@ EditWindowBase {
 
   function open(initialData: entityActor) {
     idField.value = initialData.id;
+    nameField.value = initialData.name;
     modelIdField.value = initialData.model_id;
     speedField.acceleration = initialData.speed.acceleration;
     speedField.damping = initialData.speed.damping;
@@ -60,21 +61,34 @@ EditWindowBase {
       speed.speed = speedField.speed;
 
       const newEntity = EntityActorFactory.create();
-      newEntity.id = idField.value;
+      newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
+      newEntity.name = nameField.value;
       newEntity.model_id = modelIdField.value;
       newEntity.debris_id = debrisModelIdField.value;
       newEntity.weapon_id = weaponIdField.value;
       newEntity.hit_particles_id = hitParticlesIdField.value;
       newEntity.speed = speed;
       newEntity.lives = JS.toFinitInt(livesField.value);
+
       root.accepted(newEntity, inner.initialData);
       root.close();
     }
   }
 
-  FormTextInput {
+  UuidGenerator {
+    id: uuid
+  }
+
+  FormInfoLabel {
     id: idField
     label: qsTr("ID")
+    Layout.fillWidth: true
+    visible: Boolean(idField.value)
+  }
+
+  FormTextInput {
+    id: nameField
+    label: qsTr("Name")
     Layout.fillWidth: true
   }
 

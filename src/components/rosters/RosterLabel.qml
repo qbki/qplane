@@ -11,7 +11,9 @@ Label {
 
   id: root
   font.pointSize: 16
-  text: modelData.id
+  text: modelData.name
+  clip: true
+  elide: Text.ElideRight
 
   MouseArea {
     anchors.fill: parent

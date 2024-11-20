@@ -52,13 +52,9 @@ PositionStrategyVoidFactory::toJson(const PositionStrategyVoid &strategy)
 PositionStrategyVoid
 PositionStrategyVoidFactory::fromJson(const QJsonObject &json)
 {
-  JsonValidator check(this, &json);
-  PositionStrategyVoid strategy;
-  try {
-    strategy.set_behaviour(check.string("behaviour"));
-    strategy.set_entity_id(check.string("entity_id"));
-  } catch(const std::runtime_error& error) {
-    qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
-  }
-  return strategy;
+  return JsonValidator(this, &json, "'Void' strategy")
+    .handle<PositionStrategyVoid>([](auto& check, auto& strategy) {
+      strategy.set_behaviour(check.string("behaviour"));
+      strategy.set_entity_id(check.string("entity_id"));
+    });
 }

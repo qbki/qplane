@@ -65,14 +65,10 @@ QJsonObject PositionStrategyManyFactory::toJson(const PositionStrategyMany &stra
 
 PositionStrategyMany PositionStrategyManyFactory::fromJson(const QJsonObject &json)
 {
-  JsonValidator check(this, &json);
-  PositionStrategyMany strategy;
-  try {
-    strategy.set_behaviour(check.string("behaviour"));
-    strategy.set_entity_id(check.string("entity_id"));
-    strategy.set_positions(check.vectors3d("positions"));
-  } catch(const std::runtime_error& error) {
-    qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
-  }
-  return strategy;
+  return JsonValidator(this, &json, "'Many' strategy")
+    .handle<PositionStrategyMany>([](auto& check, auto& strategy) {
+      strategy.set_behaviour(check.string("behaviour"));
+      strategy.set_entity_id(check.string("entity_id"));
+      strategy.set_positions(check.vectors3d("positions"));
+    });
 }

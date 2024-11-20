@@ -5,18 +5,6 @@
 #include "entityparticles.h"
 
 QString
-EntityParticles::id() const
-{
-  return m_id;
-}
-
-void
-EntityParticles::set_id(const QString &value)
-{
-  m_id = value;
-}
-
-QString
 EntityParticles::model_id() const
 {
   return m_model_id;
@@ -86,6 +74,7 @@ EntityParticlesFactory::toJson(const EntityParticles &entity)
   json["kind"] = "particles";
   json["lifetime"] = entity.lifetime();
   json["model_id"] = entity.model_id();
+  json["name"] = entity.name();
   json["quantity"] = entity.quantity();
   json["speed"] = entity.speed();
   return json;
@@ -94,16 +83,13 @@ EntityParticlesFactory::toJson(const EntityParticles &entity)
 EntityParticles
 EntityParticlesFactory::fromJson(const QString &id, const QJsonObject &json)
 {
-  JsonValidator check(this, &json);
-  EntityParticles entity;
-  try {
-    entity.set_id(id);
-    entity.set_lifetime(check.real("lifetime"));
-    entity.set_model_id(check.string("model_id"));
-    entity.set_quantity(static_cast<int>(check.real("quantity")));
-    entity.set_speed(check.real("speed"));
-  } catch(const std::runtime_error& error) {
-    qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
-  }
-  return entity;
+  return JsonValidator(this, &json, id)
+    .handle<EntityParticles>([&](auto& check, auto& entity) {
+      entity.set_id(id);
+      entity.set_lifetime(check.real("lifetime"));
+      entity.set_model_id(check.string("model_id"));
+      entity.set_name(check.string("name"));
+      entity.set_quantity(static_cast<int>(check.real("quantity")));
+      entity.set_speed(check.real("speed"));
+    });
 }

@@ -18,14 +18,15 @@ EditWindowBase {
 
   function open(initialData: entityModel) {
     idField.value = initialData.id;
+    nameField.value = initialData.name;
     pathField.value = initialData.path;
     isOpaqueField.checkState = initialData.is_opaque ? Qt.Checked : Qt.Unchecked;
-    internal.initialData = initialData;
+    inner.initialData = initialData;
     root.show();
   }
 
   QtObject {
-    id: internal
+    id: inner
     property entityModel initialData
   }
 
@@ -42,18 +43,30 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
-      const newEntityModel = EntityModelFactory.create();
-      newEntityModel.id = idField.value;
-      newEntityModel.path = pathField.value;
-      newEntityModel.isOpaque = isOpaqueField.checkState === Qt.Checked;
-      root.accepted(newEntityModel, internal.initialData);
+      const newEntity = EntityModelFactory.create();
+      newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
+      newEntity.name = nameField.value;
+      newEntity.path = pathField.value;
+      newEntity.isOpaque = isOpaqueField.checkState === Qt.Checked;
+      root.accepted(newEntity, inner.initialData);
       root.close();
     }
   }
 
-  FormTextInput {
+  UuidGenerator {
+    id: uuid
+  }
+
+  FormInfoLabel {
     id: idField
     label: qsTr("ID")
+    Layout.fillWidth: true
+    visible: Boolean(idField.value)
+  }
+
+  FormTextInput {
+    id: nameField
+    label: qsTr("Name")
     Layout.fillWidth: true
   }
 
@@ -65,8 +78,8 @@ EditWindowBase {
     extentions: [".glb"]
     Layout.fillWidth: true
     onValueChanged: {
-      if (idField.value === "" && !!pathField.value) {
-        idField.value = FileIO.fileName(pathField.value).replace(/.glb$/, "");
+      if (nameField.value === "" && !!pathField.value) {
+        nameField.value = FileIO.fileName(pathField.value).replace(/.glb$/, "");
       }
     }
   }

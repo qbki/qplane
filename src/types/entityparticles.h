@@ -2,19 +2,19 @@
 #include <QObject>
 #include <QQmlEngine>
 
-class EntityParticles
+#include "entitybase.h"
+
+class EntityParticles : public EntityBase
 {
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityParticles)
 
-  Q_PROPERTY(QString id READ id WRITE set_id FINAL)
   Q_PROPERTY(QString model_id READ model_id WRITE set_model_id FINAL)
   Q_PROPERTY(double lifetime READ lifetime WRITE set_lifetime FINAL)
   Q_PROPERTY(double speed READ speed WRITE set_speed FINAL)
   Q_PROPERTY(int quantity READ quantity WRITE set_quantity FINAL)
 
-  QString m_id {};
   QString m_model_id {};
   double m_lifetime {0};
   double m_speed {0};
@@ -22,9 +22,6 @@ private:
 
 public:
   EntityParticles() = default;
-
-  [[nodiscard]] QString id() const;
-  void set_id(const QString &value);
 
   [[nodiscard]] QString model_id() const;
   void set_model_id(const QString &value);

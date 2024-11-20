@@ -48,15 +48,11 @@ LevelMetaFactory::toJson(const LevelMeta &entity)
 LevelMeta
 LevelMetaFactory::fromJson(const QJsonObject &json)
 {
-  JsonValidator check(this, &json);
-  LevelMeta entity;
-  try {
-    auto& cameraFactory = getQmlSingleton<EntityCameraFactory>(this);
-    auto& boundariesFactory = getQmlSingleton<EntityBoundariesFactory>(this);
-    entity.set_camera(cameraFactory.fromJson(check.obj("camera")));
-    entity.set_boundaries(boundariesFactory.fromJson(check.obj("boundaries")));
-  } catch(const std::runtime_error& error) {
-    qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
-  }
-  return entity;
+  auto& cameraFactory = getQmlSingleton<EntityCameraFactory>(this);
+  auto& boundariesFactory = getQmlSingleton<EntityBoundariesFactory>(this);
+  return JsonValidator(this, &json, "Meta")
+    .handle<LevelMeta>([&](auto& check, auto& entity) {
+      entity.set_camera(cameraFactory.fromJson(check.obj("camera")));
+      entity.set_boundaries(boundariesFactory.fromJson(check.obj("boundaries")));
+    });
 }

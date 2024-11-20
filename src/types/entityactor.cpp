@@ -5,16 +5,6 @@
 
 #include "entityactor.h"
 
-QString EntityActor::id() const
-{
-  return m_id;
-}
-
-void EntityActor::set_id(const QString &value)
-{
-  m_id = value;
-}
-
 QString EntityActor::model_id() const
 {
   return m_model_id;
@@ -95,9 +85,10 @@ QJsonObject EntityActorFactory::toJson(const EntityActor &entity)
   QJsonObject json;
   auto& velocity = getQmlSingleton<EntityPropVelocityFactory>(this);
   json["kind"] = "actor";
-  json["model_id"] = entity.model_id();
-  json["speed"] = velocity.toJson(entity.speed()) ;
   json["lives"] = entity.lives();
+  json["model_id"] = entity.model_id();
+  json["name"] = entity.name();
+  json["speed"] = velocity.toJson(entity.speed()) ;
   if (auto value = entity.weapon_id(); !value.isEmpty()) {
     json["weapon_id"] = value;
   }
@@ -112,19 +103,16 @@ QJsonObject EntityActorFactory::toJson(const EntityActor &entity)
 
 EntityActor EntityActorFactory::fromJson(const QString &id, const QJsonObject &json)
 {
-  JsonValidator check(this, &json);
-  EntityActor entity;
-  try {
-    auto& velocity = getQmlSingleton<EntityPropVelocityFactory>(this);
-    entity.set_id(id);
-    entity.set_debris_id(check.optionalString("debris_id", ""));
-    entity.set_weapon_id(check.optionalString("weapon_id", ""));
-    entity.set_hit_particles_id(check.optionalString("hit_particles_id", ""));
-    entity.set_model_id(check.string("model_id"));
-    entity.set_speed(velocity.fromJson(check.obj("speed")));
-    entity.set_lives(static_cast<int>(check.real("lives")));
-  } catch(const std::runtime_error& error) {
-    qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
-  }
-  return entity;
+  return JsonValidator(this, &json, id)
+    .handle<EntityActor>([&](const auto& check, auto& entity) {
+      auto& velocity = getQmlSingleton<EntityPropVelocityFactory>(this);
+      entity.set_id(id);
+      entity.set_name(check.string("name"));
+      entity.set_debris_id(check.optionalString("debris_id", ""));
+      entity.set_weapon_id(check.optionalString("weapon_id", ""));
+      entity.set_hit_particles_id(check.optionalString("hit_particles_id", ""));
+      entity.set_model_id(check.string("model_id"));
+      entity.set_speed(velocity.fromJson(check.obj("speed")));
+      entity.set_lives(static_cast<int>(check.real("lives")));
+    });
 }

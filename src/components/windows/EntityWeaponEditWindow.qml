@@ -20,18 +20,19 @@ EditWindowBase {
 
   function open(initialData: entityWeapon) {
     idField.value = initialData.id;
+    nameField.value = initialData.name;
     projectileModelIdField.value = initialData.projectile_model_id;
     projectileSpeedField.value = initialData.projectile_speed;
     fireRateField.value = initialData.fire_rate;
     lifetimeField.value = initialData.lifetime;
     spreadField.value = initialData.spread;
     shotSoundPathField.value = initialData.shot_sound_path;
-    internal.initialData = initialData;
+    inner.initialData = initialData;
     root.show();
   }
 
   QtObject {
-    id: internal
+    id: inner
     property entityWeapon initialData
   }
 
@@ -49,21 +50,33 @@ EditWindowBase {
     text: qsTr("Ok")
     onTriggered: {
       const newEntity = EntityWeaponFactory.create();
-      newEntity.id = idField.value;
+      newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
+      newEntity.name = nameField.value;
       newEntity.projectile_model_id = projectileModelIdField.value;
       newEntity.projectile_speed = JS.toFinitFloat(projectileSpeedField.value);
       newEntity.fire_rate = JS.toFinitFloat(fireRateField.value);
       newEntity.lifetime = JS.toFinitFloat(lifetimeField.value);
       newEntity.spread = JS.toFinitFloat(spreadField.value);
       newEntity.shot_sound_path = shotSoundPathField.value;
-      root.accepted(newEntity, internal.initialData);
+      root.accepted(newEntity, inner.initialData);
       root.close();
     }
   }
 
-  FormTextInput {
+  UuidGenerator {
+    id: uuid
+  }
+
+  FormInfoLabel {
     id: idField
     label: qsTr("ID")
+    Layout.fillWidth: true
+    visible: Boolean(idField.value)
+  }
+
+  FormTextInput {
+    id: nameField
+    label: qsTr("Name")
     Layout.fillWidth: true
   }
 

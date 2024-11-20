@@ -3,25 +3,22 @@
 #include <QQmlEngine>
 #include <QVector3D>
 
-class EntityDirectionalLight
+#include "entitybase.h"
+
+class EntityDirectionalLight : public EntityBase
 {
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityDirectionalLight)
 
-  Q_PROPERTY(QString id READ id WRITE set_id FINAL)
   Q_PROPERTY(QColor color READ color WRITE set_color FINAL)
   Q_PROPERTY(QVector3D direction READ direction WRITE set_direction FINAL)
 
-  QString m_id = "";
   QColor m_color = QColor::fromRgbF(1, 1, 1);
   QVector3D m_direction = QVector3D(0, 0, 0);
 
 public:
   EntityDirectionalLight() = default;
-
-  [[nodiscard]] QString id() const;
-  void set_id(const QString &value);
 
   [[nodiscard]] QColor color() const;
   void set_color(const QColor &value);

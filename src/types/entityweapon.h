@@ -3,13 +3,14 @@
 #include <QString>
 #include <QUrl>
 
-class EntityWeapon
+#include "entitybase.h"
+
+class EntityWeapon : public EntityBase
 {
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityWeapon)
 
-  Q_PROPERTY(QString id READ id WRITE set_id FINAL)
   Q_PROPERTY(double projectile_speed READ projectile_speed WRITE set_projectile_speed FINAL)
   Q_PROPERTY(double fire_rate READ fire_rate WRITE set_fire_rate FINAL)
   Q_PROPERTY(double lifetime READ lifetime WRITE set_lifetime FINAL)
@@ -17,7 +18,6 @@ private:
   Q_PROPERTY(QString projectile_model_id READ projectile_model_id WRITE set_projectile_model_id FINAL)
   Q_PROPERTY(QUrl shot_sound_path READ shot_sound_path WRITE set_shot_sound_path FINAL)
 
-  QString m_id {};
   double m_projectile_speed {0};
   double m_fire_rate {0};
   double m_lifetime {0};
@@ -27,9 +27,6 @@ private:
 
 public:
   EntityWeapon() = default;
-
-  [[nodiscard]] QString id() const;
-  void set_id(const QString &new_id);
 
   [[nodiscard]] double projectile_speed() const;
   void set_projectile_speed(double value);

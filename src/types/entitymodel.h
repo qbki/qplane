@@ -5,25 +5,22 @@
 #include <QString>
 #include <QUrl>
 
-class EntityModel
+#include "entitybase.h"
+
+class EntityModel : public EntityBase
 {
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityModel)
 
-  Q_PROPERTY(QString id READ id WRITE set_id FINAL)
   Q_PROPERTY(QUrl path READ path WRITE set_path FINAL)
   Q_PROPERTY(bool is_opaque READ is_opaque WRITE set_is_opaque FINAL)
 
-  QString m_id {};
   QUrl m_path {""};
   bool m_is_opaque {true};
 
 public:
   EntityModel() = default;
-
-  [[nodiscard]] QString id() const;
-  void set_id(const QString &new_id);
 
   [[nodiscard]] QUrl path() const;
   void set_path(const QUrl &new_path);

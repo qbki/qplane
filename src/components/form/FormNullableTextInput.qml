@@ -37,7 +37,9 @@ Item {
           if (!root.isActive()) {
             root.value = 0;
           }
-          input.value = root.value;
+          if (input.value !== root.value) {
+            input.value = root.value;
+          }
         } else {
           root.value = null;
         }
@@ -64,7 +66,10 @@ Item {
       Layout.fillWidth: true
       onValueChanged: {
         if (root.isActive()) {
-          root.value = JS.stringToValidNumber(input.value);
+          const newValue = JS.stringToValidNumber(input.value);
+          if (root.value !== newValue ) {
+            root.value = newValue;
+          }
         }
       }
     }

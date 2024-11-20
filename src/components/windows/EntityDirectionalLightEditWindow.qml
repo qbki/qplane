@@ -15,14 +15,15 @@ EditWindowBase {
 
   function open(initialData: entityDirectionalLight) {
     idField.value = initialData.id;
+    nameField.value = initialData.name;
     colorField.value = initialData.color;
     directionField.value = initialData.direction;
-    internal.initialData = initialData;
+    inner.initialData = initialData;
     root.show();
   }
 
   QtObject {
-    id: internal
+    id: inner
     property entityDirectionalLight initialData
   }
 
@@ -40,17 +41,29 @@ EditWindowBase {
     text: qsTr("Ok")
     onTriggered: {
       const newEntityModel = EntityDirectionalLightFactory.create();
-      newEntityModel.id = idField.value;
+      newEntityModel.id = uuid.generateIfEmpty(inner.initialData.id);
+      newEntityModel.name = nameField.value;
       newEntityModel.color = colorField.value;
       newEntityModel.direction = directionField.value;
-      root.accepted(newEntityModel, internal.initialData);
+      root.accepted(newEntityModel, inner.initialData);
       root.close();
     }
   }
 
-  FormTextInput {
+  UuidGenerator {
+    id: uuid
+  }
+
+  FormInfoLabel {
     id: idField
     label: qsTr("ID")
+    Layout.fillWidth: true
+    visible: Boolean(idField.value)
+  }
+
+  FormTextInput {
+    id: nameField
+    label: qsTr("Name")
     Layout.fillWidth: true
   }
 

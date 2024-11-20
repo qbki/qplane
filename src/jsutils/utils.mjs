@@ -10,6 +10,7 @@ export function fireOnce(signal, fn) {
     signal.disconnect(wrapper);
   };
   signal.connect(wrapper);
+  return () => signal.disconnect(wrapper);
 }
 
 export function noop() {

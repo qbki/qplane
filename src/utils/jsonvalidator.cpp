@@ -3,9 +3,12 @@
 
 #include "jsonvalidator.h"
 
-JsonValidator::JsonValidator(const QObject* object, const QJsonObject* json)
+JsonValidator::JsonValidator(const QObject* object,
+                             const QJsonObject* json,
+                             QString prefix)
   : m_object(object)
   , m_json(json)
+  , m_prefix(std::move(prefix))
 {};
 
 bool

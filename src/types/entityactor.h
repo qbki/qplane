@@ -4,13 +4,13 @@
 #include <QQmlEngine>
 #include <QString>
 
+#include "entitybase.h"
 #include "entitypropvelocity.h"
 
-class EntityActor
+class EntityActor : public EntityBase
 {
   Q_GADGET
   QML_NAMED_ELEMENT(entityActor)
-  Q_PROPERTY(QString id READ id WRITE set_id FINAL)
   Q_PROPERTY(QString model_id READ model_id WRITE set_model_id FINAL)
   Q_PROPERTY(QString weapon_id READ weapon_id WRITE set_weapon_id FINAL)
   Q_PROPERTY(QString hit_particles_id READ hit_particles_id WRITE set_hit_particles_id FINAL)
@@ -20,9 +20,6 @@ class EntityActor
 
 public:
   EntityActor() = default;
-
-  [[nodiscard]] QString id() const;
-  void set_id(const QString &value);
 
   [[nodiscard]] QString model_id() const;
   void set_model_id(const QString &value);
@@ -45,7 +42,6 @@ public:
   [[nodiscard]] Q_INVOKABLE EntityActor copy() const;
 
 private:
-  QString m_id {};
   QString m_model_id {};
   QString m_weapon_id {};
   QString m_hit_particles_id {};
