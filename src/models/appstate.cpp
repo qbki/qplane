@@ -33,11 +33,12 @@ AppState::setProjectDir(const QUrl& newProjectDir)
     return;
   }
   m_projectDir = directory;
-  emit isProjectLoadedChanged();
   emit isModelsDirExistsChanged();
+  emit isProjectLoadedChanged();
   emit levelsDirChanged();
   emit projectDirChanged();
   emit soundsDirChanged();
+  emit translationPathChanged();
 }
 
 QUrl
@@ -107,4 +108,9 @@ QUrl AppState::themePath() const
 QUrl AppState::soundsDir() const
 {
   return projectDir().resolved(PROJECT_SOUNDS_DIR);
+}
+
+QUrl AppState::translationPath() const
+{
+  return projectDir().resolved(PROJECT_TRANSLATION_FILE);
 }

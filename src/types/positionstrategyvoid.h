@@ -8,9 +8,9 @@ class PositionStrategyVoid
 {
 private:
   Q_GADGET
+  QML_NAMED_ELEMENT(positionStrategyVoid)
   Q_PROPERTY(QString entity_id READ entity_id WRITE set_entity_id)
   Q_PROPERTY(QString behaviour READ behaviour WRITE set_behaviour)
-  QML_NAMED_ELEMENT(positionStrategyVoid)
 
   QString m_entity_id {};
   QString m_behaviour {};

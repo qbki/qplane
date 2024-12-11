@@ -86,6 +86,12 @@ void GadgetListModel::remove(const QJSValue &predicate)
   endResetModel();
 }
 
+void GadgetListModel::forceRefresh()
+{
+  beginResetModel();
+  endResetModel();
+}
+
 void
 GadgetListModel::updateWholeModel(const std::vector<QVariant>& new_data)
 {

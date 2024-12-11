@@ -109,4 +109,3 @@ export function stringToValidNumber(value) {
   // Also: isFinite(NaN) returns false
   return Number.isFinite(num) ? num : 0;
 }
-

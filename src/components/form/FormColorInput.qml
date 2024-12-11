@@ -10,6 +10,8 @@ Item {
   property color value
 
   id: root
+  implicitHeight: label.height + textField.height + layout.spacing
+
   onValueChanged: {
     let textFieldColor = Qt.color("black");
     try {

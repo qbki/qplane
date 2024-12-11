@@ -15,6 +15,7 @@ Item {
 
   id: root
   height: input.height
+
   onValueChanged: {
     const isValueChanged = JS.stringToValidNumber(input.value) !== root.value;
     if (root.isActive() && isValueChanged) {

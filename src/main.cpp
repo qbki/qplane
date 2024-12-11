@@ -10,8 +10,10 @@
 #include "types/entitydirectionallight.h"
 #include "types/entitymodel.h"
 #include "types/entityparticles.h"
+#include "types/entitytext.h"
 #include "types/entityweapon.h"
 #include "types/positionstrategymany.h"
+#include "types/positionstrategysingle.h"
 #include "types/positionstrategyvoid.h"
 
 int main(int argc, char* argv[]) {
@@ -24,7 +26,10 @@ int main(int argc, char* argv[]) {
   qRegisterMetaType<EntityDirectionalLight>();
   qRegisterMetaType<EntityModel>();
   qRegisterMetaType<EntityParticles>();
+  qRegisterMetaType<EntityPropVelocity>();
+  qRegisterMetaType<EntityText>();
   qRegisterMetaType<EntityWeapon>();
+  qRegisterMetaType<PositionStrategySingle>();
   qRegisterMetaType<PositionStrategyMany>();
   qRegisterMetaType<PositionStrategyVoid>();
 

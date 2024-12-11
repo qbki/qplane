@@ -13,6 +13,7 @@ private:
   Q_PROPERTY(QUrl levelsMetaPath READ levelsMetaPath NOTIFY levelsMetaPathChanged FINAL)
   Q_PROPERTY(QUrl levelPath READ levelPath WRITE setLevelPath NOTIFY levelPathChanged FINAL)
   Q_PROPERTY(QUrl themePath READ themePath NOTIFY themePathChanged FINAL)
+  Q_PROPERTY(QUrl translationPath READ translationPath NOTIFY translationPathChanged FINAL)
   Q_PROPERTY(QUrl modelsDir READ modelsDir NOTIFY modelsDirChanged FINAL)
   Q_PROPERTY(QUrl soundsDir READ soundsDir NOTIFY soundsDirChanged FINAL)
   Q_PROPERTY(bool isProjectLoaded READ isProjectLoaded NOTIFY isProjectLoadedChanged FINAL)
@@ -44,6 +45,8 @@ public:
   [[nodiscard]] bool isNewLevel() const;
   [[nodiscard]] bool isLevelLoaded() const;
 
+  [[nodiscard]] QUrl translationPath() const;
+
 signals:
   void projectDirChanged();
   void modelsDirChanged();
@@ -55,4 +58,5 @@ signals:
   void themePathChanged();
   void soundsDirChanged();
   void isModelsDirExistsChanged();
+  void translationPathChanged();
 };

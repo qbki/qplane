@@ -9,7 +9,7 @@ Rectangle {
   property alias damping: dampingField.value
   property alias speed: speedField.value
 
-  height: accelerationField.height * 3 + layout.spacing * 2 + layout.anchors.margins * 2
+  implicitHeight: accelerationField.height * 3 + layout.spacing * 2 + layout.anchors.margins * 2
   border.color: palette.button
   color: "transparent"
 

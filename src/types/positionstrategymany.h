@@ -1,4 +1,5 @@
 #pragma once
+#include <QJsonObject>
 #include <QObject>
 #include <QQmlEngine>
 #include <QQuick3DInstancing>
@@ -8,10 +9,10 @@ class PositionStrategyMany
 {
 private:
   Q_GADGET
+  QML_NAMED_ELEMENT(positionStrategyMany)
   Q_PROPERTY(QString entity_id READ entity_id WRITE set_entity_id)
   Q_PROPERTY(QString behaviour READ behaviour WRITE set_behaviour)
   Q_PROPERTY(QVariantList positions READ positions WRITE set_positions)
-  QML_NAMED_ELEMENT(positionStrategyMany)
 
   QString m_entity_id {};
   QString m_behaviour {};

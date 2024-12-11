@@ -6,13 +6,14 @@ Item {
   property alias label: label.text
   property alias model: comboBox.model
   property alias textRole: comboBox.textRole
+  property alias valueRole: comboBox.valueRole
   property var value;
 
   id: root
   height: label.height + layout.spacing + comboBox.height
 
   onValueChanged: {
-    comboBox.currentIndex = comboBox.find(root.value);
+    comboBox.currentIndex = comboBox.indexOfValue(root.value);
   }
 
   ColumnLayout {

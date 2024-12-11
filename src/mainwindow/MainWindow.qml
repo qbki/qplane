@@ -10,7 +10,7 @@ import "../jsutils/utils.mjs" as JS
 import app
 
 ApplicationWindow {
-  property url ghostUrl: ""
+  property var ghostModelFactory: null
   property vector3d ghostPosition: Qt.vector3d(0, 0, 0)
   property var selectedInstance: null
   property string selectedEntityId: ""
@@ -20,18 +20,28 @@ ApplicationWindow {
     return intersectionPlane === value;
   }
 
-  function findSceneItem(sceneItemId: string): SceneItem {
+  /**
+   * @returns {SceneItem | null}
+   */
+  function findSceneItem(sceneItemId: string): var {
     const sceneItem = sceneItemsMap[sceneItemId];
+    if (!sceneItem) {
+      console.warn(`Can't find Scene Item by id "{${sceneItemId}}"`)
+    }
     return sceneItem ? sceneItem : null;
   }
 
   function addInstance(): actionManagerItem {
     const entityId = root.selectedEntityId;
     const sceneItem = root.findSceneItem(entityId);
-    if (!sceneItem?.canBePlaced(root.ghostPosition)) {
+    const instances = sceneItem?.getInstancesList();
+    if (!instances) {
       return null;
     }
-    const instanceCopy = sceneItem.createInstanceEntry({ position: root.ghostPosition });
+    if (!instances.canBePlaced(root.ghostPosition)) {
+      return null;
+    }
+    const instanceCopy = instances.createInstanceEntry({ position: root.ghostPosition });
     if (!instanceCopy) {
       return null;
     }
@@ -39,13 +49,15 @@ ApplicationWindow {
       () => {
         const sceneItem = root.findSceneItem(entityId);
         if (sceneItem) {
-          sceneItem.pushInstance(sceneItem.createInstanceEntry(instanceCopy));
+          const instances = sceneItem.getInstancesList();
+          instances.pushInstance(instances.createInstanceEntry(instanceCopy));
         }
       },
       () => {
         const sceneItem = root.findSceneItem(entityId);
         if (sceneItem) {
-          sceneItem.removeInstanceById(instanceCopy.id)
+          const instances = sceneItem.getInstancesList();
+          instances.removeInstanceById(instanceCopy.id)
         }
       }
     );
@@ -65,13 +77,15 @@ ApplicationWindow {
         return (storedLength < candidateLength) ? acc : v;
       }, null);
     if (closestItem) {
-      const sceneItem = JS.findParentOf(closestItem.objectHit, SceneItem);
-      const sceneItemName = sceneItem.name;
-      const instance = sceneItem.getInstance(closestItem.instanceIndex);
-      const instanceCopy = sceneItem.copyInstance(instance);
+      const sceneItem = JS.findParentOf(closestItem.objectHit, SceneItem)
+        || JS.findParentOf(closestItem.objectHit, SceneTextItem);
+      const instances = sceneItem.getInstancesList();
+      const sceneItemName = sceneItem.entityId;
+      const instance = instances.getInstance(closestItem.instanceIndex);
+      const instanceCopy = instances.copyInstance(instance);
       const action = ActionManagerItemFactory.create(
-        () => root.findSceneItem(sceneItemName)?.removeInstanceById(instanceCopy.id),
-        () => root.findSceneItem(sceneItemName)?.pushInstance(instanceCopy),
+        () => root.findSceneItem(sceneItemName)?.getInstancesList().removeInstanceById(instanceCopy.id),
+        () => root.findSceneItem(sceneItemName)?.getInstancesList().pushInstance(instanceCopy),
       );
       action.execute();
       return action;
@@ -120,7 +134,7 @@ ApplicationWindow {
       title: qsTr("File")
 
       MainMenuItem { action: openAssetsAction }
-      MainMenuItem { action: saveAssetsAction }
+      MainMenuItem { action: saveAction }
     }
 
     Menu {
@@ -149,6 +163,11 @@ ApplicationWindow {
     }
   }
 
+  SceneItemsInstanceList {
+    id: instancesList
+    defaultBehaviour: "???"
+  }
+
   Action {
     id: openAssetsAction
     text: qsTr("Open assets...")
@@ -167,10 +186,26 @@ ApplicationWindow {
   }
 
   Action {
-    id: saveAssetsAction
+    id: saveAction
     text: qsTr("Save")
     enabled: appState.isProjectLoaded
     shortcut: StandardKey.Save
+
+    function getPositionStrategies(sceneItem) {
+      const strategiesMap = {};
+      for (const strategyName of sceneItem.availableBehaviours) {
+        const strategy = PositionStrategyManyFactory.create();
+        strategy.entity_id = sceneItem.entityId;
+        strategy.behaviour = strategyName;
+        strategiesMap[strategyName] = strategy;
+      }
+      for (const { position, behaviour } of sceneItem.getInstancesList().getInstances()) {
+        strategiesMap[behaviour].positions.push(position);
+      }
+      return Object.values(strategiesMap)
+        .filter((v) => v.positions.length > 0);
+    }
+
     onTriggered: {
       if (appState.isProjectLoaded) {
         const modelsJson = modelsStore.toArray()
@@ -179,6 +214,8 @@ ApplicationWindow {
           .map((value) => [value.id, EntityActorFactory.toJson(value)]);
         const weaponsJson = weaponsStore.toArray()
           .map((value) => [value.id, EntityWeaponFactory.toJson(value, appState.projectDir)]);
+        const textsJson = textsStore.toArray()
+          .map((value) => [value.id, EntityTextFactory.toJson(value)]);
         const particlesJson = particlesStore.toArray()
           .map((value) => [value.id, EntityParticlesFactory.toJson(value)]);
         const directionalLightsJson = directionalLightsStore.toArray()
@@ -187,6 +224,7 @@ ApplicationWindow {
           ...modelsJson,
           ...actorsJson,
           ...weaponsJson,
+          ...textsJson,
           ...particlesJson,
           ...directionalLightsJson,
         ].reduce((acc, [id, value]) => {
@@ -198,12 +236,13 @@ ApplicationWindow {
       if (appState.isLevelLoaded) {
         const meta = LevelMetaFactory.toJson(levelSettingsStore.meta);
         const statics = sceneModelItems.children
-          .filter((child) => !child.isEmpty())
-          .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
+          .map((child) => saveAction.getPositionStrategies(child).map(JS.arity(PositionStrategyManyFactory.toJson)))
           .reduce((acc, v) => acc.concat(v), []);
         const actors = sceneActorItems.children
-          .filter((child) => !child.isEmpty())
-          .map((child) => child.getPositionStrategies().map(JS.arity(PositionStrategyManyFactory.toJson)))
+          .map((child) => saveAction.getPositionStrategies(child).map(JS.arity(PositionStrategyManyFactory.toJson)))
+          .reduce((acc, v) => acc.concat(v), []);
+        const texts = sceneTextItems.children
+          .map((child) => saveAction.getPositionStrategies(child).map(JS.arity(PositionStrategyManyFactory.toJson)))
           .reduce((acc, v) => acc.concat(v), []);
         const lights = [];
         if (levelSettingsStore.globalLightId) {
@@ -212,7 +251,10 @@ ApplicationWindow {
           light.entity_id = levelSettingsStore.globalLightId
           lights.push(PositionStrategyVoidFactory.toJson(light));
         }
-        FileIO.saveJson(appState.levelPath, { meta, map: [...statics, ...actors, ...lights] });
+        FileIO.saveJson(appState.levelPath, {
+          meta,
+          map: [...statics, ...actors, ...texts, ...lights],
+        });
       }
     }
   }
@@ -289,6 +331,10 @@ ApplicationWindow {
 
   GadgetListModel {
     id: directionalLightsStore
+  }
+
+  GadgetListModel {
+    id:textsStore
   }
 
   ActionManager {
@@ -431,10 +477,10 @@ ApplicationWindow {
               const model = hitResult.objectHit;
               const sceneItem = JS.findParentOf(model, SceneItem);
               if (sceneItem) {
-                const instance = sceneItem.getInstance(hitResult.instanceIndex);
+                const instance = sceneItem.getInstancesList().getInstance(hitResult.instanceIndex);
                 root.selectedEntityId = sceneItem.name;
                 root.selectedInstance = instance;
-                root.ghostUrl = sceneItem.source;
+                root.ghostModelFactory = sceneItem.getModelFactory();
                 if (event.modifiers & Qt.ControlModifier) {
                   intersectionPlane.z = instance.position.z;
                 }
@@ -511,13 +557,12 @@ ApplicationWindow {
             required property var model
 
             id: modelItem
-            name: model.display.id
+            entityId: model.display.id
             defaultBehaviour: "static"
             availableBehaviours: ["static"]
             source: model.display.path
-            Component.onCompleted: {
-              root.sceneItemsMap[model.display.id] = modelItem;
-            }
+            Component.onCompleted: root.sceneItemsMap[model.display.id] = modelItem
+            Component.onDestruction: delete root.sceneItemsMap[model.display.id]
           }
         }
 
@@ -529,13 +574,30 @@ ApplicationWindow {
             required property var model
 
             id: actorItem
-            name: model.display.id
+            entityId: model.display.id
             defaultBehaviour: "enemy"
             availableBehaviours: ["enemy", "player"]
             source: modelsStore.getById(model.display.model_id).path
-            Component.onCompleted: {
-              root.sceneItemsMap[model.display.id] = actorItem;
-            }
+            Component.onCompleted: root.sceneItemsMap[model.display.id] = actorItem
+            Component.onDestruction: delete root.sceneItemsMap[model.display.id]
+          }
+        }
+
+        Repeater3D {
+          id: sceneTextItems
+          model: textsStore
+
+          SceneTextItem {
+            required property var model
+
+            id: textItem
+            entityId: model.display.id
+            appState: appState
+            source: model.display
+            defaultBehaviour: "static"
+            availableBehaviours: ["static"]
+            Component.onCompleted: root.sceneItemsMap[model.display.id] = textItem
+            Component.onDestruction: delete root.sceneItemsMap[model.display.id]
           }
         }
 
@@ -547,7 +609,7 @@ ApplicationWindow {
         }
 
         SceneGhost {
-          source: root.ghostUrl
+          factory: root.ghostModelFactory
           position: root.ghostPosition
         }
       }
@@ -586,7 +648,7 @@ ApplicationWindow {
           }
           const handler = (position) => {
             const sceneItem = root.findSceneItem(sceneItemName);
-            const instance = sceneItem?.getInstanceById(instanceId);
+            const instance = sceneItem?.getInstancesList().getInstanceById(instanceId);
             if (!instance) {
               return;
             }
@@ -622,7 +684,7 @@ ApplicationWindow {
           }
           const handler = (behaviour) => {
             const sceneItem = root.findSceneItem(sceneItemName);
-            const instance = sceneItem?.getInstanceById(instanceId);
+            const instance = sceneItem?.getInstancesList().getInstanceById(instanceId);
             if (!instance) {
               return;
             }
@@ -681,6 +743,15 @@ ApplicationWindow {
             }
           }
 
+          function setupGhost(item) {
+            const sceneItem = root.sceneItemsMap[item.id];
+            if (sceneItem) {
+              root.ghostModelFactory = sceneItem.getModelFactory();
+            } else {
+              console.error(`Scene item ${item.id} doesn't exist`);
+            }
+          }
+
           RosterEntityActors {
             id: rosterActors
             Layout.fillWidth: true
@@ -693,7 +764,7 @@ ApplicationWindow {
               const foundEntityModel = modelsStore.getById(item.model_id);
               if (foundEntityModel) {
                 root.selectedEntityId = item.id;
-                root.ghostUrl = foundEntityModel.path;
+                rosterRootLayout.setupGhost(item);
               }
             }
             CrudSignals {
@@ -710,7 +781,7 @@ ApplicationWindow {
             appState: appState
             onItemClicked: function(item) {
               root.selectedEntityId = item.id;
-              root.ghostUrl = item.path;
+              rosterRootLayout.setupGhost(item);
             }
             CrudSignals {
               target: rosterModels
@@ -748,6 +819,25 @@ ApplicationWindow {
             CrudSignals {
               target: rosterDirectionalLights
               store: directionalLightsStore
+            }
+          }
+
+          RosterEntityTexts {
+            id: rosterTexts
+            Layout.fillWidth: true
+            textsStore: textsStore
+            translationPath: appState.translationPath
+            selectedEntityId: root.selectedEntityId
+            onItemClicked: function(item) {
+              const sceneItem = root.findSceneItem(item.id);
+              if (sceneItem) {
+                root.selectedEntityId = item.id;
+                root.ghostModelFactory = sceneItem.getModelFactory();
+              }
+            }
+            CrudSignals {
+              target: rosterTexts
+              store: textsStore
             }
           }
         }
@@ -814,6 +904,11 @@ ApplicationWindow {
           .map(([id, value]) => EntityWeaponFactory.fromJson(id, value, appState.projectDir));
         weaponsStore.appendList(weapons);
 
+        const texts = entriesArray
+          .filter(isKindOf("text"))
+          .map(([id, value]) => EntityTextFactory.fromJson(id, value));
+        textsStore.appendList(texts);
+
         const particles = entriesArray
           .filter(isKindOf("particles"))
           .map(([id, value]) => EntityParticlesFactory.fromJson(id, value));
@@ -835,28 +930,50 @@ ApplicationWindow {
     title: qsTr("A level selection")
     folder: appState.levelsDir
     nameFilters: [ qsTr("Level (*.level.json)") ]
+
+    function applyPositionStrategy(strategy: positionStrategyMany, instancesList: InstanceList) {
+      const { positions, behaviour } = strategy;
+      for (const position of positions) {
+        const entry = instancesList.createInstanceEntry({ position, behaviour });
+        instancesList.pushInstance(entry);
+      }
+    }
+
     onAccepted: {
       appState.levelPath = openLevelDialog.file;
+
       try {
         const json = FileIO.loadJson(appState.levelPath);
         levelSettingsStore.meta = LevelMetaFactory.fromJson(json.meta);
 
-        const scene = [
+        const sceneItems = [
           ...sceneModelItems.children,
           ...sceneActorItems.children,
-        ].reduce(JS.reduceToObjectByField("name"), {});
+          ...sceneTextItems.children,
+        ].reduce(JS.reduceToObjectByField("entityId"), {});
         for (const strategyJson of json.map) {
-          if (strategyJson.kind === "many") {
-            const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
-            scene[strategy.entity_id]?.applyPositionStrategy(strategy);
-          } else if (strategyJson.kind === "void") {
-            const strategy = PositionStrategyVoidFactory.fromJson(strategyJson);
-            if (JS.areStrsEqual(strategy.behaviour, "light")) {
-              const idx = directionalLightsStore.findIndex((v) => JS.areStrsEqual(v.id, strategy.entity_id));
-              if (idx.valid) {
-                levelSettingsStore.globalLightId = strategy.entity_id;
+          const strategy = ({
+            "many": () => {
+              const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
+              const sceneItem = sceneItems[strategy.entity_id];
+              if (sceneItem) {
+                openLevelDialog.applyPositionStrategy(strategy, sceneItem.getInstancesList());
+              }
+            },
+            "void": () => {
+              const strategy = PositionStrategyVoidFactory.fromJson(strategyJson);
+              if (JS.areStrsEqual(strategy.behaviour, "light")) {
+                const idx = directionalLightsStore.findIndex((v) => JS.areStrsEqual(v.id, strategy.entity_id));
+                if (idx.valid) {
+                  levelSettingsStore.globalLightId = strategy.entity_id;
+                }
               }
             }
+          })[strategyJson.kind]
+          if (strategy) {
+            strategy();
+          } else {
+            console.warn(`Unknown position strategy: {strategyJson.kind}`);
           }
         }
       } catch(error) {
@@ -879,7 +996,7 @@ ApplicationWindow {
       }
       appState.levelPath = filePath;
       sceneModelItems.children.forEach(function(sceneItem) {
-        sceneItem.clear();
+        sceneItem.getInstancesList().clear();
       });
     }
   }

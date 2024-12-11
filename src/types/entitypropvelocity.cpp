@@ -9,6 +9,9 @@ QVariant EntityPropVelocity::speed() const
 
 void EntityPropVelocity::set_speed(const QVariant &value)
 {
+  Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
+             "EntityPropVelocity::set_speed",
+             "value must be null or double type");
   m_speed = value;
 }
 
@@ -19,6 +22,9 @@ QVariant EntityPropVelocity::acceleration() const
 
 void EntityPropVelocity::set_acceleration(const QVariant &value)
 {
+  Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
+             "EntityPropVelocity::set_acceleration",
+             "value must be null or double type");
   m_acceleration = value;
 }
 
@@ -29,6 +35,9 @@ QVariant EntityPropVelocity::damping() const
 
 void EntityPropVelocity::set_damping(const QVariant &value)
 {
+  Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
+             "EntityPropVelocity::set_damping",
+             "value must be null or double type");
   m_damping = value;
 }
 

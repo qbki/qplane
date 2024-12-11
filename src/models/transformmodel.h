@@ -4,10 +4,14 @@
 
 class TransformModel : public QIdentityProxyModel
 {
+private:
   Q_OBJECT
+  QML_ELEMENT
   Q_PROPERTY(QString role READ role WRITE setRole NOTIFY roleChanged)
   Q_PROPERTY(QJSValue map READ map WRITE setMap NOTIFY mapChanged)
-  QML_ELEMENT
+
+  QJSValue m_map;
+  QString m_role;
 
 public:
   TransformModel(QObject *parent = nullptr);
@@ -22,8 +26,4 @@ public:
 signals:
   void mapChanged();
   void roleChanged();
-
-private:
-  QJSValue m_map;
-  QString m_role;
 };

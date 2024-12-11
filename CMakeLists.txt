@@ -106,15 +106,23 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Qt::SvgWidgets)
 include_directories(
   ${CMAKE_SOURCE_DIR}
   # <> Without it Qt can't find classes tagged with QML_ELEMENT or QT_GADGET
+  ${CMAKE_SOURCE_DIR}/src/qmlutils
+  ${CMAKE_SOURCE_DIR}/src/models
+  ${CMAKE_SOURCE_DIR}/src/models/actionmanager
+  ${CMAKE_SOURCE_DIR}/src/types
+  ${CMAKE_SOURCE_DIR}/src/mainwindow
   ${CMAKE_SOURCE_DIR}/src/components
   ${CMAKE_SOURCE_DIR}/src/components/form
   ${CMAKE_SOURCE_DIR}/src/components/icons
   ${CMAKE_SOURCE_DIR}/src/components/rosters
+  ${CMAKE_SOURCE_DIR}/src/components/scene
   ${CMAKE_SOURCE_DIR}/src/components/windows
-  ${CMAKE_SOURCE_DIR}/src/models
-  ${CMAKE_SOURCE_DIR}/src/models/actionmanager
-  ${CMAKE_SOURCE_DIR}/src/types
   # </>
+)
+
+set_source_files_properties(
+  src/qmlutils/QmlUtils.qml
+  PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
 qt_add_qml_module(${PROJECT_NAME}
@@ -130,8 +138,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/OpacityHover.qml
     src/components/PropertiesControl.qml
     src/components/SceneGhost.qml
-    src/components/SceneItem.qml
-    src/components/SceneListEntry.qml
+    src/components/TextTexture.qml
     src/components/form/BlockableTextInput.qml
     src/components/form/FormAcceptButtonsGroup.qml
     src/components/form/FormCheckBoxInput.qml
@@ -152,14 +159,20 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/rosters/RosterEntityDirectionalLights.qml
     src/components/rosters/RosterEntityModels.qml
     src/components/rosters/RosterEntityParticles.qml
+    src/components/rosters/RosterEntityTexts.qml
     src/components/rosters/RosterEntityWeapons.qml
     src/components/rosters/RosterLabel.qml
     src/components/rosters/RosterTitle.qml
+    src/components/scene/SceneItem.qml
+    src/components/scene/SceneItemsInstanceList.qml
+    src/components/scene/SceneListEntry.qml
+    src/components/scene/SceneTextItem.qml
     src/components/windows/EditWindowBase.qml
     src/components/windows/EntityActorEditWindow.qml
     src/components/windows/EntityDirectionalLightEditWindow.qml
     src/components/windows/EntityModelEditWindow.qml
     src/components/windows/EntityParticlesEditWindow.qml
+    src/components/windows/EntityTextEditWindow.qml
     src/components/windows/EntityWeaponEditWindow.qml
     src/components/windows/LazyEditWindow.qml
     src/components/windows/LazyWindow.qml
@@ -167,6 +180,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/windows/LevelsEditWindow.qml
     src/components/windows/ThemeEditWindow.qml
     src/mainwindow/MainWindow.qml
+    src/qmlutils/QmlUtils.qml
   QML_FILES
     src/jsutils/utils.mjs
   SOURCES
@@ -181,6 +195,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/recursivedirectorylistmodel.h src/models/recursivedirectorylistmodel.cpp
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
+    src/models/translations.h src/models/translations.cpp
     src/models/uuidgenerator.h src/models/uuidgenerator.cpp
     src/types/entityactor.h src/types/entityactor.cpp
     src/types/entitybase.h src/types/entitybase.cpp
@@ -190,9 +205,11 @@ qt_add_qml_module(${PROJECT_NAME}
     src/types/entitymodel.h src/types/entitymodel.cpp
     src/types/entityparticles.h src/types/entityparticles.cpp
     src/types/entitypropvelocity.h src/types/entitypropvelocity.cpp
+    src/types/entitytext.h src/types/entitytext.cpp
     src/types/entityweapon.h src/types/entityweapon.cpp
     src/types/levelmeta.h src/types/levelmeta.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp
+    src/types/positionstrategysingle.h src/types/positionstrategysingle.cpp
     src/types/positionstrategyvoid.h src/types/positionstrategyvoid.cpp
     src/utils/json.h src/utils/json.cpp
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp

@@ -1,21 +1,28 @@
 import QtQuick
-
 import QtQuick3D
-import QtQuick3D.AssetUtils
+
+import app
 
 Node {
-  id: root
   property string name
-  property alias source: loader.source
-  property alias position: loader.position
+  /**
+   * {null | () => QtQuick3D.Node}
+   */
+  property var factory: null
+  property vector3d position: Qt.vector3d(0, 0, 0)
 
-  RuntimeLoader {
-    id: loader
-    opacity: 0.3
-    onStatusChanged: {
-      if (status === RuntimeLoader.Error) {
-        console.error(errorString);
-      }
+  id: root
+  opacity: Theme.sceneOpacity
+
+  onFactoryChanged: {
+    root.children = [];
+    root.factory?.(root);
+  }
+
+  onPositionChanged: {
+    const child = root.children[0];
+    if (child) {
+      child.position = root.position;
     }
   }
 }

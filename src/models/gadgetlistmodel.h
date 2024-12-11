@@ -29,4 +29,5 @@ public:
   Q_INVOKABLE QJSValue toArray();
   [[nodiscard]] Q_INVOKABLE QModelIndex findIndex(const QJSValue& predicate) const;
   Q_INVOKABLE void remove(const QJSValue& predicate);
+  Q_INVOKABLE void forceRefresh();
 };

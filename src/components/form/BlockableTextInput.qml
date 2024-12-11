@@ -7,7 +7,7 @@ Item {
   property string value: ""
 
   id: root
-  height: input.height
+  implicitHeight: input.height
 
   onValueChanged: {
     if (!JS.areStrsEqual(input.text, root.value)) {
