@@ -16,11 +16,11 @@ Item {
   height: label.height + comboBox.height
 
   onValueChanged: {
-    internal.selectCurrentValue();
+    inner.selectCurrentValue();
   }
 
   QtObject {
-    id: internal
+    id: inner
 
     function selectCurrentValue() {
       const predicate = (value) => JS.areStrsEqual(value.toString(), root.value.toString());
@@ -31,6 +31,7 @@ Item {
 
   RecursiveDirectoryListModel {
     id: folderModel
+    onModelReset: inner.selectCurrentValue()
   }
 
   ColumnLayout {
