@@ -95,6 +95,8 @@ EditWindowBase {
   FormComboBoxInput {
     id: modelIdField
     label: qsTr("Model")
+    valueRole: "id"
+    textRole: "name"
     model: root.modelsList
     Layout.fillWidth: true
   }

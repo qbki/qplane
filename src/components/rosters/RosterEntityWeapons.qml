@@ -16,7 +16,7 @@ RosterBase {
     EntityWeaponEditWindow {
       soundsDir: root.appState.soundsDir
       projectDir: root.appState.projectDir
-      modelsList: root.modelsStore.toArray().map((v) => v.id)
+      modelsList: root.modelsStore.toArray()
     }
   }
 

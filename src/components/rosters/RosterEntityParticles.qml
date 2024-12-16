@@ -13,7 +13,7 @@ RosterBase {
   factory: EntityParticlesFactory
   window: Component {
     EntityParticlesEditWindow {
-      modelsList: root.modelsStore.toArray().map((v) => v.id)
+      modelsList: modelsStore.toArray()
     }
   }
 

@@ -7,9 +7,9 @@ import app
 import "../../jsutils/utils.mjs" as JS
 
 EditWindowBase {
-  required property list<string> modelsList
-  required property list<string> weaponsList
-  required property list<string> particlesList
+  required property list<entityModel> modelsList
+  required property list<entityWeapon> weaponsList
+  required property list<entityParticles> particlesList
 
   signal canceled()
   signal accepted(newActor: entityActor, actor: entityActor)
@@ -37,9 +37,9 @@ EditWindowBase {
   QtObject {
     id: inner
     property entityActor initialData
-    property list<string> emptyableModelsList: [""].concat(root.modelsList)
-    property list<string> emptyableWeaponsList: [""].concat(root.weaponsList)
-    property list<string> emptyableParticlesList: [""].concat(root.particlesList)
+    property list<entityModel> emptyableModelsList: [EntityModelFactory.create()].concat(root.modelsList)
+    property list<entityWeapon> emptyableWeaponsList: [EntityWeaponFactory.create()].concat(root.weaponsList)
+    property list<entityParticles> emptyableParticlesList: [EntityParticlesFactory.create()].concat(root.particlesList)
   }
 
   Action {
@@ -109,6 +109,8 @@ EditWindowBase {
   FormComboBoxInput {
     id: modelIdField
     label: qsTr("Model")
+    valueRole: "id"
+    textRole: "name"
     model: root.modelsList
     Layout.fillWidth: true
   }
@@ -116,6 +118,8 @@ EditWindowBase {
   FormComboBoxInput {
     id: hitParticlesIdField
     label: qsTr("Hit particles")
+    valueRole: "id"
+    textRole: "name"
     model: inner.emptyableParticlesList
     Layout.fillWidth: true
   }
@@ -123,6 +127,8 @@ EditWindowBase {
   FormComboBoxInput {
     id: weaponIdField
     label: qsTr("Weapon")
+    valueRole: "id"
+    textRole: "name"
     model: inner.emptyableWeaponsList
     Layout.fillWidth: true
   }
@@ -130,6 +136,8 @@ EditWindowBase {
   FormComboBoxInput {
     id: debrisModelIdField
     label: qsTr("Debris")
+    valueRole: "id"
+    textRole: "name"
     model: inner.emptyableModelsList
     Layout.fillWidth: true
   }

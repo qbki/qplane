@@ -106,6 +106,8 @@ EditWindowBase {
 
   FormComboBoxInput {
     id: projectileModelIdField
+    valueRole: "id"
+    textRole: "name"
     label: qsTr("Projectile model")
     Layout.fillWidth: true
   }
