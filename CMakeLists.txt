@@ -12,34 +12,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6Gui CONFIG REQUIRED)
-
 find_package(Qt6Qml CONFIG REQUIRED)
-find_package(Qt6QmlBuiltins CONFIG REQUIRED)
+
 find_package(Qt6QmlCompiler CONFIG REQUIRED)
-find_package(Qt6QmlCore CONFIG REQUIRED)
 find_package(Qt6QmlIntegration CONFIG REQUIRED)
-find_package(Qt6QmlLocalStorage CONFIG REQUIRED)
 find_package(Qt6QmlModels CONFIG REQUIRED)
-find_package(Qt6QmlWorkerScript CONFIG REQUIRED)
 find_package(Qt6Quick CONFIG REQUIRED)
-find_package(Qt6QuickControls2 CONFIG REQUIRED)
-find_package(Qt6QuickControls2Basic CONFIG REQUIRED)
-find_package(Qt6QuickControls2BasicStyleImpl CONFIG REQUIRED)
-find_package(Qt6QuickControls2Fusion CONFIG REQUIRED)
-find_package(Qt6QuickControls2FusionStyleImpl CONFIG REQUIRED)
-find_package(Qt6QuickControls2Imagine CONFIG REQUIRED)
-find_package(Qt6QuickControls2ImagineStyleImpl CONFIG REQUIRED)
-find_package(Qt6QuickControls2Impl CONFIG REQUIRED)
-find_package(Qt6QuickControls2Material CONFIG REQUIRED)
-find_package(Qt6QuickControls2MaterialStyleImpl CONFIG REQUIRED)
-find_package(Qt6QuickControls2Universal CONFIG REQUIRED)
-find_package(Qt6QuickControls2UniversalStyleImpl CONFIG REQUIRED)
-find_package(Qt6QuickDialogs2 CONFIG REQUIRED)
-find_package(Qt6QuickDialogs2QuickImpl CONFIG REQUIRED)
-find_package(Qt6QuickDialogs2Utils CONFIG REQUIRED)
-find_package(Qt6QuickLayouts CONFIG REQUIRED)
-find_package(Qt6QuickTemplates2 CONFIG REQUIRED)
-find_package(Qt6QuickTest CONFIG REQUIRED)
 find_package(Qt6QuickWidgets CONFIG REQUIRED)
 
 find_package(Qt6Quick3D CONFIG REQUIRED)
@@ -53,55 +31,30 @@ find_package(Qt6Quick3DParticles CONFIG REQUIRED)
 find_package(Qt6Quick3DRuntimeRender CONFIG REQUIRED)
 find_package(Qt6Quick3DUtils CONFIG REQUIRED)
 
-find_package(Qt6Svg CONFIG REQUIRED)
-find_package(Qt6SvgWidgets CONFIG REQUIRED)
-
-qt_standard_project_setup(REQUIRES 6.7)
+qt_standard_project_setup(REQUIRES 6.8.1)
 qt_add_executable(${PROJECT_NAME} src/main.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Gui)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Qml)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlBuiltins)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlCompiler)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlCore)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlIntegration)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlLocalStorage)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlModels)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QmlWorkerScript)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2Basic)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2BasicStyleImpl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2Fusion)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2FusionStyleImpl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2Imagine)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2ImagineStyleImpl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2Impl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2Material)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2MaterialStyleImpl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2Universal)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickControls2UniversalStyleImpl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickDialogs2)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickDialogs2QuickImpl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickDialogs2Utils)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickLayouts)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickTemplates2)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickTest)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::QuickWidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  Qt::Gui
+  Qt::Qml
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3D)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DAssetImport)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DAssetUtils)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DEffects)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DHelpers)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DHelpersImpl)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DParticleEffects)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DParticles)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DRuntimeRender)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Quick3DUtils)
+  Qt::QmlCompiler
+  Qt::QmlIntegration
+  Qt::QmlModels
+  Qt::Quick
+  Qt::QuickWidgets
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Svg)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt::SvgWidgets)
+  Qt::Quick3D
+  Qt::Quick3DAssetImport
+  Qt::Quick3DAssetUtils
+  Qt::Quick3DEffects
+  Qt::Quick3DHelpers
+  Qt::Quick3DHelpersImpl
+  Qt::Quick3DParticleEffects
+  Qt::Quick3DParticles
+  Qt::Quick3DRuntimeRender
+  Qt::Quick3DUtils
+)
 
 include_directories(
   ${CMAKE_SOURCE_DIR}

@@ -2,22 +2,29 @@
   "dependencies": [
     {
       "name": "qtbase",
-      "features": ["widgets", "opengl", "gui", "freetype", "icu", "dbus"],
-      "version>=": "6.7.3"
+      "features": ["widgets", "opengl", "gui", "freetype", "icu", "dbus"]
     },
     {
       "name": "qtquick3d",
-      "features": ["assimp"],
-      "version>=": "6.7.3"
+      "features": ["assimp"]
     },
     {
-      "name": "qtsvg",
-      "version>=": "6.7.3"
+      "name": "qtdeclarative"
+    }
+  ],
+  "builtin-baseline": "b545373a9a536dc559dac8583467a21497a0e897",
+  "overrides": [
+    {
+      "name": "qtbase",
+      "version": "6.8.1"
+    },
+    {
+      "name": "qtquick3d",
+      "version": "6.8.1"
     },
     {
       "name": "qtdeclarative",
-      "version>=": "6.7.3"
+      "version": "6.8.1"
     }
-  ],
-  "builtin-baseline": "40616a5e954f7be1077ef37db3fbddbd5dcd1ca6"
+  ]
 }
