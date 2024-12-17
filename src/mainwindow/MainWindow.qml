@@ -885,7 +885,7 @@ ApplicationWindow {
     onAccepted: {
       appState.projectDir = folder;
       try {
-        const { entities } = FileIO.loadJson(appState.levelsDir + "/entities.json");
+        const { entities } = FileIO.loadJson(appState.levelsDir + "entities.json");
         const entriesArray = Object.entries(entities);
         const isKindOf = (expectedKind) => ([, { kind }]) => (kind === expectedKind);
 
@@ -919,7 +919,7 @@ ApplicationWindow {
           .map(([id, value]) => EntityDirectionalLightFactory.fromJson(id, value));
         directionalLightsStore.appendList(directionalLights);
       } catch(error) {
-        console.error(error);
+        console.error(`Assets loading error: ${error.message}`);
       }
     }
     options: Platform.FolderDialog.ShowDirsOnly

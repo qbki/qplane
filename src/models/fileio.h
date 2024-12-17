@@ -26,6 +26,7 @@ public:
   [[nodiscard]] Q_INVOKABLE QUrl fromLocalFile(const QString& path) const;
 
 private:
+  void throwJSParsingError(const QString &filePath, const QString& message) const;
   void throwJSError(const QString& message) const;
   void throwJSNotFoundError(const QString& filePath) const;
   void throwJSNotReadableError(const QString& filePath) const;

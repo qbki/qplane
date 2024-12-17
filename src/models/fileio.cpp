@@ -45,9 +45,13 @@ FileIO::loadJson(const QUrl& fileUrl) const
 
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     auto rawData = file.readAll();
-    auto doc = QJsonDocument::fromJson(rawData);
     file.close();
-    return doc.object();
+    QJsonParseError jsonError;
+    auto doc = QJsonDocument::fromJson(rawData, &jsonError);
+    if (jsonError.error == QJsonParseError::NoError) {
+      return doc.object();
+    }
+    throwJSParsingError(localFilePath, jsonError.errorString());
   } else {
     throwJSNotReadableError(localFilePath);
   }
@@ -105,17 +109,27 @@ FileIO::throwJSError(const QString &message) const
   qmlEngine(this)->throwError(message);
 }
 
-void FileIO::throwJSNotFoundError(const QString &filePath) const
+
+void
+FileIO::throwJSParsingError(const QString &filePath, const QString& message) const
 {
-  throwJSError(tr("File not found: %1").arg(filePath));
+  throwJSError(QString("Parsing error %1: %2").arg(filePath, message));
 }
 
-void FileIO::throwJSNotReadableError(const QString &filePath) const
+void
+FileIO::throwJSNotFoundError(const QString &filePath) const
 {
-  throwJSError(tr("File not readable: %1").arg(filePath));
+  throwJSError(QString("File is not found: %1").arg(filePath));
 }
 
-void FileIO::throwJSNotWritableError(const QString &filePath) const
+void
+FileIO::throwJSNotReadableError(const QString &filePath) const
 {
-  throwJSError(tr("File not writeable: %1").arg(filePath));
+  throwJSError(QString("File is not readable: %1").arg(filePath));
+}
+
+void
+FileIO::throwJSNotWritableError(const QString &filePath) const
+{
+  throwJSError(QString("File is not writeable: %1").arg(filePath));
 }
