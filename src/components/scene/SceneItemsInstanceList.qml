@@ -51,7 +51,7 @@ InstanceList {
    * @param {SceneListEntry} entry
    * @returns {void}
    */
-  function pushInstance(entry: SceneListEntry) {
+  function pushInstance(entry) {
     root.instances.push(entry);
   }
 
