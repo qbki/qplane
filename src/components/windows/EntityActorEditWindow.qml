@@ -22,14 +22,14 @@ EditWindowBase {
   function open(initialData: entityActor) {
     idField.value = initialData.id;
     nameField.value = initialData.name;
-    modelIdField.value = initialData.model_id;
+    modelIdField.value = initialData.modelId;
     speedField.acceleration = initialData.speed.acceleration;
     speedField.damping = initialData.speed.damping;
     speedField.speed = initialData.speed.speed;
     livesField.value = initialData.lives;
-    hitParticlesIdField.value = initialData.hit_particles_id;
-    debrisModelIdField.value = initialData.debris_id;
-    weaponIdField.value = initialData.weapon_id;
+    hitParticlesIdField.value = initialData.hitParticlesId;
+    debrisModelIdField.value = initialData.debrisId;
+    weaponIdField.value = initialData.weaponId;
     inner.initialData = initialData;
     root.show();
   }
@@ -63,10 +63,10 @@ EditWindowBase {
       const newEntity = EntityActorFactory.create();
       newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
       newEntity.name = nameField.value;
-      newEntity.model_id = modelIdField.value;
-      newEntity.debris_id = debrisModelIdField.value;
-      newEntity.weapon_id = weaponIdField.value;
-      newEntity.hit_particles_id = hitParticlesIdField.value;
+      newEntity.modelId = modelIdField.value;
+      newEntity.debrisId = debrisModelIdField.value;
+      newEntity.weaponId = weaponIdField.value;
+      newEntity.hitParticlesId = hitParticlesIdField.value;
       newEntity.speed = speed;
       newEntity.lives = JS.toFinitInt(livesField.value);
 

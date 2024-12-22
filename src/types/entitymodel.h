@@ -13,20 +13,20 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityModel)
 
-  Q_PROPERTY(QUrl path READ path WRITE set_path FINAL)
-  Q_PROPERTY(bool is_opaque READ is_opaque WRITE set_is_opaque FINAL)
+  Q_PROPERTY(QUrl path READ path WRITE setPath FINAL)
+  Q_PROPERTY(bool isOpaque READ isOpaque WRITE setIsOpaque FINAL)
 
   QUrl m_path {""};
-  bool m_is_opaque {true};
+  bool m_isOpaque {true};
 
 public:
   EntityModel() = default;
 
   [[nodiscard]] QUrl path() const;
-  void set_path(const QUrl &new_path);
+  void setPath(const QUrl& new_path);
 
-  [[nodiscard]] bool is_opaque() const;
-  void set_is_opaque(bool new_is_opaque);
+  [[nodiscard]] bool isOpaque() const;
+  void setIsOpaque(bool new_isOpaque);
 
   [[nodiscard]] Q_INVOKABLE EntityModel copy() const;
 };

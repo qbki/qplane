@@ -163,11 +163,6 @@ ApplicationWindow {
     }
   }
 
-  SceneItemsInstanceList {
-    id: instancesList
-    defaultBehaviour: "???"
-  }
-
   Action {
     id: openAssetsAction
     text: qsTr("Open assets...")
@@ -195,7 +190,7 @@ ApplicationWindow {
       const strategiesMap = {};
       for (const strategyName of sceneItem.availableBehaviours) {
         const strategy = PositionStrategyManyFactory.create();
-        strategy.entity_id = sceneItem.entityId;
+        strategy.entityId = sceneItem.entityId;
         strategy.behaviour = strategyName;
         strategiesMap[strategyName] = strategy;
       }
@@ -248,7 +243,7 @@ ApplicationWindow {
         if (levelSettingsStore.globalLightId) {
           const light = PositionStrategyVoidFactory.create();
           light.behaviour = "light"
-          light.entity_id = levelSettingsStore.globalLightId
+          light.entityId = levelSettingsStore.globalLightId
           lights.push(PositionStrategyVoidFactory.toJson(light));
         }
         FileIO.saveJson(appState.levelPath, {
@@ -577,7 +572,7 @@ ApplicationWindow {
             entityId: model.display.id
             defaultBehaviour: "enemy"
             availableBehaviours: ["enemy", "player"]
-            source: modelsStore.getById(model.display.model_id).path
+            source: modelsStore.getById(model.display.modelId).path
             Component.onCompleted: root.sceneItemsMap[model.display.id] = actorItem
             Component.onDestruction: delete root.sceneItemsMap[model.display.id]
           }
@@ -761,7 +756,7 @@ ApplicationWindow {
             particlesStore: particlesStore
             selectedEntityId: root.selectedEntityId
             onItemClicked: function(item) {
-              const foundEntityModel = modelsStore.getById(item.model_id);
+              const foundEntityModel = modelsStore.getById(item.modelId);
               if (foundEntityModel) {
                 root.selectedEntityId = item.id;
                 rosterRootLayout.setupGhost(item);
@@ -955,7 +950,7 @@ ApplicationWindow {
           const strategy = ({
             "many": () => {
               const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
-              const sceneItem = sceneItems[strategy.entity_id];
+              const sceneItem = sceneItems[strategy.entityId];
               if (sceneItem) {
                 openLevelDialog.applyPositionStrategy(strategy, sceneItem.getInstancesList());
               }
@@ -963,9 +958,9 @@ ApplicationWindow {
             "void": () => {
               const strategy = PositionStrategyVoidFactory.fromJson(strategyJson);
               if (JS.areStrsEqual(strategy.behaviour, "light")) {
-                const idx = directionalLightsStore.findIndex((v) => JS.areStrsEqual(v.id, strategy.entity_id));
+                const idx = directionalLightsStore.findIndex((v) => JS.areStrsEqual(v.id, strategy.entityId));
                 if (idx.valid) {
-                  levelSettingsStore.globalLightId = strategy.entity_id;
+                  levelSettingsStore.globalLightId = strategy.entityId;
                 }
               }
             }
@@ -973,7 +968,7 @@ ApplicationWindow {
           if (strategy) {
             strategy();
           } else {
-            console.warn(`Unknown position strategy: {strategyJson.kind}`);
+            console.warn(`Unknown position strategy: ${strategyJson.kind}`);
           }
         }
       } catch(error) {

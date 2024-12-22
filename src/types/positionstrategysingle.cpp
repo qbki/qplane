@@ -6,15 +6,15 @@
 #include "positionstrategysingle.h"
 
 QString
-PositionStrategySingle::entity_id() const
+PositionStrategySingle::entityId() const
 {
-  return m_entity_id;
+  return m_entityId;
 }
 
 void
-PositionStrategySingle::set_entity_id(const QString &value)
+PositionStrategySingle::setEntityId(const QString& value)
 {
-  m_entity_id = value;
+  m_entityId = value;
 }
 
 QString
@@ -24,7 +24,7 @@ PositionStrategySingle::behaviour() const
 }
 
 void
-PositionStrategySingle::set_behaviour(const QString &value)
+PositionStrategySingle::setBehaviour(const QString& value)
 {
   m_behaviour = value;
 }
@@ -36,7 +36,7 @@ PositionStrategySingle::position() const
 }
 
 void
-PositionStrategySingle::set_position(const QVector3D &value)
+PositionStrategySingle::setPosition(const QVector3D& value)
 {
   m_position = value;
 }
@@ -58,7 +58,7 @@ PositionStrategySingleFactory::toJson(const PositionStrategySingle &strategy)
   QJsonObject json;
   json["kind"] = "single";
   json["behaviour"] = strategy.behaviour();
-  json["entity_id"] = strategy.entity_id();
+  json["entity_id"] = strategy.entityId();
   json["position"] = Json::to_array(strategy.position());
   return json;
 }
@@ -67,8 +67,8 @@ PositionStrategySingle PositionStrategySingleFactory::fromJson(const QJsonObject
 {
   return JsonValidator(this, &json, "'Single' strategy")
     .handle<PositionStrategySingle>([](auto& check, auto& strategy) {
-      strategy.set_behaviour(check.string("behaviour"));
-      strategy.set_entity_id(check.string("entity_id"));
-      strategy.set_position(check.vector3d("position"));
+      strategy.setBehaviour(check.string("behaviour"));
+      strategy.setEntityId(check.string("entity_id"));
+      strategy.setPosition(check.vector3d("position"));
     });
 }

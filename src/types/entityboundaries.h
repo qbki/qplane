@@ -9,8 +9,8 @@ class EntityBoundaries
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityBoundaries)
-  Q_PROPERTY(QVector3D min READ min WRITE set_min FINAL)
-  Q_PROPERTY(QVector3D max READ max WRITE set_max FINAL)
+  Q_PROPERTY(QVector3D min READ min WRITE setMin FINAL)
+  Q_PROPERTY(QVector3D max READ max WRITE setMax FINAL)
 
   QVector3D m_min {0, 0, 0};
   QVector3D m_max {0, 0, 0};
@@ -19,10 +19,10 @@ public:
   EntityBoundaries() = default;
 
   [[nodiscard]] QVector3D min() const;
-  void set_min(const QVector3D &newMin);
+  void setMin(const QVector3D& value);
 
   [[nodiscard]] QVector3D max() const;
-  void set_max(const QVector3D &newMax);
+  void setMax(const QVector3D& value);
 };
 
 Q_DECLARE_METATYPE(EntityBoundaries)

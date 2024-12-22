@@ -5,15 +5,15 @@
 #include "positionstrategyvoid.h"
 
 QString
-PositionStrategyVoid::entity_id() const
+PositionStrategyVoid::entityId() const
 {
-  return m_entity_id;
+  return m_entityId;
 }
 
 void
-PositionStrategyVoid::set_entity_id(const QString &value)
+PositionStrategyVoid::setEntityId(const QString& value)
 {
-  m_entity_id = value;
+  m_entityId = value;
 }
 
 QString
@@ -23,7 +23,7 @@ PositionStrategyVoid::behaviour() const
 }
 
 void
-PositionStrategyVoid::set_behaviour(const QString &value)
+PositionStrategyVoid::setBehaviour(const QString& value)
 {
   m_behaviour = value;
 }
@@ -45,7 +45,7 @@ PositionStrategyVoidFactory::toJson(const PositionStrategyVoid &strategy)
   QJsonObject json;
   json["kind"] = "void";
   json["behaviour"] = strategy.behaviour();
-  json["entity_id"] = strategy.entity_id();
+  json["entity_id"] = strategy.entityId();
   return json;
 }
 
@@ -54,7 +54,7 @@ PositionStrategyVoidFactory::fromJson(const QJsonObject &json)
 {
   return JsonValidator(this, &json, "'Void' strategy")
     .handle<PositionStrategyVoid>([](auto& check, auto& strategy) {
-      strategy.set_behaviour(check.string("behaviour"));
-      strategy.set_entity_id(check.string("entity_id"));
+      strategy.setBehaviour(check.string("behaviour"));
+      strategy.setEntityId(check.string("entity_id"));
     });
 }

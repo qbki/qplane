@@ -9,20 +9,20 @@ class PositionStrategyVoid
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(positionStrategyVoid)
-  Q_PROPERTY(QString entity_id READ entity_id WRITE set_entity_id)
-  Q_PROPERTY(QString behaviour READ behaviour WRITE set_behaviour)
+  Q_PROPERTY(QString entityId READ entityId WRITE setEntityId)
+  Q_PROPERTY(QString behaviour READ behaviour WRITE setBehaviour)
 
-  QString m_entity_id {};
+  QString m_entityId {};
   QString m_behaviour {};
 
 public:
   PositionStrategyVoid() = default;
 
-  [[nodiscard]] QString entity_id() const;
-  void set_entity_id(const QString &value);
+  [[nodiscard]] QString entityId() const;
+  void setEntityId(const QString& value);
 
   [[nodiscard]] QString behaviour() const;
-  void set_behaviour(const QString &value);
+  void setBehaviour(const QString& value);
 };
 
 Q_DECLARE_METATYPE(PositionStrategyVoid)

@@ -6,27 +6,27 @@
 #include "entityweapon.h"
 
 double
-EntityWeapon::projectile_speed() const
+EntityWeapon::projectileSpeed() const
 {
-  return m_projectile_speed;
+  return m_projectileSpeed;
 }
 
 void
-EntityWeapon::set_projectile_speed(double value)
+EntityWeapon::setProjectileSpeed(double value)
 {
-  m_projectile_speed = value;
+  m_projectileSpeed = value;
 }
 
 double
-EntityWeapon::fire_rate() const
+EntityWeapon::fireRate() const
 {
-  return m_fire_rate;
+  return m_fireRate;
 }
 
 void
-EntityWeapon::set_fire_rate(double value)
+EntityWeapon::setFireRate(double value)
 {
-  m_fire_rate = value;
+  m_fireRate = value;
 }
 
 double
@@ -36,7 +36,7 @@ EntityWeapon::lifetime() const
 }
 
 void
-EntityWeapon::set_lifetime(double value)
+EntityWeapon::setLifetime(double value)
 {
   m_lifetime = value;
 }
@@ -48,33 +48,33 @@ EntityWeapon::spread() const
 }
 
 void
-EntityWeapon::set_spread(double value)
+EntityWeapon::setSpread(double value)
 {
   m_spread = value;
 }
 
 QString
-EntityWeapon::projectile_model_id() const
+EntityWeapon::projectileModelId() const
 {
-  return m_projectile_model_id;
+  return m_projectileModelId;
 }
 
 void
-EntityWeapon::set_projectile_model_id(const QString &value)
+EntityWeapon::setProjectileModelId(const QString& value)
 {
-  m_projectile_model_id = value;
+  m_projectileModelId = value;
 }
 
 QUrl
-EntityWeapon::shot_sound_path() const
+EntityWeapon::shotSoundPath() const
 {
-  return m_shot_sound_path;
+  return m_shotSoundPath;
 }
 
 void
-EntityWeapon::set_shot_sound_path(const QUrl &value)
+EntityWeapon::setShotSoundPath(const QUrl& value)
 {
-  m_shot_sound_path = value;
+  m_shotSoundPath = value;
 }
 
 EntityWeapon
@@ -83,7 +83,7 @@ EntityWeapon::copy() const
   return *this;
 }
 
-EntityWeaponFactory::EntityWeaponFactory(QObject *parent)
+EntityWeaponFactory::EntityWeaponFactory(QObject* parent)
   : QObject(parent)
 {
 }
@@ -95,34 +95,34 @@ EntityWeaponFactory::create()
 }
 
 QJsonObject
-EntityWeaponFactory::toJson(const EntityWeapon &entity, const QUrl &projectDir)
+EntityWeaponFactory::toJson(const EntityWeapon& entity, const QUrl& projectDir)
 {
   QJsonObject json;
   QDir dir(projectDir.toLocalFile());
   json["kind"] = "weapon";
-  json["bullet_model_id"] = entity.projectile_model_id();
-  json["bullet_speed"] = entity.projectile_speed();
-  json["fire_rate"] = entity.fire_rate();
+  json["bullet_model_id"] = entity.projectileModelId();
+  json["bullet_speed"] = entity.projectileSpeed();
+  json["fire_rate"] = entity.fireRate();
   json["lifetime"] = entity.lifetime();
   json["name"] = entity.name();
-  json["shot_sound_path"] = dir.relativeFilePath(entity.shot_sound_path().toLocalFile());
+  json["shot_sound_path"] = dir.relativeFilePath(entity.shotSoundPath().toLocalFile());
   json["spread"] = entity.spread();
   return json;
 }
 
 EntityWeapon
-EntityWeaponFactory::fromJson(const QString &id, const QJsonObject &json, const QUrl &projectDir)
+EntityWeaponFactory::fromJson(const QString& id, const QJsonObject& json, const QUrl& projectDir)
 {
   const auto toUrl = [&](const QString& v) { return projectDir.resolved(v); };
   return JsonValidator(this, &json, id)
     .handle<EntityWeapon>([&](auto& check, auto& entity) {
-      entity.set_id(id);
-      entity.set_fire_rate(check.real("fire_rate"));
-      entity.set_lifetime(check.real("lifetime"));
-      entity.set_name(check.string("name"));
-      entity.set_projectile_model_id(check.string("bullet_model_id"));
-      entity.set_projectile_speed(check.real("bullet_speed"));
-      entity.set_shot_sound_path(toUrl(check.string("shot_sound_path")));
-      entity.set_spread(check.real("spread"));
+      entity.setId(id);
+      entity.setName(check.string("name"));
+      entity.setFireRate(check.real("fire_rate"));
+      entity.setLifetime(check.real("lifetime"));
+      entity.setProjectileModelId(check.string("bullet_model_id"));
+      entity.setProjectileSpeed(check.real("bullet_speed"));
+      entity.setShotSoundPath(toUrl(check.string("shot_sound_path")));
+      entity.setSpread(check.real("spread"));
     });
 }

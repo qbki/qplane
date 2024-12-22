@@ -22,7 +22,7 @@ EditWindowBase {
     lifetimeField.value = initialData.lifetime;
     speedField.value = initialData.speed;
     quantityField.value = initialData.quantity;
-    modelIdField.value = initialData.model_id;
+    modelIdField.value = initialData.modelId;
     inner.initialData = initialData;
     root.show();
   }
@@ -51,7 +51,7 @@ EditWindowBase {
       newEntity.lifetime = JS.toFinitFloat(lifetimeField.value);
       newEntity.speed = JS.toFinitFloat(speedField.value);
       newEntity.quantity = JS.toFinitInt(quantityField.value);
-      newEntity.model_id = modelIdField.value;
+      newEntity.modelId = modelIdField.value;
       root.accepted(newEntity, inner.initialData);
       root.close();
     }

@@ -10,8 +10,8 @@ class EntityBase
 {
 private:
   Q_GADGET
-  Q_PROPERTY(QString id READ id WRITE set_id FINAL)
-  Q_PROPERTY(QString name READ name WRITE set_name FINAL)
+  Q_PROPERTY(QString id READ id WRITE setId FINAL)
+  Q_PROPERTY(QString name READ name WRITE setName FINAL)
 
   QString m_id {""};
   QString m_name {""};
@@ -25,8 +25,8 @@ public:
   virtual ~EntityBase() = default;
 
   [[nodiscard]] QString id() const;
-  void set_id(const QString &value);
+  void setId(const QString& value);
 
   [[nodiscard]] QString name() const;
-  void set_name(const QString &value);
+  void setName(const QString& value);
 };

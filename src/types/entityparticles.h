@@ -10,12 +10,12 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityParticles)
 
-  Q_PROPERTY(QString model_id READ model_id WRITE set_model_id FINAL)
-  Q_PROPERTY(double lifetime READ lifetime WRITE set_lifetime FINAL)
-  Q_PROPERTY(double speed READ speed WRITE set_speed FINAL)
-  Q_PROPERTY(int quantity READ quantity WRITE set_quantity FINAL)
+  Q_PROPERTY(QString modelId READ modelId WRITE setModelId FINAL)
+  Q_PROPERTY(double lifetime READ lifetime WRITE setLifetime FINAL)
+  Q_PROPERTY(double speed READ speed WRITE setSpeed FINAL)
+  Q_PROPERTY(int quantity READ quantity WRITE setQuantity FINAL)
 
-  QString m_model_id {};
+  QString m_modelId {};
   double m_lifetime {0};
   double m_speed {0};
   int m_quantity {0};
@@ -23,17 +23,17 @@ private:
 public:
   EntityParticles() = default;
 
-  [[nodiscard]] QString model_id() const;
-  void set_model_id(const QString &value);
+  [[nodiscard]] QString modelId() const;
+  void setModelId(const QString &value);
 
   [[nodiscard]] double lifetime() const;
-  void set_lifetime(double value);
+  void setLifetime(double value);
 
   [[nodiscard]] double speed() const;
-  void set_speed(double value);
+  void setSpeed(double value);
 
   [[nodiscard]] int quantity() const;
-  void set_quantity(int value);
+  void setQuantity(int value);
 
   [[nodiscard]] Q_INVOKABLE EntityParticles copy() const;
 };

@@ -11,14 +11,14 @@ class EntityCamera
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityCamera)
-  Q_PROPERTY(QVector3D position READ position WRITE set_position FINAL)
+  Q_PROPERTY(QVector3D position READ position WRITE setPosition FINAL)
 
   QVector3D m_position {0, 0, 0};
 
 public:
   EntityCamera() = default;
   [[nodiscard]] QVector3D position() const;
-  void set_position(const QVector3D &newPosition);
+  void setPosition(const QVector3D& value);
 };
 
 Q_DECLARE_METATYPE(EntityCamera)

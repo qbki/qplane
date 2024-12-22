@@ -24,7 +24,7 @@ EditWindowBase {
     widthField.value = initialData.width;
     heightField.value = initialData.height;
 
-    const foundTextIdPair = inner.mapping.find(({ key }) => key === initialData.text_id);
+    const foundTextIdPair = inner.mapping.find(({ key }) => key === initialData.textId);
     textIdField.value = (Boolean(foundTextIdPair) ? foundTextIdPair : inner.mapping[0]).key;
 
     inner.initialData = initialData;
@@ -47,7 +47,7 @@ EditWindowBase {
       const newEntity = EntityTextFactory.create();
       newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
       newEntity.name = nameField.value;
-      newEntity.text_id = textIdField.value;
+      newEntity.textId = textIdField.value;
       newEntity.size = JS.toFinitFloat(sizeField.value);
       newEntity.color = colorField.value;
       newEntity.width = widthField.value === null ? null : JS.toFinitFloat(widthField.value);

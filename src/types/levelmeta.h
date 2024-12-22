@@ -15,8 +15,8 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(levelMeta)
 
-  Q_PROPERTY(EntityCamera camera READ camera WRITE set_camera FINAL)
-  Q_PROPERTY(EntityBoundaries boundaries READ boundaries WRITE set_boundaries FINAL)
+  Q_PROPERTY(EntityCamera camera READ camera WRITE setCamera FINAL)
+  Q_PROPERTY(EntityBoundaries boundaries READ boundaries WRITE setBoundaries FINAL)
 
   EntityCamera m_camera {};
   EntityBoundaries m_boundaries {};
@@ -25,10 +25,10 @@ public:
   LevelMeta() = default;
 
   [[nodiscard]] EntityCamera camera() const;
-  void set_camera(const EntityCamera &value);
+  void setCamera(const EntityCamera& value);
 
   [[nodiscard]] EntityBoundaries boundaries() const;
-  void set_boundaries(const EntityBoundaries &value);
+  void setBoundaries(const EntityBoundaries& value);
 };
 
 Q_DECLARE_METATYPE(LevelMeta)

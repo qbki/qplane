@@ -13,7 +13,7 @@ EntityDirectionalLight::color() const
 }
 
 void
-EntityDirectionalLight::set_color(const QColor &value)
+EntityDirectionalLight::setColor(const QColor& value)
 {
   m_color = value;
 }
@@ -25,7 +25,7 @@ EntityDirectionalLight::direction() const
 }
 
 void
-EntityDirectionalLight::set_direction(const QVector3D &value)
+EntityDirectionalLight::setDirection(const QVector3D& value)
 {
   m_direction = value;
 }
@@ -35,7 +35,7 @@ EntityDirectionalLight EntityDirectionalLight::copy() const
   return *this;
 }
 
-EntityDirectionalLightFactory::EntityDirectionalLightFactory(QObject *parent)
+EntityDirectionalLightFactory::EntityDirectionalLightFactory(QObject* parent)
   : QObject(parent)
 {
 }
@@ -47,7 +47,7 @@ EntityDirectionalLightFactory::create()
 }
 
 QJsonObject
-EntityDirectionalLightFactory::toJson(const EntityDirectionalLight &entity)
+EntityDirectionalLightFactory::toJson(const EntityDirectionalLight& entity)
 {
   auto color = entity.color();
   QJsonObject json;
@@ -59,13 +59,13 @@ EntityDirectionalLightFactory::toJson(const EntityDirectionalLight &entity)
 }
 
 EntityDirectionalLight
-EntityDirectionalLightFactory::fromJson(const QString &id, const QJsonObject &json)
+EntityDirectionalLightFactory::fromJson(const QString& id, const QJsonObject& json)
 {
   return JsonValidator(this, &json, id)
     .handle<EntityDirectionalLight>([&](auto& check, auto& entity) {
-      entity.set_id(id);
-      entity.set_name(check.string("name"));
-      entity.set_color(check.color("color"));
-      entity.set_direction(check.vector3d("direction"));
+      entity.setId(id);
+      entity.setName(check.string("name"));
+      entity.setColor(check.color("color"));
+      entity.setDirection(check.vector3d("direction"));
     });
 }

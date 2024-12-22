@@ -8,7 +8,7 @@ EntityCamera LevelMeta::camera() const
   return m_camera;
 }
 
-void LevelMeta::set_camera(const EntityCamera &value)
+void LevelMeta::setCamera(const EntityCamera& value)
 {
   m_camera = value;
 }
@@ -18,12 +18,12 @@ EntityBoundaries LevelMeta::boundaries() const
   return m_boundaries;
 }
 
-void LevelMeta::set_boundaries(const EntityBoundaries &value)
+void LevelMeta::setBoundaries(const EntityBoundaries& value)
 {
   m_boundaries = value;
 }
 
-LevelMetaFactory::LevelMetaFactory(QObject *parent)
+LevelMetaFactory::LevelMetaFactory(QObject* parent)
   : QObject(parent)
 {
 }
@@ -52,7 +52,7 @@ LevelMetaFactory::fromJson(const QJsonObject &json)
   auto& boundariesFactory = getQmlSingleton<EntityBoundariesFactory>(this);
   return JsonValidator(this, &json, "Meta")
     .handle<LevelMeta>([&](auto& check, auto& entity) {
-      entity.set_camera(cameraFactory.fromJson(check.obj("camera")));
-      entity.set_boundaries(boundariesFactory.fromJson(check.obj("boundaries")));
+      entity.setCamera(cameraFactory.fromJson(check.obj("camera")));
+      entity.setBoundaries(boundariesFactory.fromJson(check.obj("boundaries")));
     });
 }

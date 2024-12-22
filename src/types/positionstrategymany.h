@@ -10,25 +10,25 @@ class PositionStrategyMany
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(positionStrategyMany)
-  Q_PROPERTY(QString entity_id READ entity_id WRITE set_entity_id)
-  Q_PROPERTY(QString behaviour READ behaviour WRITE set_behaviour)
-  Q_PROPERTY(QVariantList positions READ positions WRITE set_positions)
+  Q_PROPERTY(QString entityId READ entityId WRITE setEntityId)
+  Q_PROPERTY(QString behaviour READ behaviour WRITE setBehaviour)
+  Q_PROPERTY(QVariantList positions READ positions WRITE setPositions)
 
-  QString m_entity_id {};
+  QString m_entityId {};
   QString m_behaviour {};
   QVariantList m_positions {};
 
 public:
   PositionStrategyMany() = default;
 
-  [[nodiscard]] QString entity_id() const;
-  void set_entity_id(const QString &newEntity_id);
+  [[nodiscard]] QString entityId() const;
+  void setEntityId(const QString& value);
 
   [[nodiscard]] QString behaviour() const;
-  void set_behaviour(const QString &newBehaviour);
+  void setBehaviour(const QString& value);
 
   [[nodiscard]] QVariantList positions() const;
-  void set_positions(const QVariantList &newPositions);
+  void setPositions(const QVariantList& value);
 };
 
 Q_DECLARE_METATYPE(PositionStrategyMany)

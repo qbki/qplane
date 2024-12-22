@@ -10,9 +10,9 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityPropVelocity)
 
-  Q_PROPERTY(QVariant speed READ speed WRITE set_speed FINAL)
-  Q_PROPERTY(QVariant acceleration READ acceleration WRITE set_acceleration FINAL)
-  Q_PROPERTY(QVariant damping READ damping WRITE set_damping FINAL)
+  Q_PROPERTY(QVariant speed READ speed WRITE setSpeed FINAL)
+  Q_PROPERTY(QVariant acceleration READ acceleration WRITE setAcceleration FINAL)
+  Q_PROPERTY(QVariant damping READ damping WRITE setDamping FINAL)
 
   QVariant m_speed {};
   QVariant m_acceleration {};
@@ -22,13 +22,13 @@ public:
   EntityPropVelocity() = default;
 
   [[nodiscard]] QVariant speed() const;
-  void set_speed(const QVariant &newSpeed);
+  void setSpeed(const QVariant& value);
 
   [[nodiscard]] QVariant acceleration() const;
-  void set_acceleration(const QVariant &newAcceleration);
+  void setAcceleration(const QVariant& value);
 
   [[nodiscard]] QVariant damping() const;
-  void set_damping(const QVariant &newDamping);
+  void setDamping(const QVariant& value);
 };
 
 Q_DECLARE_METATYPE(EntityPropVelocity)

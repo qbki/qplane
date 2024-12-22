@@ -21,12 +21,12 @@ EditWindowBase {
   function open(initialData: entityWeapon) {
     idField.value = initialData.id;
     nameField.value = initialData.name;
-    projectileModelIdField.value = initialData.projectile_model_id;
-    projectileSpeedField.value = initialData.projectile_speed;
-    fireRateField.value = initialData.fire_rate;
+    projectileModelIdField.value = initialData.projectileModelId;
+    projectileSpeedField.value = initialData.projectileSpeed;
+    fireRateField.value = initialData.fireRate;
     lifetimeField.value = initialData.lifetime;
     spreadField.value = initialData.spread;
-    shotSoundPathField.value = initialData.shot_sound_path;
+    shotSoundPathField.value = initialData.shotSoundPath;
     inner.initialData = initialData;
     root.show();
   }
@@ -52,12 +52,12 @@ EditWindowBase {
       const newEntity = EntityWeaponFactory.create();
       newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
       newEntity.name = nameField.value;
-      newEntity.projectile_model_id = projectileModelIdField.value;
-      newEntity.projectile_speed = JS.toFinitFloat(projectileSpeedField.value);
-      newEntity.fire_rate = JS.toFinitFloat(fireRateField.value);
+      newEntity.projectileModelId = projectileModelIdField.value;
+      newEntity.projectileSpeed = JS.toFinitFloat(projectileSpeedField.value);
+      newEntity.fireRate = JS.toFinitFloat(fireRateField.value);
       newEntity.lifetime = JS.toFinitFloat(lifetimeField.value);
       newEntity.spread = JS.toFinitFloat(spreadField.value);
-      newEntity.shot_sound_path = shotSoundPathField.value;
+      newEntity.shotSoundPath = shotSoundPathField.value;
       root.accepted(newEntity, inner.initialData);
       root.close();
     }

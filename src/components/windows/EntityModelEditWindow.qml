@@ -20,7 +20,7 @@ EditWindowBase {
     idField.value = initialData.id;
     nameField.value = initialData.name;
     pathField.value = initialData.path;
-    isOpaqueField.checkState = initialData.is_opaque ? Qt.Checked : Qt.Unchecked;
+    isOpaqueField.checkState = initialData.isOpaque ? Qt.Checked : Qt.Unchecked;
     inner.initialData = initialData;
     root.show();
   }

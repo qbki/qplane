@@ -6,34 +6,40 @@
 
 #include "positionstrategymany.h"
 
-QString PositionStrategyMany::entity_id() const
+QString
+PositionStrategyMany::entityId() const
 {
-  return m_entity_id;
+  return m_entityId;
 }
 
-void PositionStrategyMany::set_entity_id(const QString &new_entity_id)
+void
+PositionStrategyMany::setEntityId(const QString& value)
 {
-  m_entity_id = new_entity_id;
+  m_entityId = value;
 }
 
-QString PositionStrategyMany::behaviour() const
+QString
+PositionStrategyMany::behaviour() const
 {
   return m_behaviour;
 }
 
-void PositionStrategyMany::set_behaviour(const QString &new_behaviour)
+void
+PositionStrategyMany::setBehaviour(const QString& value)
 {
-  m_behaviour = new_behaviour;
+  m_behaviour = value;
 }
 
-QVariantList PositionStrategyMany::positions() const
+QVariantList
+PositionStrategyMany::positions() const
 {
   return m_positions;
 }
 
-void PositionStrategyMany::set_positions(const QVariantList &new_positions)
+void
+PositionStrategyMany::setPositions(const QVariantList& value)
 {
-  m_positions = new_positions;
+  m_positions = value;
 }
 
 PositionStrategyManyFactory::PositionStrategyManyFactory(QObject *parent)
@@ -41,17 +47,19 @@ PositionStrategyManyFactory::PositionStrategyManyFactory(QObject *parent)
 {
 }
 
-PositionStrategyMany PositionStrategyManyFactory::create()
+PositionStrategyMany
+PositionStrategyManyFactory::create()
 {
   return {};
 }
 
-QJsonObject PositionStrategyManyFactory::toJson(const PositionStrategyMany &strategy)
+QJsonObject
+PositionStrategyManyFactory::toJson(const PositionStrategyMany &strategy)
 {
   QJsonObject json;
   json["kind"] = "many";
   json["behaviour"] = strategy.behaviour();
-  json["entity_id"] = strategy.entity_id();
+  json["entity_id"] = strategy.entityId();
   QJsonArray positions;
   for (const auto& variant : strategy.positions()) {
     auto vector = variant.value<QVector3D>();
@@ -67,8 +75,8 @@ PositionStrategyMany PositionStrategyManyFactory::fromJson(const QJsonObject &js
 {
   return JsonValidator(this, &json, "'Many' strategy")
     .handle<PositionStrategyMany>([](auto& check, auto& strategy) {
-      strategy.set_behaviour(check.string("behaviour"));
-      strategy.set_entity_id(check.string("entity_id"));
-      strategy.set_positions(check.vectors3d("positions"));
+      strategy.setBehaviour(check.string("behaviour"));
+      strategy.setEntityId(check.string("entity_id"));
+      strategy.setPositions(check.vectors3d("positions"));
     });
 }

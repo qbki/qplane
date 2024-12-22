@@ -12,21 +12,21 @@ EntityModel::path() const
 }
 
 void
-EntityModel::set_path(const QUrl &new_path)
+EntityModel::setPath(const QUrl& value)
 {
-  m_path = new_path;
+  m_path = value;
 }
 
 bool
-EntityModel::is_opaque() const
+EntityModel::isOpaque() const
 {
-  return m_is_opaque;
+  return m_isOpaque;
 }
 
 void
-EntityModel::set_is_opaque(bool new_is_opaque)
+EntityModel::setIsOpaque(bool value)
 {
-  m_is_opaque = new_is_opaque;
+  m_isOpaque = value;
 }
 
 EntityModel
@@ -47,28 +47,28 @@ EntityModelFactory::create()
 }
 
 QJsonObject
-EntityModelFactory::toJson(const EntityModel &entity, const QUrl &projectDir)
+EntityModelFactory::toJson(const EntityModel& entity, const QUrl& projectDir)
 {
   QJsonObject json;
   QDir dir(projectDir.toLocalFile());
   json["kind"] = "model";
   json["name"] = entity.name();
   json["path"] = dir.relativeFilePath(entity.path().toLocalFile());
-  json["is_opaque"] = entity.is_opaque();
+  json["is_opaque"] = entity.isOpaque();
   return json;
 }
 
 EntityModel
 EntityModelFactory::fromJson(const QString& id,
-                             const QJsonObject &json,
+                             const QJsonObject& json,
                              const QUrl& projectDir)
 {
   const auto toUrl = [&](const QString& v) { return projectDir.resolved(v); };
   return JsonValidator(this, &json, id)
     .handle<EntityModel>([&](auto& check, auto& entity) {
-      entity.set_id(id);
-      entity.set_name(check.string("name"));
-      entity.set_path(toUrl(check.string("path")));
-      entity.set_is_opaque(check.boolean("is_opaque"));
+      entity.setId(id);
+      entity.setName(check.string("name"));
+      entity.setPath(toUrl(check.string("path")));
+      entity.setIsOpaque(check.boolean("is_opaque"));
     });
 }

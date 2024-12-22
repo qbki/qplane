@@ -8,25 +8,25 @@ class PositionStrategySingle
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(positionStrategySingle)
-  Q_PROPERTY(QString entity_id READ entity_id WRITE set_entity_id)
-  Q_PROPERTY(QString behaviour READ behaviour WRITE set_behaviour)
-  Q_PROPERTY(QVector3D position READ position WRITE set_position)
+  Q_PROPERTY(QString entityId READ entityId WRITE setEntityId)
+  Q_PROPERTY(QString behaviour READ behaviour WRITE setBehaviour)
+  Q_PROPERTY(QVector3D position READ position WRITE setPosition)
 
-  QString m_entity_id;
+  QString m_entityId;
   QString m_behaviour;
   QVector3D m_position;
 
 public:
   PositionStrategySingle() = default;
 
-  [[nodiscard]] QString entity_id() const;
-  void set_entity_id(const QString &value);
+  [[nodiscard]] QString entityId() const;
+  void setEntityId(const QString &value);
 
   [[nodiscard]] QString behaviour() const;
-  void set_behaviour(const QString &value);
+  void setBehaviour(const QString &value);
 
   [[nodiscard]] QVector3D position() const;
-  void set_position(const QVector3D &value);
+  void setPosition(const QVector3D &value);
 };
 
 Q_DECLARE_METATYPE(PositionStrategySingle)

@@ -11,41 +11,41 @@ class EntityActor : public EntityBase
 {
   Q_GADGET
   QML_NAMED_ELEMENT(entityActor)
-  Q_PROPERTY(QString model_id READ model_id WRITE set_model_id FINAL)
-  Q_PROPERTY(QString weapon_id READ weapon_id WRITE set_weapon_id FINAL)
-  Q_PROPERTY(QString hit_particles_id READ hit_particles_id WRITE set_hit_particles_id FINAL)
-  Q_PROPERTY(QString debris_id READ debris_id WRITE set_debris_id FINAL)
-  Q_PROPERTY(int lives READ lives WRITE set_lives FINAL)
-  Q_PROPERTY(EntityPropVelocity speed READ speed WRITE set_speed FINAL)
+  Q_PROPERTY(QString modelId READ modelId WRITE setModelId FINAL)
+  Q_PROPERTY(QString weaponId READ weaponId WRITE setWeaponId FINAL)
+  Q_PROPERTY(QString hitParticlesId READ hitParticlesId WRITE setHitParticlesId FINAL)
+  Q_PROPERTY(QString debrisId READ debrisId WRITE setDebrisId FINAL)
+  Q_PROPERTY(int lives READ lives WRITE setLives FINAL)
+  Q_PROPERTY(EntityPropVelocity speed READ speed WRITE setSpeed FINAL)
 
 public:
   EntityActor() = default;
 
-  [[nodiscard]] QString model_id() const;
-  void set_model_id(const QString &value);
+  [[nodiscard]] QString modelId() const;
+  void setModelId(const QString& value);
 
-  [[nodiscard]] QString weapon_id() const;
-  void set_weapon_id(const QString &value);
+  [[nodiscard]] QString weaponId() const;
+  void setWeaponId(const QString& value);
 
-  [[nodiscard]] QString hit_particles_id() const;
-  void set_hit_particles_id(const QString &value);
+  [[nodiscard]] QString hitParticlesId() const;
+  void setHitParticlesId(const QString& value);
 
-  [[nodiscard]] QString debris_id() const;
-  void set_debris_id(const QString &value);
+  [[nodiscard]] QString debrisId() const;
+  void setDebrisId(const QString& value);
 
   [[nodiscard]] EntityPropVelocity speed() const;
-  void set_speed(const EntityPropVelocity& value);
+  void setSpeed(const EntityPropVelocity& value);
 
   [[nodiscard]] int lives() const;
-  void set_lives(int value);
+  void setLives(int value);
 
   [[nodiscard]] Q_INVOKABLE EntityActor copy() const;
 
 private:
-  QString m_model_id {};
-  QString m_weapon_id {};
-  QString m_hit_particles_id {};
-  QString m_debris_id {};
+  QString m_modelId {};
+  QString m_weaponId {};
+  QString m_hitParticlesId {};
+  QString m_debrisId {};
   EntityPropVelocity m_speed {};
   int m_lives {1};
 };

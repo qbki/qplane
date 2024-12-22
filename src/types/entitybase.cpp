@@ -5,7 +5,7 @@ QString EntityBase::id() const
   return m_id;
 }
 
-void EntityBase::set_id(const QString &value)
+void EntityBase::setId(const QString& value)
 {
   m_id = value;
 }
@@ -15,7 +15,7 @@ QString EntityBase::name() const
   return m_name;
 }
 
-void EntityBase::set_name(const QString &value)
+void EntityBase::setName(const QString& value)
 {
   m_name = value;
 }

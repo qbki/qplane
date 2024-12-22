@@ -22,7 +22,7 @@ Node {
    */
   function getModelFactory(): var {
     const entity = root.source;
-    const text = translations.t(entity.text_id);
+    const text = translations.t(entity.textId);
     return (parent) => {
       const createInstance = QmlUtils.createComponent("app", "TextTexture");
       createInstance(parent, { entity, text });
@@ -33,8 +33,8 @@ Node {
     id: translations
     file: root.appState.isProjectLoaded ? root.appState.translationPath : null
     onMappingChanged: {
-      const { text_id } = root.source;
-      textTexture.text = translations.t(text_id);
+      const { textId } = root.source;
+      textTexture.text = translations.t(textId);
     }
   }
 

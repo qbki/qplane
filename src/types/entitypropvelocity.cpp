@@ -7,7 +7,7 @@ QVariant EntityPropVelocity::speed() const
   return m_speed;
 }
 
-void EntityPropVelocity::set_speed(const QVariant &value)
+void EntityPropVelocity::setSpeed(const QVariant &value)
 {
   Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
              "EntityPropVelocity::set_speed",
@@ -20,7 +20,7 @@ QVariant EntityPropVelocity::acceleration() const
   return m_acceleration;
 }
 
-void EntityPropVelocity::set_acceleration(const QVariant &value)
+void EntityPropVelocity::setAcceleration(const QVariant &value)
 {
   Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
              "EntityPropVelocity::set_acceleration",
@@ -33,7 +33,7 @@ QVariant EntityPropVelocity::damping() const
   return m_damping;
 }
 
-void EntityPropVelocity::set_damping(const QVariant &value)
+void EntityPropVelocity::setDamping(const QVariant &value)
 {
   Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
              "EntityPropVelocity::set_damping",
@@ -70,8 +70,8 @@ EntityPropVelocity EntityPropVelocityFactory::fromJson(const QJsonObject &json)
 {
   return JsonValidator(this, &json, "Velocity property")
     .handle<EntityPropVelocity>([&](auto& check, auto& entity) {
-      entity.set_acceleration(check.optionalReal("acceleration", {}));
-      entity.set_speed(check.optionalReal("speed", {}));
-      entity.set_damping(check.optionalReal("damping", {}));
+      entity.setAcceleration(check.optionalReal("acceleration", {}));
+      entity.setSpeed(check.optionalReal("speed", {}));
+      entity.setDamping(check.optionalReal("damping", {}));
     });
 }

@@ -11,8 +11,8 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityDirectionalLight)
 
-  Q_PROPERTY(QColor color READ color WRITE set_color FINAL)
-  Q_PROPERTY(QVector3D direction READ direction WRITE set_direction FINAL)
+  Q_PROPERTY(QColor color READ color WRITE setColor FINAL)
+  Q_PROPERTY(QVector3D direction READ direction WRITE setDirection FINAL)
 
   QColor m_color = QColor::fromRgbF(1, 1, 1);
   QVector3D m_direction = QVector3D(0, 0, 0);
@@ -21,10 +21,10 @@ public:
   EntityDirectionalLight() = default;
 
   [[nodiscard]] QColor color() const;
-  void set_color(const QColor &value);
+  void setColor(const QColor& value);
 
   [[nodiscard]] QVector3D direction() const;
-  void set_direction(const QVector3D &value);
+  void setDirection(const QVector3D& value);
 
   [[nodiscard]] Q_INVOKABLE EntityDirectionalLight copy() const;
 };

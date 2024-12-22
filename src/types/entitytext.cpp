@@ -6,15 +6,15 @@
 #include "entitytext.h"
 
 QString
-EntityText::text_id() const
+EntityText::textId() const
 {
-  return m_text_id;
+  return m_textId;
 }
 
 void
-EntityText::set_text_id(QString value)
+EntityText::setTextId(const QString& value)
 {
-  m_text_id = value;
+  m_textId = value;
 }
 
 int
@@ -24,7 +24,7 @@ EntityText::size() const
 }
 
 void
-EntityText::set_size(int value)
+EntityText::setSize(int value)
 {
   Q_ASSERT_X(value > 0, __func__, "Value should be more than zero");
   m_size = value;
@@ -38,7 +38,7 @@ EntityText::color() const
 }
 
 void
-EntityText::set_color(const QColor &value)
+EntityText::setColor(const QColor& value)
 {
   m_color = value;
 }
@@ -50,7 +50,7 @@ EntityText::width() const
 }
 
 void
-EntityText::set_width(const QVariant &value)
+EntityText::setWidth(const QVariant& value)
 {
   m_width = value;
 }
@@ -63,7 +63,7 @@ EntityText::height() const
 }
 
 void
-EntityText::set_height(const QVariant &value)
+EntityText::setHeight(const QVariant& value)
 {
   m_height = value;
 }
@@ -74,7 +74,7 @@ EntityText::copy() const
   return *this;
 }
 
-EntityTextFactory::EntityTextFactory(QObject *parent)
+EntityTextFactory::EntityTextFactory(QObject* parent)
   : QObject(parent)
 {
 }
@@ -86,7 +86,7 @@ EntityTextFactory::create()
 }
 
 QJsonObject
-EntityTextFactory::toJson(const EntityText &entity)
+EntityTextFactory::toJson(const EntityText& entity)
 {
   auto color = entity.color();
   QJsonObject json;
@@ -94,7 +94,7 @@ EntityTextFactory::toJson(const EntityText &entity)
   json["name"] = entity.name();
   json["kind"] = "text";
   json["size"] = entity.size();
-  json["text_id"] = entity.text_id();
+  json["text_id"] = entity.textId();
   json["color"] = QJsonArray {color.redF(), color.greenF(), color.blueF()};
   if (auto value = entity.width(); !value.isNull()) {
     json["width"] = value.toDouble();
@@ -106,16 +106,16 @@ EntityTextFactory::toJson(const EntityText &entity)
 }
 
 EntityText
-EntityTextFactory::fromJson(const QString &id, const QJsonObject &json)
+EntityTextFactory::fromJson(const QString& id, const QJsonObject& json)
 {
   return JsonValidator(this, &json, id)
     .handle<EntityText>([&](const JsonValidator& check, EntityText& entity) {
-      entity.set_id(id);
-      entity.set_name(check.string("name"));
-      entity.set_color(check.color("color"));
-      entity.set_size(static_cast<int>(check.real("size")));
-      entity.set_text_id(check.string("text_id"));
-      entity.set_width(check.optionalReal("width", {}));
-      entity.set_height(check.optionalReal("height", {}));
+      entity.setId(id);
+      entity.setName(check.string("name"));
+      entity.setColor(check.color("color"));
+      entity.setSize(static_cast<int>(check.real("size")));
+      entity.setTextId(check.string("text_id"));
+      entity.setWidth(check.optionalReal("width", {}));
+      entity.setHeight(check.optionalReal("height", {}));
     });
 }

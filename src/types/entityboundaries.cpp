@@ -10,7 +10,7 @@ EntityBoundaries::min() const
 }
 
 void
-EntityBoundaries::set_min(const QVector3D &value)
+EntityBoundaries::setMin(const QVector3D& value)
 {
   m_min = value;
 }
@@ -22,7 +22,7 @@ EntityBoundaries::max() const
 }
 
 void
-EntityBoundaries::set_max(const QVector3D &value)
+EntityBoundaries::setMax(const QVector3D& value)
 {
   m_max = value;
 }
@@ -53,8 +53,8 @@ EntityBoundariesFactory::fromJson(const QJsonObject &json) const
   JsonValidator check(this, &json);
   EntityBoundaries entity;
   try {
-    entity.set_min(check.vector3d("min"));
-    entity.set_max(check.vector3d("max"));
+    entity.setMin(check.vector3d("min"));
+    entity.setMax(check.vector3d("max"));
   } catch(const std::runtime_error& error) {
     qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
   }

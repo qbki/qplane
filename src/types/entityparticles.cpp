@@ -5,15 +5,15 @@
 #include "entityparticles.h"
 
 QString
-EntityParticles::model_id() const
+EntityParticles::modelId() const
 {
-  return m_model_id;
+  return m_modelId;
 }
 
 void
-EntityParticles::set_model_id(const QString &value)
+EntityParticles::setModelId(const QString& value)
 {
-  m_model_id = value;
+  m_modelId = value;
 }
 
 double
@@ -23,7 +23,7 @@ EntityParticles::lifetime() const
 }
 
 void
-EntityParticles::set_lifetime(double value)
+EntityParticles::setLifetime(double value)
 {
   m_lifetime = value;
 }
@@ -35,7 +35,7 @@ EntityParticles::quantity() const
 }
 
 void
-EntityParticles::set_quantity(int value)
+EntityParticles::setQuantity(int value)
 {
   m_quantity = value;
 }
@@ -52,7 +52,7 @@ EntityParticles::speed() const
 }
 
 void
-EntityParticles::set_speed(double value)
+EntityParticles::setSpeed(double value)
 {
   m_speed = value;
 }
@@ -73,7 +73,7 @@ EntityParticlesFactory::toJson(const EntityParticles &entity)
   QJsonObject json;
   json["kind"] = "particles";
   json["lifetime"] = entity.lifetime();
-  json["model_id"] = entity.model_id();
+  json["model_id"] = entity.modelId();
   json["name"] = entity.name();
   json["quantity"] = entity.quantity();
   json["speed"] = entity.speed();
@@ -85,11 +85,11 @@ EntityParticlesFactory::fromJson(const QString &id, const QJsonObject &json)
 {
   return JsonValidator(this, &json, id)
     .handle<EntityParticles>([&](auto& check, auto& entity) {
-      entity.set_id(id);
-      entity.set_lifetime(check.real("lifetime"));
-      entity.set_model_id(check.string("model_id"));
-      entity.set_name(check.string("name"));
-      entity.set_quantity(static_cast<int>(check.real("quantity")));
-      entity.set_speed(check.real("speed"));
+      entity.setId(id);
+      entity.setName(check.string("name"));
+      entity.setLifetime(check.real("lifetime"));
+      entity.setModelId(check.string("model_id"));
+      entity.setQuantity(static_cast<int>(check.real("quantity")));
+      entity.setSpeed(check.real("speed"));
     });
 }

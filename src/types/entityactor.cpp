@@ -5,44 +5,44 @@
 
 #include "entityactor.h"
 
-QString EntityActor::model_id() const
+QString EntityActor::modelId() const
 {
-  return m_model_id;
+  return m_modelId;
 }
 
-void EntityActor::set_model_id(const QString &value)
+void EntityActor::setModelId(const QString &value)
 {
-  m_model_id = value;
+  m_modelId = value;
 }
 
-QString EntityActor::weapon_id() const
+QString EntityActor::weaponId() const
 {
-  return m_weapon_id;
+  return m_weaponId;
 }
 
-void EntityActor::set_weapon_id(const QString &value)
+void EntityActor::setWeaponId(const QString &value)
 {
-  m_weapon_id = value;
+  m_weaponId = value;
 }
 
-QString EntityActor::hit_particles_id() const
+QString EntityActor::hitParticlesId() const
 {
-  return m_hit_particles_id;
+  return m_hitParticlesId;
 }
 
-void EntityActor::set_hit_particles_id(const QString &value)
+void EntityActor::setHitParticlesId(const QString &value)
 {
-  m_hit_particles_id = value;
+  m_hitParticlesId = value;
 }
 
-QString EntityActor::debris_id() const
+QString EntityActor::debrisId() const
 {
-  return m_debris_id;
+  return m_debrisId;
 }
 
-void EntityActor::set_debris_id(const QString &value)
+void EntityActor::setDebrisId(const QString &value)
 {
-  m_debris_id = value;
+  m_debrisId = value;
 }
 
 EntityPropVelocity EntityActor::speed() const
@@ -50,7 +50,7 @@ EntityPropVelocity EntityActor::speed() const
   return m_speed;
 }
 
-void EntityActor::set_speed(const EntityPropVelocity& value)
+void EntityActor::setSpeed(const EntityPropVelocity& value)
 {
   m_speed = value;
 }
@@ -60,7 +60,7 @@ int EntityActor::lives() const
   return m_lives;
 }
 
-void EntityActor::set_lives(int new_lives)
+void EntityActor::setLives(int new_lives)
 {
   m_lives = new_lives;
 }
@@ -86,16 +86,16 @@ QJsonObject EntityActorFactory::toJson(const EntityActor &entity)
   auto& velocity = getQmlSingleton<EntityPropVelocityFactory>(this);
   json["kind"] = "actor";
   json["lives"] = entity.lives();
-  json["model_id"] = entity.model_id();
+  json["model_id"] = entity.modelId();
   json["name"] = entity.name();
   json["speed"] = velocity.toJson(entity.speed()) ;
-  if (auto value = entity.weapon_id(); !value.isEmpty()) {
+  if (auto value = entity.weaponId(); !value.isEmpty()) {
     json["weapon_id"] = value;
   }
-  if (auto value = entity.debris_id(); !value.isEmpty()) {
+  if (auto value = entity.debrisId(); !value.isEmpty()) {
     json["debris_id"] = value;
   }
-  if (auto value = entity.hit_particles_id(); !value.isEmpty()) {
+  if (auto value = entity.hitParticlesId(); !value.isEmpty()) {
     json["hit_particles_id"] = value;
   }
   return json;
@@ -106,13 +106,13 @@ EntityActor EntityActorFactory::fromJson(const QString &id, const QJsonObject &j
   return JsonValidator(this, &json, id)
     .handle<EntityActor>([&](const auto& check, auto& entity) {
       auto& velocity = getQmlSingleton<EntityPropVelocityFactory>(this);
-      entity.set_id(id);
-      entity.set_name(check.string("name"));
-      entity.set_debris_id(check.optionalString("debris_id", ""));
-      entity.set_weapon_id(check.optionalString("weapon_id", ""));
-      entity.set_hit_particles_id(check.optionalString("hit_particles_id", ""));
-      entity.set_model_id(check.string("model_id"));
-      entity.set_speed(velocity.fromJson(check.obj("speed")));
-      entity.set_lives(static_cast<int>(check.real("lives")));
+      entity.setId(id);
+      entity.setName(check.string("name"));
+      entity.setDebrisId(check.optionalString("debris_id", ""));
+      entity.setWeaponId(check.optionalString("weapon_id", ""));
+      entity.setHitParticlesId(check.optionalString("hit_particles_id", ""));
+      entity.setModelId(check.string("model_id"));
+      entity.setSpeed(velocity.fromJson(check.obj("speed")));
+      entity.setLives(static_cast<int>(check.real("lives")));
     });
 }

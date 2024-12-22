@@ -9,7 +9,7 @@ QVector3D EntityCamera::position() const
   return m_position;
 }
 
-void EntityCamera::set_position(const QVector3D &value)
+void EntityCamera::setPosition(const QVector3D& value)
 {
   m_position = value;
 }
@@ -39,7 +39,7 @@ EntityCameraFactory::fromJson(const QJsonObject &json)
   JsonValidator check(this, &json);
   EntityCamera entity;
   try {
-    entity.set_position(check.vector3d("position"));
+    entity.setPosition(check.vector3d("position"));
   } catch(const std::runtime_error& error) {
     qmlEngine(this)->throwError(QJSValue::TypeError, error.what());
   }

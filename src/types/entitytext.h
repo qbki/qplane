@@ -12,13 +12,13 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityText)
 
-  Q_PROPERTY(QString text_id READ text_id WRITE set_text_id FINAL)
-  Q_PROPERTY(int size READ size WRITE set_size FINAL)
-  Q_PROPERTY(QColor color READ color WRITE set_color FINAL)
-  Q_PROPERTY(QVariant width READ width WRITE set_width FINAL)
-  Q_PROPERTY(QVariant height READ height WRITE set_height FINAL)
+  Q_PROPERTY(QString textId READ textId WRITE setTextId FINAL)
+  Q_PROPERTY(int size READ size WRITE setSize FINAL)
+  Q_PROPERTY(QColor color READ color WRITE setColor FINAL)
+  Q_PROPERTY(QVariant width READ width WRITE setWidth FINAL)
+  Q_PROPERTY(QVariant height READ height WRITE setHeight FINAL)
 
-  QString m_text_id {""};
+  QString m_textId {""};
   int m_size {1};
   QColor m_color {QColor::fromRgbF(0, 0, 0)};
   QVariant m_width {};
@@ -27,20 +27,20 @@ private:
 public:
   EntityText() = default;
 
-  [[nodiscard]] QString text_id() const;
-  void set_text_id(QString value);
+  [[nodiscard]] QString textId() const;
+  void setTextId(const QString& value);
 
   [[nodiscard]] int size() const;
-  void set_size(int newSize);
+  void setSize(int value);
 
   [[nodiscard]] QColor color() const;
-  void set_color(const QColor &value);
+  void setColor(const QColor& value);
 
   [[nodiscard]] QVariant width() const;
-  void set_width(const QVariant &value);
+  void setWidth(const QVariant& value);
 
   [[nodiscard]] QVariant height() const;
-  void set_height(const QVariant &value);
+  void setHeight(const QVariant& value);
 
   [[nodiscard]] Q_INVOKABLE EntityText copy() const;
 };
