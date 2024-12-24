@@ -19,7 +19,6 @@ public:
 
   [[nodiscard]] bool boolean(const QString& key) const;
   [[nodiscard]] double real(const QString& key) const;
-  [[nodiscard]] QVariant optionalReal(const QString &key, const QVariant& defaultValue) const;
   [[nodiscard]] QString string(const QString& key) const;
   [[nodiscard]] QJsonObject obj(const QString& key) const;
   [[nodiscard]] QString optionalString(const QString& key, const QString& defaultValue) const;
@@ -28,8 +27,25 @@ public:
   [[nodiscard]] QColor color(const QString &key) const;
 
   template<typename T>
+  requires std::derived_from<T, QJSValue>
+           || std::derived_from<T, QVariant>
+  T
+  optionalReal(const QString& key, T defaultValue) const
+  {
+    if (!m_json->contains(key)) {
+      return defaultValue;
+    }
+    if (const QJsonValue value = (*m_json)[key]; value.isDouble()) {
+      return value.toDouble();
+    }
+    throw create_error(QString("\"%1\" field must be a double type").arg(key));
+  }
+
+  template<typename T>
   requires std::is_default_constructible_v<T>
-  T handle(const std::function<void(const JsonValidator&, T&)>& fn) {
+  T
+  handle(const std::function<void(const JsonValidator&, T&)>& fn)
+  {
     T entity;
     try {
       fn(*this, entity);

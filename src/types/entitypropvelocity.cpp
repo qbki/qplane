@@ -1,77 +1,88 @@
 #include "src/utils/jsonvalidator.h"
+#include "src/utils/jssetter.h"
 
 #include "entitypropvelocity.h"
 
-QVariant EntityPropVelocity::speed() const
+
+QJSValue
+EntityPropVelocity::speed() const
 {
   return m_speed;
 }
 
-void EntityPropVelocity::setSpeed(const QVariant &value)
+void
+EntityPropVelocity::setSpeed(const QJSValue& value)
 {
-  Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
-             "EntityPropVelocity::set_speed",
-             "value must be null or double type");
-  m_speed = value;
+  m_speed = JSStrictSetter(__func__, value, QJSValue::NullValue)
+    .nullable()
+    .number()
+    .value();
 }
 
-QVariant EntityPropVelocity::acceleration() const
+QJSValue
+EntityPropVelocity::acceleration() const
 {
   return m_acceleration;
 }
 
-void EntityPropVelocity::setAcceleration(const QVariant &value)
+void
+EntityPropVelocity::setAcceleration(const QJSValue& value)
 {
-  Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
-             "EntityPropVelocity::set_acceleration",
-             "value must be null or double type");
-  m_acceleration = value;
+  m_acceleration = JSStrictSetter(__func__, value, QJSValue::NullValue)
+    .nullable()
+    .number()
+    .value();
 }
 
-QVariant EntityPropVelocity::damping() const
+QJSValue
+EntityPropVelocity::damping() const
 {
   return m_damping;
 }
 
-void EntityPropVelocity::setDamping(const QVariant &value)
+void
+EntityPropVelocity::setDamping(const QJSValue& value)
 {
-  Q_ASSERT_X(value.isNull() || (value.typeId() == QVariant(0.0).typeId()),
-             "EntityPropVelocity::set_damping",
-             "value must be null or double type");
-  m_damping = value;
+  m_damping = JSStrictSetter(__func__, value, QJSValue::NullValue)
+    .nullable()
+    .number()
+    .value();
 }
 
-EntityPropVelocityFactory::EntityPropVelocityFactory(QObject *parent)
+EntityPropVelocityFactory::EntityPropVelocityFactory(QObject* parent)
   : QObject(parent)
 {
 }
 
-EntityPropVelocity EntityPropVelocityFactory::create()
+EntityPropVelocity
+EntityPropVelocityFactory::create()
 {
   return {};
 }
 
-QJsonObject EntityPropVelocityFactory::toJson(const EntityPropVelocity &entity)
+QJsonObject
+EntityPropVelocityFactory::toJson(const EntityPropVelocity& entity)
 {
   QJsonObject json;
-  if (entity.speed().toJsonValue().isDouble()) {
-    json["speed"] = entity.speed().toDouble();
+  if (entity.speed().isNumber()) {
+    json["speed"] = entity.speed().toNumber();
   }
-  if (entity.acceleration().toJsonValue().isDouble()) {
-    json["acceleration"] = entity.acceleration().toDouble();
+  if (entity.acceleration().isNumber()) {
+    json["acceleration"] = entity.acceleration().toNumber();
   }
-  if (entity.damping().toJsonValue().isDouble()) {
-    json["damping"] = entity.damping().toDouble();
+  if (entity.damping().isNumber()) {
+    json["damping"] = entity.damping().toNumber();
   }
   return json;
 }
 
-EntityPropVelocity EntityPropVelocityFactory::fromJson(const QJsonObject &json)
+EntityPropVelocity
+EntityPropVelocityFactory::fromJson(const QJsonObject& json)
 {
   return JsonValidator(this, &json, "Velocity property")
     .handle<EntityPropVelocity>([&](auto& check, auto& entity) {
-      entity.setAcceleration(check.optionalReal("acceleration", {}));
-      entity.setSpeed(check.optionalReal("speed", {}));
-      entity.setDamping(check.optionalReal("damping", {}));
+      entity.setAcceleration(check.optionalReal("acceleration", QJSValue {QJSValue::NullValue}));
+      entity.setSpeed(check.optionalReal("speed", QJSValue {QJSValue::NullValue}));
+      entity.setDamping(check.optionalReal("damping", QJSValue {QJSValue::NullValue}));
     });
 }

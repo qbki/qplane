@@ -1,7 +1,7 @@
 #pragma once
 #include <QColor>
+#include <QJSValue>
 #include <QObject>
-#include <QVariant>
 #include <qqmlregistration.h>
 
 #include "entitybase.h"
@@ -15,14 +15,14 @@ private:
   Q_PROPERTY(QString textId READ textId WRITE setTextId FINAL)
   Q_PROPERTY(int size READ size WRITE setSize FINAL)
   Q_PROPERTY(QColor color READ color WRITE setColor FINAL)
-  Q_PROPERTY(QVariant width READ width WRITE setWidth FINAL)
-  Q_PROPERTY(QVariant height READ height WRITE setHeight FINAL)
+  Q_PROPERTY(QJSValue width READ width WRITE setWidth FINAL)
+  Q_PROPERTY(QJSValue height READ height WRITE setHeight FINAL)
 
   QString m_textId {""};
   int m_size {1};
   QColor m_color {QColor::fromRgbF(0, 0, 0)};
-  QVariant m_width {};
-  QVariant m_height {};
+  QJSValue m_width {QJSValue::NullValue};
+  QJSValue m_height {QJSValue::NullValue};
 
 public:
   EntityText() = default;
@@ -36,11 +36,11 @@ public:
   [[nodiscard]] QColor color() const;
   void setColor(const QColor& value);
 
-  [[nodiscard]] QVariant width() const;
-  void setWidth(const QVariant& value);
+  [[nodiscard]] QJSValue width() const;
+  void setWidth(const QJSValue & value);
 
-  [[nodiscard]] QVariant height() const;
-  void setHeight(const QVariant& value);
+  [[nodiscard]] QJSValue height() const;
+  void setHeight(const QJSValue & value);
 
   [[nodiscard]] Q_INVOKABLE EntityText copy() const;
 };

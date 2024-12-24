@@ -166,5 +166,6 @@ qt_add_qml_module(${PROJECT_NAME}
     src/types/positionstrategyvoid.h src/types/positionstrategyvoid.cpp
     src/utils/json.h src/utils/json.cpp
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp
+    src/utils/jssetter.h src/utils/jssetter.cpp
     src/utils/utils.h
 )

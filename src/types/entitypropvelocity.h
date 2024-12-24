@@ -2,7 +2,6 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QQmlEngine>
-#include <QVariant>
 
 class EntityPropVelocity
 {
@@ -10,25 +9,25 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(entityPropVelocity)
 
-  Q_PROPERTY(QVariant speed READ speed WRITE setSpeed FINAL)
-  Q_PROPERTY(QVariant acceleration READ acceleration WRITE setAcceleration FINAL)
-  Q_PROPERTY(QVariant damping READ damping WRITE setDamping FINAL)
+  Q_PROPERTY(QJSValue speed READ speed WRITE setSpeed FINAL)
+  Q_PROPERTY(QJSValue acceleration READ acceleration WRITE setAcceleration FINAL)
+  Q_PROPERTY(QJSValue damping READ damping WRITE setDamping FINAL)
 
-  QVariant m_speed {};
-  QVariant m_acceleration {};
-  QVariant m_damping {};
+  QJSValue m_speed {QJSValue::NullValue};
+  QJSValue m_acceleration {QJSValue::NullValue};
+  QJSValue m_damping {QJSValue::NullValue};
 
 public:
   EntityPropVelocity() = default;
 
-  [[nodiscard]] QVariant speed() const;
-  void setSpeed(const QVariant& value);
+  [[nodiscard]] QJSValue speed() const;
+  void setSpeed(const QJSValue& value);
 
-  [[nodiscard]] QVariant acceleration() const;
-  void setAcceleration(const QVariant& value);
+  [[nodiscard]] QJSValue acceleration() const;
+  void setAcceleration(const QJSValue& value);
 
-  [[nodiscard]] QVariant damping() const;
-  void setDamping(const QVariant& value);
+  [[nodiscard]] QJSValue damping() const;
+  void setDamping(const QJSValue& value);
 };
 
 Q_DECLARE_METATYPE(EntityPropVelocity)

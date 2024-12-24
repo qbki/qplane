@@ -2,6 +2,7 @@
 #include <QJsonObject>
 
 #include "src/utils/jsonvalidator.h"
+#include "src/utils/jssetter.h"
 
 #include "entitytext.h"
 
@@ -26,7 +27,11 @@ EntityText::size() const
 void
 EntityText::setSize(int value)
 {
-  Q_ASSERT_X(value > 0, __func__, "Value should be more than zero");
+  if (value <= 0) {
+    qWarning() << __func__ << ": " << "Value should be more than zero, used 1 instead";
+    m_size = 1;
+    return;
+  }
   m_size = value;
 }
 
@@ -43,29 +48,35 @@ EntityText::setColor(const QColor& value)
   m_color = value;
 }
 
-QVariant
+QJSValue
 EntityText::width() const
 {
   return m_width;
 }
 
 void
-EntityText::setWidth(const QVariant& value)
+EntityText::setWidth(const QJSValue& value)
 {
-  m_width = value;
+  m_width = JSStrictSetter(__func__, value, QJSValue::NullValue)
+    .nullable()
+    .number()
+    .value();
 }
 
 
-QVariant
+QJSValue
 EntityText::height() const
 {
   return m_height;
 }
 
 void
-EntityText::setHeight(const QVariant& value)
+EntityText::setHeight(const QJSValue& value)
 {
-  m_height = value;
+  m_height = JSStrictSetter(__func__, value, QJSValue::NullValue)
+    .nullable()
+    .number()
+    .value();
 }
 
 EntityText
@@ -96,11 +107,11 @@ EntityTextFactory::toJson(const EntityText& entity)
   json["size"] = entity.size();
   json["text_id"] = entity.textId();
   json["color"] = QJsonArray {color.redF(), color.greenF(), color.blueF()};
-  if (auto value = entity.width(); !value.isNull()) {
-    json["width"] = value.toDouble();
+  if (auto value = entity.width(); value.isNumber()) {
+    json["width"] = value.toNumber();
   }
-  if (auto value = entity.height(); !value.isNull()) {
-    json["height"] = value.toDouble();
+  if (auto value = entity.height(); value.isNumber()) {
+    json["height"] = value.toNumber();
   }
   return json;
 }
@@ -115,7 +126,7 @@ EntityTextFactory::fromJson(const QString& id, const QJsonObject& json)
       entity.setColor(check.color("color"));
       entity.setSize(static_cast<int>(check.real("size")));
       entity.setTextId(check.string("text_id"));
-      entity.setWidth(check.optionalReal("width", {}));
-      entity.setHeight(check.optionalReal("height", {}));
+      entity.setWidth(check.optionalReal("width", QJSValue {QJSValue::NullValue}));
+      entity.setHeight(check.optionalReal("height", QJSValue {QJSValue::NullValue}));
     });
 }

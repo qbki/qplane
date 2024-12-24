@@ -117,19 +117,7 @@ double
 JsonValidator::real(const QString& key) const
 {
   must_contain_key(key);
-  return optionalReal(key, 0).toDouble();
-}
-
-QVariant
-JsonValidator::optionalReal(const QString &key, const QVariant& defaultValue) const
-{
-  if (!m_json->contains(key)) {
-    return defaultValue;
-  }
-  if (const QJsonValue value = (*m_json)[key]; value.isDouble()) {
-    return value.toDouble();
-  }
-  throw create_error(QString("\"%1\" field must be a double type").arg(key));
+  return optionalReal<QVariant>(key, 0).toDouble();
 }
 
 void
