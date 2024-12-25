@@ -24,6 +24,7 @@ Node {
     id: model
     source: "#Rectangle"
     scale: Qt.vector3d(inner.scaleFactor, inner.scaleFactor, inner.scaleFactor)
+    pickable: true
     materials: [
       DefaultMaterial {
         diffuseMap: inner.texture

@@ -54,12 +54,20 @@ export function areFloatsEqual(a, b) {
   return Math.abs(a - b) < Number.EPSILON;
 }
 
-export function findParentOf(item, ctor) {
-  if (item instanceof ctor) {
+/**
+ * @param {{ parent?: any }} item A leaf item in a tree
+ * @param {Array<{ new: () => any }> | { new: () => any }} item Constructors
+ * @returns {{ parent?: any } | null} Returns the first item in hierarchy that appears
+ *                                    to be a derivative of any item in the ctors list
+ */
+export function findParentOf(item, ctors) {
+  const ctorsList = Array.isArray(ctors) ? ctors : [ctors];
+  const isDerivative = ctorsList.some((ctor) => item instanceof ctor);
+  if (isDerivative) {
     return item;
   }
   if (item.parent) {
-    return findParentOf(item.parent, ctor);
+    return findParentOf(item.parent, ctors);
   }
   return null;
 }

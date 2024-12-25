@@ -26,7 +26,7 @@ ApplicationWindow {
   function findSceneItem(sceneItemId: string): var {
     const sceneItem = sceneItemsMap[sceneItemId];
     if (!sceneItem) {
-      console.warn(`Can't find Scene Item by id "{${sceneItemId}}"`)
+      console.warn(`Can't find Scene Item by id "${sceneItemId}"`)
     }
     return sceneItem ? sceneItem : null;
   }
@@ -77,8 +77,10 @@ ApplicationWindow {
         return (storedLength < candidateLength) ? acc : v;
       }, null);
     if (closestItem) {
-      const sceneItem = JS.findParentOf(closestItem.objectHit, SceneItem)
-        || JS.findParentOf(closestItem.objectHit, SceneTextItem);
+      const sceneItem = JS.findParentOf(closestItem.objectHit, [SceneItem, SceneTextItem]);
+      if (!sceneItem) {
+        return null;
+      }
       const instances = sceneItem.getInstancesList();
       const sceneItemName = sceneItem.entityId;
       const instance = instances.getInstance(closestItem.instanceIndex);
@@ -470,10 +472,10 @@ ApplicationWindow {
             if (list[0]) {
               const hitResult = list[0];
               const model = hitResult.objectHit;
-              const sceneItem = JS.findParentOf(model, SceneItem);
+              const sceneItem = JS.findParentOf(model, [SceneItem, SceneTextItem]);
               if (sceneItem) {
                 const instance = sceneItem.getInstancesList().getInstance(hitResult.instanceIndex);
-                root.selectedEntityId = sceneItem.name;
+                root.selectedEntityId = sceneItem.entityId;
                 root.selectedInstance = instance;
                 root.ghostModelFactory = sceneItem.getModelFactory();
                 if (event.modifiers & Qt.ControlModifier) {
@@ -635,14 +637,16 @@ ApplicationWindow {
             return;
           }
           const instanceId = root.selectedInstance.id;
-          const sceneItemName = JS.findParentOf(root.selectedInstance, SceneItem).name;
+          const sceneItemEntityId = JS
+            .findParentOf(root.selectedInstance, [SceneItem, SceneTextItem])
+            .entityId;
           const originalPosition = JS.copy3dVector(root.selectedInstance.position);
           const newPosition = JS.copy3dVector(propertiesControl.position);
           if (originalPosition.fuzzyEquals(newPosition)) {
             return;
           }
           const handler = (position) => {
-            const sceneItem = root.findSceneItem(sceneItemName);
+            const sceneItem = root.findSceneItem(sceneItemEntityId);
             const instance = sceneItem?.getInstancesList().getInstanceById(instanceId);
             if (!instance) {
               return;
@@ -671,7 +675,9 @@ ApplicationWindow {
             return;
           }
           const instanceId = root.selectedInstance.id;
-          const sceneItemName = JS.findParentOf(root.selectedInstance, SceneItem).name;
+          const sceneItemName = JS
+            .findParentOf(root.selectedInstance, [SceneItem, SceneTextItem])
+            .entityId;
           const originalBehaviour = root.selectedInstance.behaviour;
           const newBehaviour = propertiesControl.behaviour;
           if (JS.areStrsEqual(originalBehaviour, newBehaviour)) {
