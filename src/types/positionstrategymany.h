@@ -11,6 +11,7 @@ private:
   Q_GADGET
   QML_NAMED_ELEMENT(positionStrategyMany)
   Q_PROPERTY(QString entityId READ entityId WRITE setEntityId)
+  Q_PROPERTY(QString layerId READ layerId WRITE setLayerId)
   Q_PROPERTY(QString behaviour READ behaviour WRITE setBehaviour)
   Q_PROPERTY(QVariantList positions READ positions WRITE setPositions)
 
@@ -18,11 +19,16 @@ private:
   QString m_behaviour {};
   QVariantList m_positions {};
 
+  QString m_layerId;
+
 public:
   PositionStrategyMany() = default;
 
   [[nodiscard]] QString entityId() const;
   void setEntityId(const QString& value);
+
+  [[nodiscard]] QString layerId() const;
+  void setLayerId(const QString& value);
 
   [[nodiscard]] QString behaviour() const;
   void setBehaviour(const QString& value);

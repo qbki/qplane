@@ -14,26 +14,15 @@ ApplicationWindow {
   property vector3d ghostPosition: Qt.vector3d(0, 0, 0)
   property var selectedInstance: null
   property string selectedEntityId: ""
-  property var sceneItemsMap: JS.id({})
 
   function isServiceObject(value) {
     return intersectionPlane === value;
   }
 
-  /**
-   * @returns {SceneItem | null}
-   */
-  function findSceneItem(sceneItemId: string): var {
-    const sceneItem = sceneItemsMap[sceneItemId];
-    if (!sceneItem) {
-      console.warn(`Can't find Scene Item by id "${sceneItemId}"`)
-    }
-    return sceneItem ? sceneItem : null;
-  }
-
   function addInstance(): actionManagerItem {
+    const layerId = layersView.currentLayer();
     const entityId = root.selectedEntityId;
-    const sceneItem = root.findSceneItem(entityId);
+    const sceneItem = sceneLayers.getSceneItem(layerId, entityId);
     const instances = sceneItem?.getInstancesList();
     if (!instances) {
       return null;
@@ -47,14 +36,14 @@ ApplicationWindow {
     }
     const action = ActionManagerItemFactory.create(
       () => {
-        const sceneItem = root.findSceneItem(entityId);
+        const sceneItem = sceneLayers.getSceneItem(layerId, entityId);
         if (sceneItem) {
           const instances = sceneItem.getInstancesList();
           instances.pushInstance(instances.createInstanceEntry(instanceCopy));
         }
       },
       () => {
-        const sceneItem = root.findSceneItem(entityId);
+        const sceneItem = sceneLayers.getSceneItem(layerId, entityId);
         if (sceneItem) {
           const instances = sceneItem.getInstancesList();
           instances.removeInstanceById(instanceCopy.id)
@@ -77,17 +66,20 @@ ApplicationWindow {
         return (storedLength < candidateLength) ? acc : v;
       }, null);
     if (closestItem) {
-      const sceneItem = JS.findParentOf(closestItem.objectHit, [SceneItem, SceneTextItem]);
+      const sceneItem = sceneLayers.getSceneItemOf(closestItem.objectHit);
       if (!sceneItem) {
         return null;
       }
+      const { layerId, entityId } = sceneItem;
+      if (layersView.currentLayer() !== layerId) {
+        return null;
+      }
       const instances = sceneItem.getInstancesList();
-      const sceneItemName = sceneItem.entityId;
       const instance = instances.getInstance(closestItem.instanceIndex);
       const instanceCopy = instances.copyInstance(instance);
       const action = ActionManagerItemFactory.create(
-        () => root.findSceneItem(sceneItemName)?.getInstancesList().removeInstanceById(instanceCopy.id),
-        () => root.findSceneItem(sceneItemName)?.getInstancesList().pushInstance(instanceCopy),
+        () => sceneLayers.getSceneItem(layerId, entityId)?.getInstancesList().removeInstanceById(instanceCopy.id),
+        () => sceneLayers.getSceneItem(layerId, entityId)?.getInstancesList().pushInstance(instanceCopy),
       );
       action.execute();
       return action;
@@ -99,7 +91,7 @@ ApplicationWindow {
     const itemCopy = item.copy();
     const action = ActionManagerItemFactory.create(
       () => store.append(itemCopy.copy()),
-      () => store.remove((value) => JS.areStrsEqual(value.id, itemCopy.id)),
+      () => store.removeById(itemCopy.id),
     );
     action.execute();
     actionManager.push(action);
@@ -107,10 +99,7 @@ ApplicationWindow {
 
   function updateEntity(store, newItem, oldItem) {
     const updater = (current, replacement) => () => {
-      const index = store.findIndex((item) => JS.areStrsEqual(item.id, current.id));
-      if (index.valid) {
-        store.setData(index, replacement.copy(), "display");
-      }
+      store.setById(current.id, replacement.copy());
     };
     const action = ActionManagerItemFactory.create(updater(oldItem, newItem),
                                                    updater(newItem, oldItem));
@@ -121,7 +110,7 @@ ApplicationWindow {
   function removeEntity(store, item) {
     const itemCopy = item.copy();
     const action = ActionManagerItemFactory.create(
-      () => store.remove((value) => JS.areStrsEqual(value.id, itemCopy.id)),
+      () => store.removeById(itemCopy),
       () => store.append(item.copy()),
     );
     action.execute();
@@ -193,6 +182,7 @@ ApplicationWindow {
       for (const strategyName of sceneItem.availableBehaviours) {
         const strategy = PositionStrategyManyFactory.create();
         strategy.entityId = sceneItem.entityId;
+        strategy.layerId = sceneItem.layerId;
         strategy.behaviour = strategyName;
         strategiesMap[strategyName] = strategy;
       }
@@ -232,15 +222,11 @@ ApplicationWindow {
       }
       if (appState.isLevelLoaded) {
         const meta = LevelMetaFactory.toJson(levelSettingsStore.meta);
-        const statics = sceneModelItems.children
-          .map((child) => saveAction.getPositionStrategies(child).map(JS.arity(PositionStrategyManyFactory.toJson)))
-          .reduce((acc, v) => acc.concat(v), []);
-        const actors = sceneActorItems.children
-          .map((child) => saveAction.getPositionStrategies(child).map(JS.arity(PositionStrategyManyFactory.toJson)))
-          .reduce((acc, v) => acc.concat(v), []);
-        const texts = sceneTextItems.children
-          .map((child) => saveAction.getPositionStrategies(child).map(JS.arity(PositionStrategyManyFactory.toJson)))
-          .reduce((acc, v) => acc.concat(v), []);
+        const strategies = sceneLayers
+          .scenes()
+          .map(JS.arity(saveAction.getPositionStrategies))
+          .reduce((acc, array) => [...acc, ...array], [])
+          .map(JS.arity(PositionStrategyManyFactory.toJson));
         const lights = [];
         if (levelSettingsStore.globalLightId) {
           const light = PositionStrategyVoidFactory.create();
@@ -250,7 +236,7 @@ ApplicationWindow {
         }
         FileIO.saveJson(appState.levelPath, {
           meta,
-          map: [...statics, ...actors, ...texts, ...lights],
+          map: [...strategies, ...lights],
         });
       }
     }
@@ -305,33 +291,64 @@ ApplicationWindow {
     onTriggered: actionManager.redo();
   }
 
-  GadgetListModel {
-    id: actorsStore
-  }
+  component GadgetBaseModel: GadgetListModel {
+    id: gadgetBaseModel
+    function getById(searchId: string): var {
+      const idx = gadgetBaseModel.findIndex(({ id }) => JS.areStrsEqual(id, searchId));
+      return gadgetBaseModel.data(idx, "display");
+    }
 
-  GadgetListModel {
-    id: modelsStore
+    function setById(searchId: string, value: var) {
+      const idx = gadgetBaseModel.findIndex(({ id }) => JS.areStrsEqual(id, searchId));
+      if (idx.valid) {
+        gadgetBaseModel.setData(idx, value, "display");
+      } else {
+        gadgetBaseModel.append(value);
+      }
+    }
 
-    function getById(id) {
-      const index = modelsStore.findIndex((v) => JS.areStrsEqual(v.id, id));
-      return modelsStore.data(index, "display");
+    function removeById(searchId: string) {
+      gadgetBaseModel.remove(({ id }) => JS.areStrsEqual(id, searchId));
     }
   }
 
-  GadgetListModel {
+  QmlConsts {
+    id: appConsts
+  }
+
+  GadgetBaseModel {
+    id: actorsStore
+  }
+
+  GadgetBaseModel {
+    id: modelsStore
+  }
+
+  GadgetBaseModel {
     id: weaponsStore
   }
 
-  GadgetListModel {
+  GadgetBaseModel {
     id: particlesStore
   }
 
-  GadgetListModel {
+  GadgetBaseModel {
     id: directionalLightsStore
   }
 
-  GadgetListModel {
-    id:textsStore
+  GadgetBaseModel {
+    id: textsStore
+  }
+
+  GadgetBaseModel {
+    id: layersStore
+
+    function addDefault() {
+      const defaultLayer = LevelLayerFactory.create();
+      defaultLayer.id = appConsts.DEFAULT_SCENE_LAYER_ID;
+      defaultLayer.name = "Default";
+      layersStore.append(defaultLayer);
+    }
   }
 
   ActionManager {
@@ -364,11 +381,10 @@ ApplicationWindow {
     id: levelSettingsStore
 
     onGlobalLightIdChanged: {
-      const idx = directionalLightsStore.findIndex(({ id }) => id === levelSettingsStore.globalLightId);
-      if (!idx.valid) {
+      const light = directionalLightsStore.getById(levelSettingsStore.globalLightId);
+      if (!light) {
         return;
       }
-      const light = directionalLightsStore.data(idx);
       const direction = light.direction;
       globalLight.color = light.color;
       globalLight.rotation = Quaternion.lookAt(Qt.vector3d(0, 0, 0), light.direction, camera.forward, camera.up);
@@ -471,8 +487,7 @@ ApplicationWindow {
             .filter((v) => !root.isServiceObject(v.objectHit));
             if (list[0]) {
               const hitResult = list[0];
-              const model = hitResult.objectHit;
-              const sceneItem = JS.findParentOf(model, [SceneItem, SceneTextItem]);
+              const sceneItem = sceneLayers.getSceneItemOf(hitResult.objectHit);
               if (sceneItem) {
                 const instance = sceneItem.getInstancesList().getInstance(hitResult.instanceIndex);
                 root.selectedEntityId = sceneItem.entityId;
@@ -546,56 +561,13 @@ ApplicationWindow {
           scale: Qt.vector3d(0.01, 0.01, 0.01)
         }
 
-        Repeater3D {
-          id: sceneModelItems
-          model: modelsStore
-
-          SceneItem {
-            required property var model
-
-            id: modelItem
-            entityId: model.display.id
-            defaultBehaviour: "static"
-            availableBehaviours: ["static"]
-            source: model.display.path
-            Component.onCompleted: root.sceneItemsMap[model.display.id] = modelItem
-            Component.onDestruction: delete root.sceneItemsMap[model.display.id]
-          }
-        }
-
-        Repeater3D {
-          id: sceneActorItems
-          model: actorsStore
-
-          SceneItem {
-            required property var model
-
-            id: actorItem
-            entityId: model.display.id
-            defaultBehaviour: "enemy"
-            availableBehaviours: ["enemy", "player"]
-            source: modelsStore.getById(model.display.modelId).path
-            Component.onCompleted: root.sceneItemsMap[model.display.id] = actorItem
-            Component.onDestruction: delete root.sceneItemsMap[model.display.id]
-          }
-        }
-
-        Repeater3D {
-          id: sceneTextItems
-          model: textsStore
-
-          SceneTextItem {
-            required property var model
-
-            id: textItem
-            entityId: model.display.id
-            appState: appState
-            source: model.display
-            defaultBehaviour: "static"
-            availableBehaviours: ["static"]
-            Component.onCompleted: root.sceneItemsMap[model.display.id] = textItem
-            Component.onDestruction: delete root.sceneItemsMap[model.display.id]
-          }
+        SceneLayers {
+          id: sceneLayers
+          actorsStore: actorsStore
+          layersStore: layersStore
+          modelsStore: modelsStore
+          textsStore: textsStore
+          translationPath: appState.translationPath
         }
 
         Model {
@@ -637,16 +609,18 @@ ApplicationWindow {
             return;
           }
           const instanceId = root.selectedInstance.id;
-          const sceneItemEntityId = JS
-            .findParentOf(root.selectedInstance, [SceneItem, SceneTextItem])
-            .entityId;
+          const sceneItem = JS.findParentOf(root.selectedInstance, [SceneItem, SceneTextItem]);
+          if (!sceneItem) {
+            return;
+          }
+          const { layerId, sceneId } = sceneItem;
           const originalPosition = JS.copy3dVector(root.selectedInstance.position);
           const newPosition = JS.copy3dVector(propertiesControl.position);
           if (originalPosition.fuzzyEquals(newPosition)) {
             return;
           }
           const handler = (position) => {
-            const sceneItem = root.findSceneItem(sceneItemEntityId);
+            const sceneItem = sceneLayers.getSceneItem(layerId, sceneId);
             const instance = sceneItem?.getInstancesList().getInstanceById(instanceId);
             if (!instance) {
               return;
@@ -675,16 +649,14 @@ ApplicationWindow {
             return;
           }
           const instanceId = root.selectedInstance.id;
-          const sceneItemName = JS
-            .findParentOf(root.selectedInstance, [SceneItem, SceneTextItem])
-            .entityId;
+          const { layerId, entityId } = sceneLayers.getSceneItemOf(root.selectedInstance);
           const originalBehaviour = root.selectedInstance.behaviour;
           const newBehaviour = propertiesControl.behaviour;
           if (JS.areStrsEqual(originalBehaviour, newBehaviour)) {
             return;
           }
           const handler = (behaviour) => {
-            const sceneItem = root.findSceneItem(sceneItemName);
+            const sceneItem = sceneLayers.getSceneItem(layerId, entityId);
             const instance = sceneItem?.getInstancesList().getInstanceById(instanceId);
             if (!instance) {
               return;
@@ -720,125 +692,150 @@ ApplicationWindow {
       padding: 0
       clip: true
 
-      Flickable {
+      ColumnLayout {
         anchors.fill: parent
-        clip: true
-        contentHeight: rosterRootLayout.implicitHeight
-        ScrollBar.vertical: ScrollBar {}
 
-        ColumnLayout {
-          id: rosterRootLayout
-          anchors.fill: parent
-          spacing: Theme.spacing(1)
-
-          component CrudSignals: Connections {
-            required property GadgetListModel store
-            function onItemAdded(item) {
-              root.appendEntity(store, item);
-            }
-            function onItemUpdated(newItem, oldItem) {
-              root.updateEntity(store, newItem, oldItem);
-            }
-            function onItemRemoved(item) {
-              root.removeEntity(store, item);
-            }
+        component CrudSignals: Connections {
+          required property GadgetListModel store
+          function onItemAdded(item) {
+            root.appendEntity(store, item);
           }
-
-          function setupGhost(item) {
-            const sceneItem = root.sceneItemsMap[item.id];
-            if (sceneItem) {
-              root.ghostModelFactory = sceneItem.getModelFactory();
-            } else {
-              console.error(`Scene item ${item.id} doesn't exist`);
-            }
+          function onItemUpdated(newItem, oldItem) {
+            root.updateEntity(store, newItem, oldItem);
           }
+          function onItemRemoved(item) {
+            root.removeEntity(store, item);
+          }
+        }
 
-          RosterEntityActors {
-            id: rosterActors
-            Layout.fillWidth: true
-            modelsStore: modelsStore
-            actorsStore: actorsStore
-            weaponsStore: weaponsStore
-            particlesStore: particlesStore
-            selectedEntityId: root.selectedEntityId
-            onItemClicked: function(item) {
-              const foundEntityModel = modelsStore.getById(item.modelId);
-              if (foundEntityModel) {
+        Layers {
+          id: layersView
+          Layout.preferredHeight: 200
+          Layout.fillWidth: true
+          layersStore: layersStore
+          onVisibilityChanged: (layer, oldLayer) => {
+            const makeHandler = (model) => () => {
+              layersStore.setById(model.id, model);
+            }
+            const action = ActionManagerItemFactory.create(makeHandler(layer), makeHandler(oldLayer));
+            action.execute();
+            actionManager.push(action);
+          }
+          CrudSignals {
+            target: layersView
+            store: layersStore
+          }
+        }
+
+        Flickable {
+          Layout.fillHeight: true
+          Layout.fillWidth: true
+          clip: true
+          contentHeight: rosterRootLayout.implicitHeight
+          ScrollBar.vertical: ScrollBar {}
+
+          ColumnLayout {
+            id: rosterRootLayout
+            anchors.fill: parent
+            spacing: Theme.spacing(1)
+
+            function setupGhost(item) {
+              const currentLayerId = layersView.currentLayer();
+              const sceneItem = sceneLayers.getSceneItem(currentLayerId, item.id);
+              if (sceneItem) {
+                root.ghostModelFactory = sceneItem.getModelFactory();
+              } else {
+                console.error(`Scene item "${item.id}" doesn't exist`);
+              }
+            }
+
+            RosterEntityActors {
+              id: rosterActors
+              Layout.fillWidth: true
+              modelsStore: modelsStore
+              actorsStore: actorsStore
+              weaponsStore: weaponsStore
+              particlesStore: particlesStore
+              selectedEntityId: root.selectedEntityId
+              onItemClicked: function(item) {
+                const foundEntityModel = modelsStore.getById(item.modelId);
+                if (foundEntityModel) {
+                  root.selectedEntityId = item.id;
+                  rosterRootLayout.setupGhost(item);
+                }
+              }
+              CrudSignals {
+                target: rosterActors
+                store: actorsStore
+              }
+            }
+
+            RosterEntityModels {
+              id: rosterModels
+              Layout.fillWidth: true
+              modelsStore: modelsStore
+              selectedEntityId: root.selectedEntityId
+              appState: appState
+              onItemClicked: function(item) {
                 root.selectedEntityId = item.id;
                 rosterRootLayout.setupGhost(item);
               }
-            }
-            CrudSignals {
-              target: rosterActors
-              store: actorsStore
-            }
-          }
-
-          RosterEntityModels {
-            id: rosterModels
-            Layout.fillWidth: true
-            modelsStore: modelsStore
-            selectedEntityId: root.selectedEntityId
-            appState: appState
-            onItemClicked: function(item) {
-              root.selectedEntityId = item.id;
-              rosterRootLayout.setupGhost(item);
-            }
-            CrudSignals {
-              target: rosterModels
-              store: modelsStore
-            }
-          }
-
-          RosterEntityWeapons {
-            id: rosterWeapons
-            Layout.fillWidth: true
-            appState: appState
-            weaponsStore: weaponsStore
-            modelsStore: modelsStore
-            CrudSignals {
-              target: rosterWeapons
-              store: weaponsStore
-            }
-          }
-
-          RosterEntityParticles {
-            id: rosterParticles
-            Layout.fillWidth: true
-            particlesStore: particlesStore
-            modelsStore: modelsStore
-            CrudSignals {
-              target: rosterParticles
-              store: particlesStore
-            }
-          }
-
-          RosterEntityDirectionalLights {
-            id: rosterDirectionalLights
-            Layout.fillWidth: true
-            directionalLightsStore: directionalLightsStore
-            CrudSignals {
-              target: rosterDirectionalLights
-              store: directionalLightsStore
-            }
-          }
-
-          RosterEntityTexts {
-            id: rosterTexts
-            Layout.fillWidth: true
-            textsStore: textsStore
-            translationPath: appState.translationPath
-            selectedEntityId: root.selectedEntityId
-            onItemClicked: function(item) {
-              const sceneItem = root.findSceneItem(item.id);
-              if (sceneItem) {
-                root.selectedEntityId = item.id;
-                root.ghostModelFactory = sceneItem.getModelFactory();
+              CrudSignals {
+                target: rosterModels
+                store: modelsStore
               }
             }
-            CrudSignals {
-              target: rosterTexts
-              store: textsStore
+
+            RosterEntityWeapons {
+              id: rosterWeapons
+              Layout.fillWidth: true
+              appState: appState
+              weaponsStore: weaponsStore
+              modelsStore: modelsStore
+              CrudSignals {
+                target: rosterWeapons
+                store: weaponsStore
+              }
+            }
+
+            RosterEntityParticles {
+              id: rosterParticles
+              Layout.fillWidth: true
+              particlesStore: particlesStore
+              modelsStore: modelsStore
+              CrudSignals {
+                target: rosterParticles
+                store: particlesStore
+              }
+            }
+
+            RosterEntityDirectionalLights {
+              id: rosterDirectionalLights
+              Layout.fillWidth: true
+              directionalLightsStore: directionalLightsStore
+              CrudSignals {
+                target: rosterDirectionalLights
+                store: directionalLightsStore
+              }
+            }
+
+            RosterEntityTexts {
+              id: rosterTexts
+              Layout.fillWidth: true
+              textsStore: textsStore
+              translationPath: appState.translationPath
+              selectedEntityId: root.selectedEntityId
+              onItemClicked: function(item) {
+                const sceneItem = sceneLayers.getSceneItem(layersView.currentLayer(), item.id);
+                if (sceneItem) {
+                  root.selectedEntityId = item.id;
+                  root.ghostModelFactory = sceneItem.getModelFactory();
+                }
+              }
+              CrudSignals {
+                target: rosterTexts
+                store: textsStore
+              }
             }
           }
         }
@@ -945,28 +942,36 @@ ApplicationWindow {
 
       try {
         const json = FileIO.loadJson(appState.levelPath);
-        levelSettingsStore.meta = LevelMetaFactory.fromJson(json.meta);
+        const meta = LevelMetaFactory.fromJson(json.meta);
+        meta.layers.forEach(JS.arity(layersStore.append));
+        levelSettingsStore.meta = meta;
 
-        const sceneItems = [
-          ...sceneModelItems.children,
-          ...sceneActorItems.children,
-          ...sceneTextItems.children,
-        ].reduce(JS.reduceToObjectByField("entityId"), {});
         for (const strategyJson of json.map) {
           const strategy = ({
             "many": () => {
               const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
-              const sceneItem = sceneItems[strategy.entityId];
+              let sceneItem = sceneLayers.getSceneItem(strategy.layerId, strategy.entityId);
+              if (!sceneItem) {
+                sceneItem = sceneLayers.getSceneItem(appConsts.DEFAULT_SCENE_LAYER_ID, strategy.entityId);
+              }
+              if (!sceneItem) {
+                layersStore.addDefault();
+                sceneItem = sceneLayers.getSceneItem(appConsts.DEFAULT_SCENE_LAYER_ID, strategy.entityId);
+              }
               if (sceneItem) {
                 openLevelDialog.applyPositionStrategy(strategy, sceneItem.getInstancesList());
+              } else {
+                console.warn(`Can't find a render container for "${strategy.entityId}"`);
               }
             },
             "void": () => {
               const strategy = PositionStrategyVoidFactory.fromJson(strategyJson);
               if (JS.areStrsEqual(strategy.behaviour, "light")) {
-                const idx = directionalLightsStore.findIndex((v) => JS.areStrsEqual(v.id, strategy.entityId));
-                if (idx.valid) {
+                const item = directionalLightsStore.getById(strategy.entityId);
+                if (item) {
                   levelSettingsStore.globalLightId = strategy.entityId;
+                } else {
+                  console.warn(`Entity ${strategy.entityId} was not found`);
                 }
               }
             }
@@ -996,9 +1001,7 @@ ApplicationWindow {
         filePath = Qt.resolvedUrl(`${filePath}.level.json`);
       }
       appState.levelPath = filePath;
-      sceneModelItems.children.forEach(function(sceneItem) {
-        sceneItem.getInstancesList().clear();
-      });
+      layersStore.clear();
     }
   }
 }

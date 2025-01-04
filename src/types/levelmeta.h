@@ -1,13 +1,15 @@
 #pragma once
 #include <QJsonObject>
+#include <QList>
 #include <QObject>
 #include <QQmlEngine>
 #include <QString>
-#include <QVector3D>
 #include <QUrl>
+#include <QVector3D>
 
 #include "entityboundaries.h"
 #include "entitycamera.h"
+#include "levellayer.h"
 
 class LevelMeta
 {
@@ -17,9 +19,11 @@ private:
 
   Q_PROPERTY(EntityCamera camera READ camera WRITE setCamera FINAL)
   Q_PROPERTY(EntityBoundaries boundaries READ boundaries WRITE setBoundaries FINAL)
+  Q_PROPERTY(QList<LevelLayer> layers READ layers WRITE setLayers FINAL)
 
   EntityCamera m_camera {};
   EntityBoundaries m_boundaries {};
+  QList<LevelLayer> m_layers;
 
 public:
   LevelMeta() = default;
@@ -29,6 +33,9 @@ public:
 
   [[nodiscard]] EntityBoundaries boundaries() const;
   void setBoundaries(const EntityBoundaries& value);
+
+  [[nodiscard]] QList<LevelLayer> layers() const;
+  void setLayers(const QList<LevelLayer>& newLayers);
 };
 
 Q_DECLARE_METATYPE(LevelMeta)

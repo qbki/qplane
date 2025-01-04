@@ -6,8 +6,9 @@ import app
 
 Node {
   required property string entityId
-  required property AppState appState
+  property alias translationPath: translations.file
   required property entityText source
+  required property string layerId
   required property string defaultBehaviour
   required property list<string> availableBehaviours
 
@@ -31,7 +32,6 @@ Node {
 
   Translations {
     id: translations
-    file: root.appState.isProjectLoaded ? root.appState.translationPath : null
     onMappingChanged: {
       const { textId } = root.source;
       textTexture.text = translations.t(textId);

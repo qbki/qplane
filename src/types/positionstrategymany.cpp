@@ -2,6 +2,7 @@
 #include <QJsonObject>
 #include <QVector3D>
 
+#include "src/consts.h"
 #include "src/utils/jsonvalidator.h"
 
 #include "positionstrategymany.h"
@@ -42,6 +43,18 @@ PositionStrategyMany::setPositions(const QVariantList& value)
   m_positions = value;
 }
 
+QString
+PositionStrategyMany::layerId() const
+{
+  return m_layerId;
+}
+
+void
+PositionStrategyMany::setLayerId(const QString &value)
+{
+  m_layerId = value;
+}
+
 PositionStrategyManyFactory::PositionStrategyManyFactory(QObject *parent)
   : QObject(parent)
 {
@@ -60,6 +73,7 @@ PositionStrategyManyFactory::toJson(const PositionStrategyMany &strategy)
   json["kind"] = "many";
   json["behaviour"] = strategy.behaviour();
   json["entity_id"] = strategy.entityId();
+  json["layer_id"] = strategy.layerId();
   QJsonArray positions;
   for (const auto& variant : strategy.positions()) {
     auto vector = variant.value<QVector3D>();
@@ -74,9 +88,10 @@ PositionStrategyManyFactory::toJson(const PositionStrategyMany &strategy)
 PositionStrategyMany PositionStrategyManyFactory::fromJson(const QJsonObject &json)
 {
   return JsonValidator(this, &json, "'Many' strategy")
-    .handle<PositionStrategyMany>([](auto& check, auto& strategy) {
+    .handle<PositionStrategyMany>([](const JsonValidator& check, PositionStrategyMany& strategy) {
       strategy.setBehaviour(check.string("behaviour"));
       strategy.setEntityId(check.string("entity_id"));
+      strategy.setLayerId(check.optionalString("layer_id", DEFAULT_SCENE_LAYER_ID));
       strategy.setPositions(check.vectors3d("positions"));
     });
 }

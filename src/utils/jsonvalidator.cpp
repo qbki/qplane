@@ -1,4 +1,3 @@
-#include <QJsonArray>
 #include <QVector3D>
 
 #include "jsonvalidator.h"
@@ -21,14 +20,8 @@ JsonValidator::boolean(const QString& key) const
   throw create_error(QString("\"%1\" field must be a boolean type").arg(key));
 }
 
-QString
-JsonValidator::string(const QString& key) const
-{
-  must_contain_key(key);
-  return optionalString(key, "");
-}
-
-QJsonObject JsonValidator::obj(const QString &key) const
+QJsonObject
+JsonValidator::obj(const QString& key) const
 {
   must_contain_key(key);
   if (const QJsonValue value = (*m_json)[key]; value.isObject()) {
@@ -37,7 +30,34 @@ QJsonObject JsonValidator::obj(const QString &key) const
   throw create_error(QString("\"%1\" field must be an object type").arg(key));
 }
 
-QString JsonValidator::optionalString(const QString &key, const QString &defaultValue) const
+QJsonArray
+JsonValidator::array(const QString& key) const
+{
+  must_contain_key(key);
+  return optionalArray(key, {});
+}
+
+QJsonArray
+JsonValidator::optionalArray(const QString& key, const QJsonArray& defaultValue) const
+{
+  if (!m_json->contains(key)) {
+    return defaultValue;
+  }
+  if (const QJsonValue value = (*m_json)[key]; value.isArray()) {
+    return value.toArray();
+  }
+  throw create_error(QString("\"%1\" field must be an array").arg(key));
+}
+
+QString
+JsonValidator::string(const QString& key) const
+{
+  must_contain_key(key);
+  return optionalString(key, "");
+}
+
+QString
+JsonValidator::optionalString(const QString& key, const QString& defaultValue) const
 {
   if (!m_json->contains(key)) {
     return defaultValue;
@@ -49,7 +69,7 @@ QString JsonValidator::optionalString(const QString &key, const QString &default
 }
 
 QVariantList
-JsonValidator::vectors3d(const QString &key) const
+JsonValidator::vectors3d(const QString& key) const
 {
   must_contain_key(key);
   if (const QJsonValue value = (*m_json)[key]; value.isArray()) {
@@ -78,7 +98,7 @@ JsonValidator::vectors3d(const QString &key) const
 }
 
 QVector3D
-JsonValidator::vector3d(const QString &key) const
+JsonValidator::vector3d(const QString& key) const
 {
   must_contain_key(key);
   if (const QJsonValue value = (*m_json)[key]; value.isArray()) {
@@ -103,7 +123,7 @@ JsonValidator::vector3d(const QString &key) const
 }
 
 QColor
-JsonValidator::color(const QString &key) const
+JsonValidator::color(const QString& key) const
 {
   auto vector = vector3d(key);
   return QColor::fromRgbF(

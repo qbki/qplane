@@ -21,6 +21,7 @@ public:
   [[nodiscard]] int findIndex(const QObject& qmlObject, const QJSValue& predicate) const;
   void removeIf(const QObject& qmlObject, const QJSValue& predicate);
   void push(const T& value);
+  void clear();
 
 private:
   std::vector<T> m_data {};
@@ -126,4 +127,11 @@ BaseList<T>::removeIf(const QObject& qmlObject, const QJSValue &predicate)
     return result.toBool();
   };
   m_data.erase(std::remove_if(m_data.begin(), m_data.end(), handler));
+}
+
+template<typename T>
+void
+BaseList<T>::clear()
+{
+  m_data.clear();
 }

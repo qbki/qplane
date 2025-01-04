@@ -1,5 +1,6 @@
 #pragma once
 #include <QColor>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
 #include <QQmlEngine>
@@ -19,12 +20,16 @@ public:
 
   [[nodiscard]] bool boolean(const QString& key) const;
   [[nodiscard]] double real(const QString& key) const;
-  [[nodiscard]] QString string(const QString& key) const;
   [[nodiscard]] QJsonObject obj(const QString& key) const;
-  [[nodiscard]] QString optionalString(const QString& key, const QString& defaultValue) const;
   [[nodiscard]] QVariantList vectors3d(const QString& key) const;
   [[nodiscard]] QVector3D vector3d(const QString &key) const;
   [[nodiscard]] QColor color(const QString &key) const;
+
+  [[nodiscard]] QString string(const QString& key) const;
+  [[nodiscard]] QString optionalString(const QString& key, const QString& defaultValue) const;
+
+  [[nodiscard]] QJsonArray array(const QString& key) const;
+  [[nodiscard]] QJsonArray optionalArray(const QString& key, const QJsonArray& defaultValue) const;
 
   template<typename T>
   requires std::derived_from<T, QJSValue>

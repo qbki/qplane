@@ -59,6 +59,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 include_directories(
   ${CMAKE_SOURCE_DIR}
   # <> Without it Qt can't find classes tagged with QML_ELEMENT or QT_GADGET
+  ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/src/qmlutils
   ${CMAKE_SOURCE_DIR}/src/models
   ${CMAKE_SOURCE_DIR}/src/models/actionmanager
@@ -86,6 +87,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/HeightControl.qml
     src/components/Highlight.qml
     src/components/IconButton.qml
+    src/components/Layers.qml
     src/components/LevelSettings.qml
     src/components/MainMenuItem.qml
     src/components/OpacityHover.qml
@@ -118,6 +120,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/rosters/RosterTitle.qml
     src/components/scene/SceneItem.qml
     src/components/scene/SceneItemsInstanceList.qml
+    src/components/scene/SceneLayers.qml
     src/components/scene/SceneListEntry.qml
     src/components/scene/SceneTextItem.qml
     src/components/windows/EditWindowBase.qml
@@ -127,6 +130,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/windows/EntityParticlesEditWindow.qml
     src/components/windows/EntityTextEditWindow.qml
     src/components/windows/EntityWeaponEditWindow.qml
+    src/components/windows/LayerEditWindow.qml
     src/components/windows/LazyEditWindow.qml
     src/components/windows/LazyWindow.qml
     src/components/windows/LevelSettingsWindow.qml
@@ -150,6 +154,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/transformmodel.h src/models/transformmodel.cpp
     src/models/translations.h src/models/translations.cpp
     src/models/uuidgenerator.h src/models/uuidgenerator.cpp
+    src/qmlconsts.h src/qmlconsts.cpp
     src/types/entityactor.h src/types/entityactor.cpp
     src/types/entitybase.h src/types/entitybase.cpp
     src/types/entityboundaries.h src/types/entityboundaries.cpp
@@ -160,6 +165,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/types/entitypropvelocity.h src/types/entitypropvelocity.cpp
     src/types/entitytext.h src/types/entitytext.cpp
     src/types/entityweapon.h src/types/entityweapon.cpp
+    src/types/levellayer.h src/types/levellayer.cpp
     src/types/levelmeta.h src/types/levelmeta.cpp
     src/types/positionstrategymany.h src/types/positionstrategymany.cpp
     src/types/positionstrategysingle.h src/types/positionstrategysingle.cpp

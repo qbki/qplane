@@ -7,6 +7,7 @@ import app
 Node {
   required property string entityId
   required property string defaultBehaviour
+  required property string layerId
   required property list<string> availableBehaviours
   property alias source: loader.source
 
