@@ -17,6 +17,7 @@ private:
 
 public:
   EntityBoundaries() = default;
+  EntityBoundaries(QVector3D min, QVector3D max);
 
   [[nodiscard]] QVector3D min() const;
   void setMin(const QVector3D& value);

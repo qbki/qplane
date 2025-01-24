@@ -17,6 +17,7 @@ RosterBase {
       soundsDir: root.appState.soundsDir
       projectDir: root.appState.projectDir
       modelsList: root.modelsStore.toArray()
+      weaponsList: root.weaponsStore.toArray()
     }
   }
 

@@ -14,16 +14,18 @@ private:
   Q_PROPERTY(QUrl folder READ folder WRITE setFolder NOTIFY folderChanged FINAL)
   Q_PROPERTY(QUrl rootFolder READ rootFolder WRITE setRootFolder NOTIFY rootFolderChanged FINAL)
   Q_PROPERTY(QVariantList extentions READ extentions WRITE setExtentions NOTIFY extentionsChanged FINAL)
-
-  BaseList<QVariant> m_data {};
-  QUrl m_folder {};
-  QUrl m_rootFolder {};
-  std::vector<QString> m_extentions {};
+  Q_PROPERTY(bool hasEmpty READ hasEmpty WRITE setHasEmpty NOTIFY hasEmptyChanged FINAL)
 
   enum Roles {
     Value = Qt::UserRole + 1,
     Text,
   };
+
+  BaseList<QVariant> m_data {};
+  QUrl m_folder {};
+  QUrl m_rootFolder {};
+  std::vector<QString> m_extentions {};
+  bool m_hasEmpty {false};
 
 public:
   explicit RecursiveDirectoryListModel(QObject* parent = nullptr);
@@ -44,10 +46,14 @@ public:
   [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
   [[nodiscard]] Q_INVOKABLE QModelIndex findIndex(const QJSValue &predicate) const;
 
+  [[nodiscard]] bool hasEmpty() const;
+  void setHasEmpty(bool newHasEmpty);
+
 signals:
   void folderChanged(const QUrl& value);
   void extentionsChanged(const QVariantList& value);
   void rootFolderChanged();
+  void hasEmptyChanged();
 
 private:
   void updateData();

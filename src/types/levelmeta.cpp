@@ -5,6 +5,11 @@
 
 #include "levelmeta.h"
 
+LevelMeta::LevelMeta()
+{
+  m_camera.setPosition({0, 0, DEFAULT_CAMERA_HEIGHT});
+}
+
 EntityCamera LevelMeta::camera() const
 {
   return m_camera;

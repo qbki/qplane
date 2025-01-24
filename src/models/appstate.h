@@ -1,6 +1,8 @@
 #pragma once
+#include <QJSValue>
 #include <QObject>
 #include <QUrl>
+#include <QVariant>
 #include <QtQml/qqmlregistration.h>
 
 class AppState : public QObject
@@ -11,7 +13,7 @@ private:
   Q_PROPERTY(QUrl projectDir READ projectDir WRITE setProjectDir NOTIFY projectDirChanged FINAL)
   Q_PROPERTY(QUrl levelsDir READ levelsDir NOTIFY levelsDirChanged FINAL)
   Q_PROPERTY(QUrl levelsMetaPath READ levelsMetaPath NOTIFY levelsMetaPathChanged FINAL)
-  Q_PROPERTY(QUrl levelPath READ levelPath WRITE setLevelPath NOTIFY levelPathChanged FINAL)
+  Q_PROPERTY(QVariant levelPath READ levelPath WRITE setLevelPath NOTIFY levelPathChanged FINAL)
   Q_PROPERTY(QUrl themePath READ themePath NOTIFY themePathChanged FINAL)
   Q_PROPERTY(QUrl translationPath READ translationPath NOTIFY translationPathChanged FINAL)
   Q_PROPERTY(QUrl modelsDir READ modelsDir NOTIFY modelsDirChanged FINAL)
@@ -21,7 +23,7 @@ private:
   Q_PROPERTY(bool isModelsDirExists READ isModelsDirExists NOTIFY isModelsDirExistsChanged FINAL)
 
   QUrl m_projectDir;
-  QUrl m_levelPath;
+  QVariant m_levelPath {QVariant::fromValue(QJSValue(QJSValue::SpecialValue::NullValue))};
 
 public:
   explicit AppState(QObject* parent = nullptr);
@@ -30,8 +32,8 @@ public:
   void setProjectDir(const QUrl &newProjectDir);
   [[nodiscard]] Q_INVOKABLE QString projectLocalDir() const;
 
-  [[nodiscard]] QUrl levelPath() const;
-  void setLevelPath(const QUrl &newLevelPath);
+  [[nodiscard]] QVariant levelPath() const;
+  void setLevelPath(const QVariant& value);
 
   [[nodiscard]] QUrl levelsMetaPath() const;
   [[nodiscard]] QUrl themePath() const;
@@ -42,7 +44,6 @@ public:
 
   [[nodiscard]] bool isModelsDirExists() const;
   [[nodiscard]] bool isProjectLoaded() const;
-  [[nodiscard]] bool isNewLevel() const;
   [[nodiscard]] bool isLevelLoaded() const;
 
   [[nodiscard]] QUrl translationPath() const;

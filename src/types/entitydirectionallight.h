@@ -15,7 +15,7 @@ private:
   Q_PROPERTY(QVector3D direction READ direction WRITE setDirection FINAL)
 
   QColor m_color = QColor::fromRgbF(1, 1, 1);
-  QVector3D m_direction = QVector3D(0, 0, 0);
+  QVector3D m_direction = QVector3D(0, 0, -1);
 
 public:
   EntityDirectionalLight() = default;

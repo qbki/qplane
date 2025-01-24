@@ -2,9 +2,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "qrc:/jsutils/formValidator.mjs" as FV
+import "./utils.mjs" as WU
 import app
 
 EditWindowBase {
+  property list<entityDirectionalLight> directionalLightsList: []
+
   signal canceled()
   signal accepted(newEntityModel: entityDirectionalLight, initialData: entityDirectionalLight)
 
@@ -22,11 +26,6 @@ EditWindowBase {
     root.show();
   }
 
-  QtObject {
-    id: inner
-    property entityDirectionalLight initialData
-  }
-
   Action {
     id: cancelHandler
     text: qsTr("Cancel")
@@ -40,6 +39,16 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
+      const validator = inner.createValidator();
+      const validationResult = validator.validate({
+        color: colorField.value,
+        direction: directionField.value,
+        name: nameField.value,
+      });
+      if (!validationResult.isValid()) {
+        return;
+      }
+
       const newEntityModel = EntityDirectionalLightFactory.create();
       newEntityModel.id = uuid.generateIfEmpty(inner.initialData.id);
       newEntityModel.name = nameField.value;
@@ -77,5 +86,25 @@ EditWindowBase {
     id: colorField
     label: qsTr("Color")
     Layout.fillWidth: true
+  }
+
+  QtObject {
+    id: inner
+    property entityDirectionalLight initialData
+
+    function createValidator() {
+      const name = WU.createNameValidator(root.directionalLightsList, inner.initialData.name)
+        .on(WU.wrapInputErrors(nameField));
+      const direction = new FV.Vector3DValidator()
+        .notZero()
+        .on(WU.wrapInputErrors(directionField));
+      const color = new FV.ColorValidator()
+        .on(WU.wrapInputErrors(colorField));
+      return new FV.ObjectValidator({
+        color,
+        direction,
+        name,
+      }).on(WU.createRootLogger());
+    }
   }
 }

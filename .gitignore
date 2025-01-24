@@ -6,6 +6,8 @@
 /.cache
 /.env
 
+/node_modules
+
 # Thanks to https://github.com/github/gitignore/blob/main/Qt.gitignore
 # ***** <Qt> *****
 

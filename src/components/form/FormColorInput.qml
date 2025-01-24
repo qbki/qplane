@@ -3,33 +3,38 @@ import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
 
-import "../../jsutils/utils.mjs" as JS
+import "qrc:/jsutils/utils.mjs" as JS
+import app
 
 Item {
   property alias label: label.text
-  property color value
+  property color value: inner.defaultColor
+  property alias errorMessage: errorMessage.text
 
   id: root
-  implicitHeight: label.height + textField.height + layout.spacing
+  implicitHeight: (label.height
+                   + layout.spacing
+                   + textField.height
+                   + errorMessage.getAdaptiveHeight(layout.spacing))
 
   onValueChanged: {
-    let textFieldColor = Qt.color("black");
+    let textFieldColor = inner.defaultColor;
     try {
       textFieldColor = Qt.color(textField.text);
     } catch(err) {
       JS.noop();
     }
-    if (root.value.valid && !Qt.colorEqual(root.value, textFieldColor)) {
+    if (!textField.focus && !Qt.colorEqual(root.value, textFieldColor)) {
       textField.text = root.value.toString();
     }
-    if (root.value.valid && !Qt.colorEqual(root.value, colorDialog.selectedColor)) {
-      colorDialog.selectedColor = root.value;
+    if (!Qt.colorEqual(root.value, colorDialog.selectedColor)) {
+      colorDialog.selectedColor = root.value.valid ? root.value : inner.defaultColor;
     }
   }
 
   Component.onCompleted: {
     if (!textField.text) {
-      textField.text = Qt.color("black");
+      textField.text = root.value;
     }
   }
 
@@ -60,27 +65,49 @@ Item {
               root.value = color;
             }
           } catch(err) {
-            JS.noop();
+            root.value = QmlConsts.INVALID_COLOR;
           }
         }
       }
 
       Rectangle {
-        color: root.value
+        id: rectangle
+        color: root.value.valid ? root.value : inner.defaultColor
         radius: 2
         Layout.fillWidth: true
         Layout.fillHeight: true
 
+        Text {
+          anchors.centerIn: rectangle
+          color: Theme.errorColor
+          text: qsTr("Invalid!")
+          visible: !root.value.valid
+        }
+
         MouseArea {
           anchors.fill: parent
-          onClicked: colorDialog.open()
+          onClicked: {
+            colorDialog.open();
+          }
         }
       }
+    }
+
+    InputErrorMessage {
+      id: errorMessage
     }
   }
 
   ColorDialog {
     id: colorDialog
-    onAccepted: root.value = colorDialog.selectedColor;
+    onAccepted: {
+      textField.text = colorDialog.selectedColor.toString();
+      root.value = colorDialog.selectedColor;
+    }
+  }
+
+  QtObject {
+    id: inner
+    property color defaultColor: Qt.color("#000000")
   }
 }

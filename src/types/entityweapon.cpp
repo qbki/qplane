@@ -105,7 +105,9 @@ EntityWeaponFactory::toJson(const EntityWeapon& entity, const QUrl& projectDir)
   json["fire_rate"] = entity.fireRate();
   json["lifetime"] = entity.lifetime();
   json["name"] = entity.name();
-  json["shot_sound_path"] = dir.relativeFilePath(entity.shotSoundPath().toLocalFile());
+  if (entity.shotSoundPath().isValid()) {
+    json["shot_sound_path"] = dir.relativeFilePath(entity.shotSoundPath().toLocalFile());
+  }
   json["spread"] = entity.spread();
   return json;
 }
@@ -115,14 +117,17 @@ EntityWeaponFactory::fromJson(const QString& id, const QJsonObject& json, const 
 {
   const auto toUrl = [&](const QString& v) { return projectDir.resolved(v); };
   return JsonValidator(this, &json, id)
-    .handle<EntityWeapon>([&](auto& check, auto& entity) {
+    .handle<EntityWeapon>([&](const JsonValidator& check, EntityWeapon& entity) {
       entity.setId(id);
       entity.setName(check.string("name"));
       entity.setFireRate(check.real("fire_rate"));
       entity.setLifetime(check.real("lifetime"));
       entity.setProjectileModelId(check.string("bullet_model_id"));
       entity.setProjectileSpeed(check.real("bullet_speed"));
-      entity.setShotSoundPath(toUrl(check.string("shot_sound_path")));
       entity.setSpread(check.real("spread"));
+
+      auto shot_sound_path_source = check.optionalString("shot_sound_path", "");
+      auto shot_sound_path = shot_sound_path_source == "" ? QUrl() : toUrl(shot_sound_path_source);
+      entity.setShotSoundPath(shot_sound_path);
     });
 }

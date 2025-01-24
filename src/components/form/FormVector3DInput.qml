@@ -2,19 +2,21 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "qrc:/jsutils/utils.mjs" as JS
 import app
-import "../../jsutils/utils.mjs" as JS
 
 Item {
   property alias label: label.text
   property vector3d value: Qt.vector3d(0, 0, 0)
   property bool enabled: true
+  property alias errorMessage: errorMessage.text
 
   id: root
-  height: (label.height +
-           layout.spacing +
-           xField.height * 3 +
-           axisFields.spacing * 2)
+  implicitHeight: (label.height
+                   + layout.spacing
+                   + xField.height * 3
+                   + axisFields.spacing * 2
+                   + errorMessage.getAdaptiveHeight(layout.spacing))
 
   onValueChanged: {
     internal.holdInputsUpdate = true;
@@ -29,44 +31,6 @@ Item {
       zField.value = vector.z;
     }
     internal.holdInputsUpdate = false;
-  }
-
-  QtObject {
-    id: internal
-    property bool holdInputsUpdate: false
-    property real axisLabelWidth: Theme.spacing(1)
-
-    function parseFields(): vector3d {
-      return Qt.vector3d(
-        JS.stringToValidNumber(xField.value),
-        JS.stringToValidNumber(yField.value),
-        JS.stringToValidNumber(zField.value)
-      );
-    }
-
-    function assignWhenNew() {
-      if (internal.holdInputsUpdate) {
-        return;
-      }
-      const newValue = parseFields();
-      if (!root.value.fuzzyEquals(newValue)) {
-        root.value = newValue;
-      }
-    }
-
-    // I try to avoid this kind of numbers: 0.4000000059604645.
-    function vector3dToStrings(value: vector3d): var {
-      const [x, y, z] = (/\((.*)\)/).exec(value)[1].split(", ");
-      return { x, y, z };
-    }
-
-    function handleLoosingFocus(item: TextField, axis: string) {
-      if (item.activeFocus) {
-        return;
-      }
-      const vector = internal.vector3dToStrings(root.value);
-      item.text = vector[axis];
-    }
   }
 
   ColumnLayout {
@@ -131,6 +95,48 @@ Item {
           Layout.preferredWidth: internal.axisLabelWidth
         }
       }
+    }
+
+    InputErrorMessage {
+      id: errorMessage
+    }
+  }
+
+  QtObject {
+    id: internal
+    property bool holdInputsUpdate: false
+    property real axisLabelWidth: Theme.spacing(1)
+
+    function parseFields(): vector3d {
+      return Qt.vector3d(
+        JS.stringToValidNumber(xField.value),
+        JS.stringToValidNumber(yField.value),
+        JS.stringToValidNumber(zField.value)
+      );
+    }
+
+    function assignWhenNew() {
+      if (internal.holdInputsUpdate) {
+        return;
+      }
+      const newValue = parseFields();
+      if (!root.value.fuzzyEquals(newValue)) {
+        root.value = newValue;
+      }
+    }
+
+    // I try to avoid this kind of numbers: 0.4000000059604645.
+    function vector3dToStrings(value: vector3d): var {
+      const [x, y, z] = (/\((.*)\)/).exec(value)[1].split(", ");
+      return { x, y, z };
+    }
+
+    function handleLoosingFocus(item: TextField, axis: string) {
+      if (item.activeFocus) {
+        return;
+      }
+      const vector = internal.vector3dToStrings(root.value);
+      item.text = vector[axis];
     }
   }
 }

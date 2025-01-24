@@ -6,7 +6,7 @@ import Qt.labs.platform as Platform
 import QtQuick3D
 import QtQuick3D.Helpers
 
-import "../jsutils/utils.mjs" as JS
+import "qrc:/jsutils/utils.mjs" as JS
 import app
 
 ApplicationWindow {
@@ -14,6 +14,18 @@ ApplicationWindow {
   property vector3d ghostPosition: Qt.vector3d(0, 0, 0)
   property var selectedInstance: null
   property string selectedEntityId: ""
+
+  id: root
+  visible: true
+  visibility: ApplicationWindow.Maximized
+  menuBar: menuBar
+
+  function reset() {
+    root.ghostModelFactory = null;
+    root.ghostPosition = Qt.vector3d(0, 0, 0);
+    root.selectedInstance = null;
+    root.selectedEntityId = "";
+  }
 
   function isServiceObject(value) {
     return intersectionPlane === value;
@@ -87,40 +99,9 @@ ApplicationWindow {
     return null;
   }
 
-  function appendEntity(store, item) {
-    const itemCopy = item.copy();
-    const action = ActionManagerItemFactory.create(
-      () => store.append(itemCopy.copy()),
-      () => store.removeById(itemCopy.id),
-    );
-    action.execute();
-    actionManager.push(action);
-  }
+  MenuBar {
+    id: menuBar
 
-  function updateEntity(store, newItem, oldItem) {
-    const updater = (current, replacement) => () => {
-      store.setById(current.id, replacement.copy());
-    };
-    const action = ActionManagerItemFactory.create(updater(oldItem, newItem),
-                                                   updater(newItem, oldItem));
-    action.execute();
-    actionManager.push(action);
-  }
-
-  function removeEntity(store, item) {
-    const itemCopy = item.copy();
-    const action = ActionManagerItemFactory.create(
-      () => store.removeById(itemCopy),
-      () => store.append(item.copy()),
-    );
-    action.execute();
-    actionManager.push(action);
-  }
-
-  id: root
-  visible: true
-  visibility: ApplicationWindow.Maximized
-  menuBar: MenuBar {
     Menu {
       title: qsTr("File")
 
@@ -143,7 +124,7 @@ ApplicationWindow {
       MainMenuItem { action: newLevelAction }
       MainMenuItem { action: openLevelAction }
       MainMenuItem { action: openLevelsEditWindowAction }
-      MainMenuItem { action: openEditGlobalLightWindowAction }
+      MainMenuItem { action: openEditSettingsWindowAction }
     }
 
     Menu {
@@ -157,6 +138,7 @@ ApplicationWindow {
   Action {
     id: openAssetsAction
     text: qsTr("Open assets...")
+    enabled: !appState.isProjectLoaded
     shortcut: StandardKey.Open
     onTriggered: openProjectDialog.open()
   }
@@ -267,8 +249,9 @@ ApplicationWindow {
   }
 
   Action {
-    id: openEditGlobalLightWindowAction
+    id: openEditSettingsWindowAction
     text: qsTr("Level settings...")
+    enabled: appState.isLevelLoaded
     onTriggered: {
       const { globalLightId, meta } = levelSettingsStore;
       levelSettingsWindow.open({ globalLightId, meta });
@@ -279,16 +262,16 @@ ApplicationWindow {
     id: undoAction
     text: qsTr("Undo")
     shortcut: StandardKey.Undo
-    enabled: actionManager.canUndo
-    onTriggered: actionManager.undo()
+    enabled: actionManagerInstance.canUndo
+    onTriggered: actionManagerInstance.undo()
   }
 
   Action {
     id: redoAction
     text: qsTr("Redo")
     shortcut: StandardKey.Redo
-    enabled: actionManager.canRedo
-    onTriggered: actionManager.redo();
+    enabled: actionManagerInstance.canRedo
+    onTriggered: actionManagerInstance.redo();
   }
 
   component GadgetBaseModel: GadgetListModel {
@@ -310,10 +293,6 @@ ApplicationWindow {
     function removeById(searchId: string) {
       gadgetBaseModel.remove(({ id }) => JS.areStrsEqual(id, searchId));
     }
-  }
-
-  QmlConsts {
-    id: appConsts
   }
 
   GadgetBaseModel {
@@ -345,14 +324,14 @@ ApplicationWindow {
 
     function addDefault() {
       const defaultLayer = LevelLayerFactory.create();
-      defaultLayer.id = appConsts.DEFAULT_SCENE_LAYER_ID;
+      defaultLayer.id = QmlConsts.DEFAULT_SCENE_LAYER_ID;
       defaultLayer.name = "Default";
       layersStore.append(defaultLayer);
     }
   }
 
   ActionManager {
-    id: actionManager
+    id: actionManagerInstance
 
     function makeCluster(list: list<var>): var {
       const execteListCopy = [...list];
@@ -373,7 +352,7 @@ ApplicationWindow {
 
     function addCluster(list: list<var>) {
       const action = makeCluster(list);
-      actionManager.push(action);
+      actionManagerInstance.push(action);
     }
   }
 
@@ -469,7 +448,7 @@ ApplicationWindow {
             }
           }
           onReleased: function(event) {
-            actionManager.addCluster(bufferOfActions);
+            actionManagerInstance.addCluster(bufferOfActions);
             bufferOfActions = [];
           }
         }
@@ -516,7 +495,7 @@ ApplicationWindow {
             }
             view.shouldRemoveInstances = false
             if (bufferOfRemoveActions.length > 0) {
-              actionManager.addCluster(bufferOfRemoveActions);
+              actionManagerInstance.addCluster(bufferOfRemoveActions);
               bufferOfRemoveActions = [];
             }
             break;
@@ -638,7 +617,7 @@ ApplicationWindow {
             () => handler(originalPosition),
           );
           action.execute();
-          actionManager.push(action);
+          actionManagerInstance.push(action);
         }
         onBehaviourChanged: {
           if (!root.selectedInstance || !propertiesControl.behaviour) {
@@ -674,7 +653,7 @@ ApplicationWindow {
             () => handler(originalBehaviour),
           );
           action.execute();
-          actionManager.push(action);
+          actionManagerInstance.push(action);
         }
         Component.onCompleted: {
           propertiesControl.reset();
@@ -695,20 +674,7 @@ ApplicationWindow {
       ColumnLayout {
         anchors.fill: parent
 
-        component CrudSignals: Connections {
-          required property GadgetListModel store
-          function onItemAdded(item) {
-            root.appendEntity(store, item);
-          }
-          function onItemUpdated(newItem, oldItem) {
-            root.updateEntity(store, newItem, oldItem);
-          }
-          function onItemRemoved(item) {
-            root.removeEntity(store, item);
-          }
-        }
-
-        Layers {
+        RosterLayers {
           id: layersView
           Layout.preferredHeight: 200
           Layout.fillWidth: true
@@ -719,11 +685,13 @@ ApplicationWindow {
             }
             const action = ActionManagerItemFactory.create(makeHandler(layer), makeHandler(oldLayer));
             action.execute();
-            actionManager.push(action);
+            actionManagerInstance.push(action);
           }
+
           CrudSignals {
             target: layersView
             store: layersStore
+            actionManager: actionManagerInstance
           }
         }
 
@@ -764,9 +732,11 @@ ApplicationWindow {
                   rosterRootLayout.setupGhost(item);
                 }
               }
+
               CrudSignals {
                 target: rosterActors
                 store: actorsStore
+                actionManager: actionManagerInstance
               }
             }
 
@@ -780,9 +750,11 @@ ApplicationWindow {
                 root.selectedEntityId = item.id;
                 rosterRootLayout.setupGhost(item);
               }
+
               CrudSignals {
                 target: rosterModels
                 store: modelsStore
+                actionManager: actionManagerInstance
               }
             }
 
@@ -792,9 +764,11 @@ ApplicationWindow {
               appState: appState
               weaponsStore: weaponsStore
               modelsStore: modelsStore
+
               CrudSignals {
                 target: rosterWeapons
                 store: weaponsStore
+                actionManager: actionManagerInstance
               }
             }
 
@@ -803,9 +777,11 @@ ApplicationWindow {
               Layout.fillWidth: true
               particlesStore: particlesStore
               modelsStore: modelsStore
+
               CrudSignals {
                 target: rosterParticles
                 store: particlesStore
+                actionManager: actionManagerInstance
               }
             }
 
@@ -813,9 +789,11 @@ ApplicationWindow {
               id: rosterDirectionalLights
               Layout.fillWidth: true
               directionalLightsStore: directionalLightsStore
+
               CrudSignals {
                 target: rosterDirectionalLights
                 store: directionalLightsStore
+                actionManager: actionManagerInstance
               }
             }
 
@@ -832,9 +810,11 @@ ApplicationWindow {
                   root.ghostModelFactory = sceneItem.getModelFactory();
                 }
               }
+
               CrudSignals {
                 target: rosterTexts
                 store: textsStore
+                actionManager: actionManagerInstance
               }
             }
           }
@@ -868,7 +848,7 @@ ApplicationWindow {
     id: levelSettingsWindow
     window: Component {
       LevelSettingsWindow {
-        lightsModel: directionalLightsStore.toArray().map(({ id }) => id)
+        directionalLightsList: directionalLightsStore.toArray()
         onAccepted: function(value) {
           levelSettingsStore.globalLightId = value.globalLightId;
           levelSettingsStore.meta = value.meta;
@@ -938,8 +918,10 @@ ApplicationWindow {
     }
 
     onAccepted: {
+      root.reset();
+      layersStore.clear();
+      levelSettingsStore.reset();
       appState.levelPath = openLevelDialog.file;
-
       try {
         const json = FileIO.loadJson(appState.levelPath);
         const meta = LevelMetaFactory.fromJson(json.meta);
@@ -952,11 +934,11 @@ ApplicationWindow {
               const strategy = PositionStrategyManyFactory.fromJson(strategyJson);
               let sceneItem = sceneLayers.getSceneItem(strategy.layerId, strategy.entityId);
               if (!sceneItem) {
-                sceneItem = sceneLayers.getSceneItem(appConsts.DEFAULT_SCENE_LAYER_ID, strategy.entityId);
+                sceneItem = sceneLayers.getSceneItem(QmlConsts.DEFAULT_SCENE_LAYER_ID, strategy.entityId);
               }
               if (!sceneItem) {
                 layersStore.addDefault();
-                sceneItem = sceneLayers.getSceneItem(appConsts.DEFAULT_SCENE_LAYER_ID, strategy.entityId);
+                sceneItem = sceneLayers.getSceneItem(QmlConsts.DEFAULT_SCENE_LAYER_ID, strategy.entityId);
               }
               if (sceneItem) {
                 openLevelDialog.applyPositionStrategy(strategy, sceneItem.getInstancesList());
@@ -1001,7 +983,10 @@ ApplicationWindow {
         filePath = Qt.resolvedUrl(`${filePath}.level.json`);
       }
       appState.levelPath = filePath;
+      root.reset();
       layersStore.clear();
+      layersStore.addDefault();
+      levelSettingsStore.reset();
     }
   }
 }

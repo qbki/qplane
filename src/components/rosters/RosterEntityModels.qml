@@ -18,6 +18,7 @@ RosterBase {
     EntityModelEditWindow {
       modelsDir: root.appState.modelsDir
       projectDir: root.appState.projectDir
+      modelsList: root.modelsStore.toArray()
     }
   }
 

@@ -82,6 +82,22 @@ RecursiveDirectoryListModel::setExtentions(const QVariantList &value)
   updateData();
 }
 
+bool
+RecursiveDirectoryListModel::hasEmpty() const
+{
+  return m_hasEmpty;
+}
+
+void
+RecursiveDirectoryListModel::setHasEmpty(bool newHasEmpty)
+{
+  if (m_hasEmpty == newHasEmpty) {
+    return;
+  }
+  m_hasEmpty = newHasEmpty;
+  emit hasEmptyChanged();
+}
+
 void
 RecursiveDirectoryListModel::updateData()
 {
@@ -97,6 +113,9 @@ RecursiveDirectoryListModel::updateData()
   QDirIterator dirIt(m_folder.toLocalFile(), QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
   beginResetModel();
   m_data.getData().clear();
+  if (m_hasEmpty) {
+    m_data.push(QUrl());
+  }
   while (dirIt.hasNext()) {
     auto fileInfo = dirIt.nextFileInfo();
     auto fileName = fileInfo.fileName();

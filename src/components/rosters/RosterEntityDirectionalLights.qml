@@ -11,7 +11,9 @@ RosterBase {
   name: qsTr("Directional Light")
   factory: EntityDirectionalLightFactory
   window: Component {
-    EntityDirectionalLightEditWindow {}
+    EntityDirectionalLightEditWindow {
+      directionalLightsList: root.directionalLightsStore.toArray()
+    }
   }
 
   ColumnLayout {

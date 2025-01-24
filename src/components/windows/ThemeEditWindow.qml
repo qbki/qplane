@@ -54,6 +54,7 @@ EditWindowBase {
     label: qsTr("Path to the font")
     folder: root.projectFolderUrl
     rootFolder: root.projectFolderUrl
+    hasEmpty: false
     extentions: [".ttf"]
   }
 }

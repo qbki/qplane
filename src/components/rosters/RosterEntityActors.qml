@@ -18,6 +18,7 @@ RosterBase {
   factory: EntityActorFactory
   window: Component {
     EntityActorEditWindow {
+      actorsList: root.actorsStore.toArray()
       modelsList: root.modelsStore.toArray()
       weaponsList: root.weaponsStore.toArray()
       particlesList: root.particlesStore.toArray()

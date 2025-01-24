@@ -101,7 +101,8 @@ GadgetListModel::forceRefresh()
   endResetModel();
 }
 
-void GadgetListModel::clear()
+void
+GadgetListModel::clear()
 {
   beginResetModel();
   m_data.clear();
@@ -118,7 +119,8 @@ GadgetListModel::updateWholeModel(const std::vector<QVariant>& new_data)
   endResetModel();
 }
 
-bool GadgetListModel::removeRows(int row, int count, const QModelIndex& parent)
+bool
+GadgetListModel::removeRows(int row, int count, const QModelIndex& parent)
 {
   beginRemoveRows(QModelIndex{}, row, row + count - 1);
   auto& data = m_data.getData();

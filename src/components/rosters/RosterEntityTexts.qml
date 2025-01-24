@@ -17,6 +17,7 @@ RosterBase {
   window: Component {
     EntityTextEditWindow {
       translationPath: root.translationPath
+      textsList: root.textsStore.toArray()
     }
   }
 

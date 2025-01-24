@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
+include(${CMAKE_SOURCE_DIR}/configs/cmake/transpilation.cmake)
 
 set(CMAKE_TOOLCHAIN_FILE
     "${CMAKE_CURRENT_SOURCE_DIR}/tools/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -79,6 +80,9 @@ set_source_files_properties(
   PROPERTIES QT_QML_SINGLETON_TYPE TRUE
 )
 
+add_ts_resource(jsutils src/jsutils/utils.mts)
+add_ts_resource(jsvalidators src/jsutils/formValidator.mts)
+
 qt_add_qml_module(${PROJECT_NAME}
   URI app
   QML_FILES
@@ -87,7 +91,6 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/HeightControl.qml
     src/components/Highlight.qml
     src/components/IconButton.qml
-    src/components/Layers.qml
     src/components/LevelSettings.qml
     src/components/MainMenuItem.qml
     src/components/OpacityHover.qml
@@ -101,13 +104,16 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/form/FormComboBoxInput.qml
     src/components/form/FormFilesComboBoxInput.qml
     src/components/form/FormInfoLabel.qml
-    src/components/form/FormNullableTextInput.qml
+    src/components/form/FormNullableNumberInput.qml
+    src/components/form/FormNumberInput.qml
     src/components/form/FormTextInput.qml
     src/components/form/FormVector3DInput.qml
     src/components/form/FormVelocityInput.qml
+    src/components/form/InputErrorMessage.qml
     src/components/icons/BaseIconShape.qml
     src/components/icons/DownIcon.qml
     src/components/icons/UpIcon.qml
+    src/components/rosters/CrudSignals.qml
     src/components/rosters/RosterBase.qml
     src/components/rosters/RosterContextMenu.qml
     src/components/rosters/RosterEntityActors.qml
@@ -117,6 +123,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/components/rosters/RosterEntityTexts.qml
     src/components/rosters/RosterEntityWeapons.qml
     src/components/rosters/RosterLabel.qml
+    src/components/rosters/RosterLayers.qml
     src/components/rosters/RosterTitle.qml
     src/components/scene/SceneItem.qml
     src/components/scene/SceneItemsInstanceList.qml
@@ -139,7 +146,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/mainwindow/MainWindow.qml
     src/qmlutils/QmlUtils.qml
   QML_FILES
-    src/jsutils/utils.mjs
+    src/components/windows/utils.mjs
   SOURCES
     src/consts.h
     src/models/actionmanager/actionmanager.h src/models/actionmanager/actionmanager.cpp
@@ -174,4 +181,6 @@ qt_add_qml_module(${PROJECT_NAME}
     src/utils/jsonvalidator.h src/utils/jsonvalidator.cpp
     src/utils/jssetter.h src/utils/jssetter.cpp
     src/utils/utils.h
+  DEPENDENCIES
+    QtQuick
 )

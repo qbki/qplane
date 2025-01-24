@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
-import "../../jsutils/utils.mjs" as JS
+import "qrc:/jsutils/utils.mjs" as JS
 
 Item {
   property string value: ""

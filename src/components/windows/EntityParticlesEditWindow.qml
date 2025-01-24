@@ -2,8 +2,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "qrc:/jsutils/formValidator.mjs" as FV
+import "qrc:/jsutils/utils.mjs" as JS
+import "./utils.mjs" as WU
 import app
-import "../../jsutils/utils.mjs" as JS
 
 EditWindowBase {
   property alias modelsList: modelIdField.model
@@ -27,11 +29,6 @@ EditWindowBase {
     root.show();
   }
 
-  QtObject {
-    id: inner
-    property entityParticles initialData
-  }
-
   Action {
     id: cancelHandler
     text: qsTr("Cancel")
@@ -45,6 +42,18 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
+      const validator = inner.createValidator();
+      const validationResult = validator.validate({
+        lifetime: lifetimeField.value,
+        model: modelIdField.value,
+        name: nameField.value,
+        quantity: quantityField.value,
+        speed: speedField.value,
+      });
+      if (!validationResult.isValid()) {
+        return;
+      }
+
       const newEntity = EntityParticlesFactory.create();
       newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
       newEntity.name = nameField.value;
@@ -74,19 +83,19 @@ EditWindowBase {
     Layout.fillWidth: true
   }
 
-  FormTextInput {
+  FormNumberInput {
     id: lifetimeField
     label: qsTr("Lifetime (seconds)")
     Layout.fillWidth: true
   }
 
-  FormTextInput {
+  FormNumberInput {
     id: speedField
     label: qsTr("Speed (units per second)")
     Layout.fillWidth: true
   }
 
-  FormTextInput {
+  FormNumberInput {
     id: quantityField
     label: qsTr("Quantity")
     Layout.fillWidth: true
@@ -99,5 +108,33 @@ EditWindowBase {
     textRole: "name"
     model: root.modelsList
     Layout.fillWidth: true
+  }
+
+  QtObject {
+    id: inner
+    property entityParticles initialData
+
+    function createValidator() {
+      const name = WU.createNameValidator(root.modelsList, inner.initialData.name)
+        .on(WU.wrapInputErrors(nameField));
+
+      const modelEmptyMessage = qsTr("Can't be empty");
+      const model = new FV.StringValidator({ message: modelEmptyMessage })
+        .notEmpty({ message: modelEmptyMessage })
+        .on(WU.wrapInputErrors(modelIdField));
+
+      const createNumValidator = (min) => new FV.NumberValidator().min(0).finite();
+      const lifetime = createNumValidator().on(WU.wrapInputErrors(lifetimeField));
+      const speed = createNumValidator().on(WU.wrapInputErrors(speedField));
+      const quantity = createNumValidator().on(WU.wrapInputErrors(quantityField));
+
+      return new FV.ObjectValidator({
+        lifetime,
+        model,
+        name,
+        quantity,
+        speed,
+      }).on(WU.createRootLogger());
+    }
   }
 }

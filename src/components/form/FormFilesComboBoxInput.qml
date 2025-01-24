@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import "../../jsutils/utils.mjs" as JS
+import "qrc:/jsutils/utils.mjs" as JS
 import app
 
 Item {
@@ -10,31 +10,28 @@ Item {
   property alias rootFolder: folderModel.rootFolder;
   property alias label: label.text
   property alias extentions: folderModel.extentions;
+  property alias errorMessage: errorMessage.text
+  property alias hasEmpty: folderModel.hasEmpty
   property url value;
 
   id: root
-  height: label.height + comboBox.height
+  height: (label.height
+           + layout.spacing
+           + comboBox.height
+           + errorMessage.getAdaptiveHeight(layout.spacing))
 
   onValueChanged: {
     inner.selectCurrentValue();
   }
 
-  QtObject {
-    id: inner
-
-    function selectCurrentValue() {
-      const predicate = (value) => JS.areStrsEqual(value.toString(), root.value.toString());
-      const index = folderModel.findIndex(predicate);
-      comboBox.currentIndex = index.valid ? index.row : -1;
-    }
-  }
-
   RecursiveDirectoryListModel {
     id: folderModel
     onModelReset: inner.selectCurrentValue()
+    hasEmpty: true
   }
 
   ColumnLayout {
+    id: layout
     anchors.fill: parent
 
     Label {
@@ -59,6 +56,20 @@ Item {
           root.value = comboBox.currentValue;
         }
       }
+    }
+
+    InputErrorMessage {
+      id: errorMessage
+    }
+  }
+
+  QtObject {
+    id: inner
+
+    function selectCurrentValue() {
+      const predicate = (value) => JS.areStrsEqual(value.toString(), root.value.toString());
+      const index = folderModel.findIndex(predicate);
+      comboBox.currentIndex = index.valid ? index.row : -1;
     }
   }
 }

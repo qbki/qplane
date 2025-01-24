@@ -15,11 +15,13 @@ RosterBase {
   name: qsTr("Layers")
   factory: LevelLayerFactory
   window: Component {
-    LayerEditWindow {}
+    LayerEditWindow {
+      layersList: root.layersStore.toArray()
+    }
   }
 
   function currentLayer(): string {
-    return view.currentItem.model.display.id;
+    return view.currentItem?.model.display.id || "";
   }
 
   ListView {

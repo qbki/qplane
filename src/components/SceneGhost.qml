@@ -5,9 +5,7 @@ import app
 
 Node {
   property string name
-  /**
-   * {null | () => QtQuick3D.Node}
-   */
+  /** @property {null | (() => QtQuick3D.Node)} */
   property var factory: null
   property vector3d position: Qt.vector3d(0, 0, 0)
 
@@ -16,7 +14,7 @@ Node {
 
   onFactoryChanged: {
     root.children = [];
-    root.factory?.(root);
+    root?.factory(root);
   }
 
   onPositionChanged: {

@@ -2,8 +2,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick3D
 
+import "qrc:/jsutils/utils.mjs" as JS
 import app
-import "../jsutils/utils.mjs" as JS
 
 Node {
   required property entityText entity
@@ -39,16 +39,18 @@ Node {
     property var texture: null
     property real scaleFactor: 0.01
 
-    property var textFactory: QmlUtils.createComponent("QtQuick", "Text")
-    property var textureFactory: QmlUtils.createComponent("QtQuick3D", "Texture")
+    property var factories: JS.id({
+      text: QmlUtils.createComponent("QtQuick", "Text"),
+      texture: QmlUtils.createComponent("QtQuick3D", "Texture"),
+    })
 
     function createInstance(): Texture {
-      const textInstance = inner.textFactory(null, {
+      const textInstance = inner.factories.text(null, {
         text: root.text,
         color: root.entity.color,
         font: { pointSize: root.entity.size },
       });
-      const textureInstance = inner.textureFactory(null, { sourceItem: textInstance });
+      const textureInstance = inner.factories.texture(null, { sourceItem: textInstance });
       return textureInstance;
     }
 

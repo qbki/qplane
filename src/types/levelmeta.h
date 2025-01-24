@@ -16,17 +16,22 @@ class LevelMeta
 private:
   Q_GADGET
   QML_NAMED_ELEMENT(levelMeta)
-
   Q_PROPERTY(EntityCamera camera READ camera WRITE setCamera FINAL)
   Q_PROPERTY(EntityBoundaries boundaries READ boundaries WRITE setBoundaries FINAL)
   Q_PROPERTY(QList<LevelLayer> layers READ layers WRITE setLayers FINAL)
 
+  constexpr static float DEFAULT_BOUNDARY_OFFSET = 100;
+  constexpr static float DEFAULT_CAMERA_HEIGHT = 30;
+
   EntityCamera m_camera {};
-  EntityBoundaries m_boundaries {};
+  EntityBoundaries m_boundaries {
+    { -DEFAULT_BOUNDARY_OFFSET, -DEFAULT_BOUNDARY_OFFSET, -DEFAULT_BOUNDARY_OFFSET },
+    {  DEFAULT_BOUNDARY_OFFSET,  DEFAULT_BOUNDARY_OFFSET,  DEFAULT_BOUNDARY_OFFSET }
+  };
   QList<LevelLayer> m_layers;
 
 public:
-  LevelMeta() = default;
+  LevelMeta();
 
   [[nodiscard]] EntityCamera camera() const;
   void setCamera(const EntityCamera& value);

@@ -2,11 +2,14 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "qrc:/jsutils/formValidator.mjs" as FV
+import "./utils.mjs" as WU
 import app
 
 EditWindowBase {
   required property url modelsDir
   required property url projectDir
+  required property list<entityModel> modelsList
 
   signal canceled()
   signal accepted(newEntityModel: entityModel, initialData: entityModel)
@@ -25,11 +28,6 @@ EditWindowBase {
     root.show();
   }
 
-  QtObject {
-    id: inner
-    property entityModel initialData
-  }
-
   Action {
     id: cancelHandler
     text: qsTr("Cancel")
@@ -43,6 +41,16 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
+      const validator = inner.createValidator();
+      const validationResult = validator.validate({
+        name: nameField.value,
+        path: pathField.value.toString(),
+      });
+
+      if (!validationResult.isValid()) {
+        return;
+      }
+
       const newEntity = EntityModelFactory.create();
       newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
       newEntity.name = nameField.value;
@@ -87,5 +95,20 @@ EditWindowBase {
   FormCheckBoxInput {
     id: isOpaqueField
     label: qsTr("Is a model opaque?")
+  }
+
+  QtObject {
+    id: inner
+    property entityModel initialData
+
+    function createValidator() {
+      const name = WU.createNameValidator(root.modelsList, inner.initialData.name)
+        .on(WU.wrapInputErrors(nameField));
+      const path = new FV.StringValidator()
+        .notEmpty({ message: qsTr("The value should't be empty") })
+        .on(WU.wrapInputErrors(pathField));
+      return new FV.ObjectValidator({ name, path })
+        .on(WU.createRootLogger());
+    }
   }
 }

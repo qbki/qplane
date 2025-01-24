@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick3D
 
-import "../../jsutils/utils.mjs" as JS
+import "qrc:/jsutils/utils.mjs" as JS
 import app
 
 Node {

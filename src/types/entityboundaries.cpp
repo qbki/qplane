@@ -3,6 +3,12 @@
 
 #include "entityboundaries.h"
 
+EntityBoundaries::EntityBoundaries(QVector3D min, QVector3D max)
+  : m_min(min)
+  , m_max(max)
+{
+}
+
 QVector3D
 EntityBoundaries::min() const
 {

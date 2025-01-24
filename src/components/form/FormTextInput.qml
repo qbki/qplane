@@ -6,8 +6,12 @@ Item {
   id: root
   property alias label: label.text
   property alias value: textField.text
+  property alias errorMessage: errorMessage.text
 
-  height: label.height + layout.spacing + textField.height
+  implicitHeight: {
+    const errorHeight = errorMessage.getAdaptiveHeight(layout.spacing);
+    return label.height + layout.spacing + textField.height + errorHeight;
+  }
 
   ColumnLayout {
     id: layout
@@ -26,6 +30,11 @@ Item {
     TextField {
       id: textField
       Layout.fillWidth: true
+    }
+
+    InputErrorMessage {
+      id: errorMessage
+      visible: Boolean(errorMessage.text)
     }
   }
 }

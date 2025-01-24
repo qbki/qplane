@@ -1,11 +1,11 @@
 pragma Singleton
-import QtQuick 2.15
+import QtQuick
 
 QtObject {
   /**
    * @param {string} module A module name ("QtQuick", etc)
    * @param {string} name A component name ("Text", etc)
-   * @returns {(parent: null | QObject, props: object) => (T | null)} Returns a component's instance factory function
+   * @returns {((parent: null | QObject, props: object) => (T | null)) | never} Returns a component's instance factory function
    */
   function createComponent(module: string, name: string): var {
     const component = Qt.createComponent(module, name);

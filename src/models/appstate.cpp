@@ -1,4 +1,7 @@
 #include <QDir>
+#include <QJSValue>
+#include <QUrl>
+#include <QtLogging>
 
 #include "src/consts.h"
 
@@ -66,32 +69,35 @@ AppState::isProjectLoaded() const
   return !m_projectDir.isEmpty();
 }
 
-bool
-AppState::isNewLevel() const
-{
-  return !m_levelPath.isEmpty();
-}
-
-QUrl
+QVariant
 AppState::levelPath() const
 {
   return m_levelPath;
 }
 
 void
-AppState::setLevelPath(const QUrl &newLevelPath)
+AppState::setLevelPath(const QVariant& value)
 {
-  if (m_levelPath == newLevelPath) {
+  if (m_levelPath == value) {
     return;
   }
-  m_levelPath = newLevelPath;
+  bool isJsNull = (value.typeId() == QMetaType::QJsonValue) && value.value<QJSValue>().isNull();
+  bool isUrl = value.typeId() == QMetaType::QUrl;
+  bool isValidValue = isJsNull || isUrl;
+  if (isValidValue) {
+    m_levelPath = value;
+  } else {
+    qWarning() << "Type error: a level path should be null or url. Used null instead.";
+    m_levelPath = QVariant::fromValue(QJSValue(QJSValue::SpecialValue::NullValue));
+  }
   emit levelPathChanged();
+  emit isLevelLoadedChanged();
 }
 
 bool
 AppState::isLevelLoaded() const
 {
-  return !m_levelPath.isEmpty();
+  return m_levelPath.typeId() == QMetaType::QUrl;
 }
 
 QUrl

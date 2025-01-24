@@ -6,7 +6,14 @@ QmlConsts::QmlConsts(QObject* parent)
 {
 }
 
-QString QmlConsts::defaultSceneLayerId() const
+QString
+QmlConsts::defaultSceneLayerId() const
 {
   return DEFAULT_SCENE_LAYER_ID;
+}
+
+QColor
+QmlConsts::invalidColor() const
+{
+  return INVALID_COLOR;
 }

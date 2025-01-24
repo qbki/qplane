@@ -3,10 +3,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import "qrc:/jsutils/utils.mjs" as JS
+import "qrc:/jsutils/formValidator.mjs" as FV
+import "./utils.mjs" as WU
 import app
-import "../../jsutils/utils.mjs" as JS
 
 EditWindowBase {
+  required property list<entityActor> actorsList
   required property list<entityModel> modelsList
   required property list<entityWeapon> weaponsList
   required property list<entityParticles> particlesList
@@ -23,23 +26,15 @@ EditWindowBase {
     idField.value = initialData.id;
     nameField.value = initialData.name;
     modelIdField.value = initialData.modelId;
-    speedField.acceleration = initialData.speed.acceleration;
-    speedField.damping = initialData.speed.damping;
-    speedField.speed = initialData.speed.speed;
+    velocityFields.acceleration = initialData.speed.acceleration;
+    velocityFields.damping = initialData.speed.damping;
+    velocityFields.speed = initialData.speed.speed;
     livesField.value = initialData.lives;
     hitParticlesIdField.value = initialData.hitParticlesId;
     debrisModelIdField.value = initialData.debrisId;
     weaponIdField.value = initialData.weaponId;
     inner.initialData = initialData;
     root.show();
-  }
-
-  QtObject {
-    id: inner
-    property entityActor initialData
-    property list<entityModel> emptyableModelsList: [EntityModelFactory.create()].concat(root.modelsList)
-    property list<entityWeapon> emptyableWeaponsList: [EntityWeaponFactory.create()].concat(root.weaponsList)
-    property list<entityParticles> emptyableParticlesList: [EntityParticlesFactory.create()].concat(root.particlesList)
   }
 
   Action {
@@ -55,10 +50,21 @@ EditWindowBase {
     id: acceptHandler
     text: qsTr("Ok")
     onTriggered: {
+      const validator = inner.createValidator();
+      const validationResult = validator.validate({
+        lives: livesField.value,
+        model: modelIdField.value,
+        name: nameField.value,
+        speed: velocityFields.getValues(),
+      });
+      if (!validationResult.isValid()) {
+        return;
+      }
+
       const speed = EntityPropVelocityFactory.create();
-      speed.acceleration = speedField.acceleration;
-      speed.damping = speedField.damping;
-      speed.speed = speedField.speed;
+      speed.acceleration = velocityFields.acceleration;
+      speed.damping = velocityFields.damping;
+      speed.speed = velocityFields.speed;
 
       const newEntity = EntityActorFactory.create();
       newEntity.id = uuid.generateIfEmpty(inner.initialData.id);
@@ -93,14 +99,14 @@ EditWindowBase {
   }
 
   FormVelocityInput {
-    id: speedField
+    id: velocityFields
     Layout.fillWidth: true
     acceleration: null
     damping: null
     speed: null
   }
 
-  FormTextInput {
+  FormNumberInput {
     id: livesField
     label: qsTr("Lives")
     Layout.fillWidth: true
@@ -140,5 +146,36 @@ EditWindowBase {
     textRole: "name"
     model: inner.emptyableModelsList
     Layout.fillWidth: true
+  }
+
+  QtObject {
+    id: inner
+    property entityActor initialData
+    property list<entityModel> emptyableModelsList: [EntityModelFactory.create()].concat(root.modelsList)
+    property list<entityWeapon> emptyableWeaponsList: [EntityWeaponFactory.create()].concat(root.weaponsList)
+    property list<entityParticles> emptyableParticlesList: [EntityParticlesFactory.create()].concat(root.particlesList)
+
+    function createValidator() {
+      const modelEmptyMessage = qsTr("Can't be empty");
+      const model = new FV.StringValidator({ message: modelEmptyMessage })
+        .notEmpty({ message: modelEmptyMessage })
+        .on(WU.wrapInputErrors(modelIdField));
+
+      const name = WU.createNameValidator(root.actorsList, inner.initialData.name)
+        .on(WU.wrapInputErrors(nameField));
+
+      const lives = new FV.NumberValidator()
+        .min(1)
+        .finite()
+        .integer()
+        .on(WU.wrapInputErrors(livesField));
+
+      return new FV.ObjectValidator({
+        lives,
+        model,
+        name,
+        speed: velocityFields.getValidator(),
+      }).on(WU.createRootLogger());
+    }
   }
 }

@@ -8,9 +8,13 @@ Item {
   property alias textRole: comboBox.textRole
   property alias valueRole: comboBox.valueRole
   property var value;
+  property alias errorMessage: errorMessage.text
 
   id: root
-  height: label.height + layout.spacing + comboBox.height
+  implicitHeight: (label.height
+                   + layout.spacing
+                   + comboBox.height
+                   + errorMessage.getAdaptiveHeight(layout.spacing))
 
   onValueChanged: {
     comboBox.currentIndex = comboBox.indexOfValue(root.value);
@@ -38,6 +42,10 @@ Item {
           root.value = comboBox.currentValue;
         }
       }
+    }
+
+    InputErrorMessage {
+      id: errorMessage
     }
   }
 }
