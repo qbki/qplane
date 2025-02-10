@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "transformmodel.h"
 
 TransformModel::TransformModel(QObject *parent)
@@ -7,7 +5,8 @@ TransformModel::TransformModel(QObject *parent)
 {
 }
 
-QVariant TransformModel::data(const QModelIndex &index, int role) const
+QVariant
+TransformModel::data(const QModelIndex &index, int role) const
 {
   const auto value = QIdentityProxyModel::data(index, role);
   if (m_map.isCallable()) {
@@ -25,34 +24,38 @@ QVariant TransformModel::data(const QModelIndex &index, int role) const
   return value;
 }
 
-QJSValue TransformModel::map() const
+QJSValue
+TransformModel::map() const
 {
   return m_map;
 }
 
-void TransformModel::setMap(const QJSValue &newMap)
+void
+TransformModel::setMap(const QJSValue& value)
 {
-  if (m_map.equals(newMap)) {
+  if (m_map.equals(value)) {
     return;
   }
-  if (!newMap.isCallable()) {
+  if (!value.isCallable()) {
     qmlEngine(this)->throwError(QString("Field map is not a function"));
     return;
   }
-  m_map = newMap;
+  m_map = value;
   emit mapChanged();
 }
 
-QString TransformModel::role() const
+QString
+TransformModel::role() const
 {
   return m_role;
 }
 
-void TransformModel::setRole(const QString &newRole)
+void
+TransformModel::setRole(const QString& value)
 {
-  if (m_role == newRole) {
+  if (m_role == value) {
     return;
   }
-  m_role = newRole;
+  m_role = value;
   emit roleChanged();
 }

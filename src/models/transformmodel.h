@@ -18,10 +18,10 @@ public:
 
   [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
   [[nodiscard]] QJSValue map() const;
-  void setMap(const QJSValue &newMap);
+  void setMap(const QJSValue &value);
 
   [[nodiscard]] QString role() const;
-  void setRole(const QString &newRole);
+  void setRole(const QString &value);
 
 signals:
   void mapChanged();
