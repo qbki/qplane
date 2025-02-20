@@ -17,7 +17,7 @@ RecursiveDirectoryListModel::rowCount(const QModelIndex& parent) const
 QVariant
 RecursiveDirectoryListModel::data(const QModelIndex& index, int role) const
 {
-  auto value = m_data.data(index, role);
+  auto value = m_data.data(index);
   if (role == Roles::Text && value.isValid()) {
     QDir dir {m_rootFolder.toLocalFile()};
     return dir.relativeFilePath(value.toUrl().toLocalFile());
@@ -135,8 +135,8 @@ QHash<int, QByteArray>
 RecursiveDirectoryListModel::roleNames() const
 {
   static QHash<int, QByteArray> result {
-    { Roles::Value, "value", },
-    { Roles::Text, "text", },
+    { Roles::Value, "value" },
+    { Roles::Text, "text" },
   };
   return result;
 }

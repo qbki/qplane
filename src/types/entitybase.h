@@ -4,7 +4,6 @@
 
 /**
  * Contains fields that should have all entities.
- * This class should NOT be instantiated directly.
  */
 class EntityBase
 {
@@ -19,10 +18,12 @@ private:
 public:
   EntityBase() = default;
   EntityBase(const EntityBase&) = default;
-  EntityBase(EntityBase&&) = delete;
+  EntityBase(EntityBase&&) = default;
   EntityBase& operator=(const EntityBase&) = default;
-  EntityBase& operator=(EntityBase&&) = delete;
+  EntityBase& operator=(EntityBase&&) = default;
   virtual ~EntityBase() = default;
+
+  virtual operator QString() const;
 
   [[nodiscard]] QString id() const;
   void setId(const QString& value);
@@ -30,3 +31,5 @@ public:
   [[nodiscard]] QString name() const;
   void setName(const QString& value);
 };
+
+Q_DECLARE_METATYPE(EntityBase)

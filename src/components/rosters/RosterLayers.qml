@@ -21,7 +21,7 @@ RosterBase {
   }
 
   function currentLayer(): string {
-    return view.currentItem?.model.display.id || "";
+    return view.currentItem?.model.data.id || "";
   }
 
   ListView {
@@ -47,12 +47,12 @@ RosterBase {
 
       Label {
         Layout.preferredWidth: 20
-        text: itemLayout.model.display.isVisible ? "◉" : "◎"
+        text: itemLayout.model.data.isVisible ? "◉" : "◎"
 
         MouseArea {
           anchors.fill: parent
           onClicked: {
-            const origLayer = itemLayout.model.display.copy();
+            const origLayer = itemLayout.model.data.copy();
             const layer = origLayer.copy();
             layer.isVisible = !layer.isVisible;
             root.visibilityChanged(layer, origLayer);

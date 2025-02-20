@@ -8,14 +8,8 @@ class BaseList
 {
 public:
   [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const;
-
-  [[nodiscard]] QVariant data(const QModelIndex& index,
-                int role = Qt::DisplayRole) const;
-
-  bool setData(const QModelIndex& index,
-               const QVariant& value,
-               int role = Qt::EditRole);
-
+  [[nodiscard]] QVariant data(const QModelIndex& index) const;
+  bool setData(const QModelIndex& index, const QVariant& value);
   std::vector<T>& getData();
   const std::vector<T>& getData() const;
   [[nodiscard]] int findIndex(const QObject& qmlObject, const QJSValue& predicate) const;
@@ -39,7 +33,7 @@ BaseList<T>::rowCount(const QModelIndex& parent) const
 
 template<typename T>
 QVariant
-BaseList<T>::data(const QModelIndex& index, int /*role*/) const
+BaseList<T>::data(const QModelIndex& index) const
 {
   if (!index.isValid()) {
     return {};
@@ -48,16 +42,14 @@ BaseList<T>::data(const QModelIndex& index, int /*role*/) const
   if (idx < 0 || idx >= m_data.size()) {
     return {};
   }
-  QVariant result;
-  result.setValue(m_data.at(idx));
-  return result;
+  return {m_data.at(idx)};
 }
 
 template<typename T>
 bool
-BaseList<T>::setData(const QModelIndex& index, const QVariant& value, int role)
+BaseList<T>::setData(const QModelIndex& index, const QVariant& value)
 {
-  if (data(index, role) == value) {
+  if (data(index) == value) {
     return false;
   }
   auto idx = index.row();
@@ -118,7 +110,7 @@ BaseList<T>::removeIf(const QObject& qmlObject, const QJSValue &predicate)
 {
   auto engine = qmlEngine(&qmlObject);
   if (!predicate.isCallable()) {
-    engine->throwError(QString("Expected a callable object"));
+    engine->throwError(QJSValue::TypeError, QString("Expected a callable object"));
   }
   auto handler = [&](const T& value) {
     QJSValueList args;
@@ -126,7 +118,7 @@ BaseList<T>::removeIf(const QObject& qmlObject, const QJSValue &predicate)
     auto result = predicate.call(args);
     return result.toBool();
   };
-  m_data.erase(std::remove_if(m_data.begin(), m_data.end(), handler));
+  std::erase_if(m_data, handler);
 }
 
 template<typename T>

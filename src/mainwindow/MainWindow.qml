@@ -278,13 +278,13 @@ ApplicationWindow {
     id: gadgetBaseModel
     function getById(searchId: string): var {
       const idx = gadgetBaseModel.findIndex(({ id }) => JS.areStrsEqual(id, searchId));
-      return gadgetBaseModel.data(idx, "display");
+      return gadgetBaseModel.data(idx, GadgetListModel.DataRole);
     }
 
     function setById(searchId: string, value: var) {
       const idx = gadgetBaseModel.findIndex(({ id }) => JS.areStrsEqual(id, searchId));
       if (idx.valid) {
-        gadgetBaseModel.setData(idx, value, "display");
+        gadgetBaseModel.setData(idx, value, GadgetListModel.DataRole);
       } else {
         gadgetBaseModel.append(value);
       }
@@ -463,7 +463,7 @@ ApplicationWindow {
           }
           case Qt.Key_Q: {
             const list = view.pickSceneObjects()
-            .filter((v) => !root.isServiceObject(v.objectHit));
+              .filter((v) => !root.isServiceObject(v.objectHit));
             if (list[0]) {
               const hitResult = list[0];
               const sceneItem = sceneLayers.getSceneItemOf(hitResult.objectHit);

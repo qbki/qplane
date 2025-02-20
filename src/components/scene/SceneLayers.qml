@@ -34,9 +34,9 @@ Node {
 
     Node {
       required property var model
-      property string layerId: wrapper.model.display.id
+      property string layerId: wrapper.model.data.id
       id: wrapper
-      visible: wrapper.model.display.isVisible
+      visible: wrapper.model.data.isVisible
       Component.onDestruction: delete inner.scenesMapping[wrapper.layerId]
 
       Repeater3D {
@@ -45,11 +45,11 @@ Node {
         SceneItem {
           required property var model
           id: modelItem
-          entityId: modelItem.model.display.id
+          entityId: modelItem.model.data.id
           layerId: wrapper.layerId
           defaultBehaviour: "static"
           availableBehaviours: ["static"]
-          source: model.display.path
+          source: model.data.path
           Component.onCompleted: inner.cacheScene(modelItem)
           Component.onDestruction: inner.removeFromSceneCache(modelItem)
         }
@@ -61,11 +61,11 @@ Node {
         SceneItem {
           required property var model
           id: actorItem
-          entityId: model.display.id
+          entityId: model.data.id
           layerId: wrapper.layerId
           defaultBehaviour: "enemy"
           availableBehaviours: ["enemy", "player"]
-          source: root.modelsStore.getById(model.display.modelId).path
+          source: root.modelsStore.getById(model.data.modelId).path
           Component.onCompleted: inner.cacheScene(actorItem)
           Component.onDestruction: inner.removeFromSceneCache(actorItem)
         }
@@ -77,10 +77,10 @@ Node {
         SceneTextItem {
           required property var model
           id: textItem
-          entityId: model.display.id
+          entityId: model.data.id
           layerId: wrapper.layerId
           translationPath: root.translationPath
-          source: model.display
+          source: model.data
           defaultBehaviour: "static"
           availableBehaviours: ["static"]
           Component.onCompleted: inner.cacheScene(textItem)

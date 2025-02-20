@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.27)
 include(${CMAKE_SOURCE_DIR}/configs/cmake/transpilation.cmake)
+include(${CMAKE_SOURCE_DIR}/configs/cmake/tests.cmake)
 
 set(CMAKE_TOOLCHAIN_FILE
     "${CMAKE_CURRENT_SOURCE_DIR}/tools/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -8,9 +9,11 @@ set(CMAKE_TOOLCHAIN_FILE
 project(qplane VERSION 0.0.1)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+enable_testing(true)
 
 find_package(Qt6Gui CONFIG REQUIRED)
 find_package(Qt6Qml CONFIG REQUIRED)
@@ -31,6 +34,9 @@ find_package(Qt6Quick3DParticleEffects CONFIG REQUIRED)
 find_package(Qt6Quick3DParticles CONFIG REQUIRED)
 find_package(Qt6Quick3DRuntimeRender CONFIG REQUIRED)
 find_package(Qt6Quick3DUtils CONFIG REQUIRED)
+
+find_package(Qt6Test CONFIG REQUIRED)
+find_package(Qt6QuickTest CONFIG REQUIRED)
 
 qt_standard_project_setup(REQUIRES 6.8.1)
 qt_add_executable(${PROJECT_NAME} src/main.cpp)
@@ -64,6 +70,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/qmlutils
   ${CMAKE_SOURCE_DIR}/src/models
   ${CMAKE_SOURCE_DIR}/src/models/actionmanager
+  ${CMAKE_SOURCE_DIR}/src/models/gadgetlistmodel
   ${CMAKE_SOURCE_DIR}/src/types
   ${CMAKE_SOURCE_DIR}/src/mainwindow
   ${CMAKE_SOURCE_DIR}/src/components
@@ -155,7 +162,7 @@ qt_add_qml_module(${PROJECT_NAME}
     src/models/baselist.h
     src/models/clipboard.h src/models/clipboard.cpp
     src/models/fileio.h src/models/fileio.cpp
-    src/models/gadgetlistmodel.h src/models/gadgetlistmodel.cpp
+    src/models/gadgetlistmodel/gadgetlistmodel.h src/models/gadgetlistmodel/gadgetlistmodel.cpp
     src/models/recursivedirectorylistmodel.h src/models/recursivedirectorylistmodel.cpp
     src/models/theme.h src/models/theme.cpp
     src/models/transformmodel.h src/models/transformmodel.cpp
@@ -183,4 +190,10 @@ qt_add_qml_module(${PROJECT_NAME}
     src/utils/utils.h
   DEPENDENCIES
     QtQuick
+)
+
+add_qt_test(
+  src/models/gadgetlistmodel/gadgetlistmodel.test.cpp
+  src/models/gadgetlistmodel/gadgetlistmodel.cpp
+  src/models/gadgetlistmodel/gadgetlistmodel.h
 )

@@ -35,12 +35,12 @@ RosterBase {
 
       EntityModelItem {
         required property var model
-        property entityModel modelData: model.display
+        property entityModel modelData: model.data
         id: item
         name: item.modelData.name
         Layout.fillWidth: true
         Layout.preferredHeight: root.width / 2
-        source: item.model.display.path
+        source: item.model.data.path
         selected: root.selectedEntityId === item.modelData.id
         onClicked: function(event) {
           if (event.button === Qt.LeftButton) {

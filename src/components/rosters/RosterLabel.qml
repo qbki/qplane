@@ -4,7 +4,7 @@ import QtQuick.Controls
 
 Label {
   required property var model
-  property var modelData: model.display
+  property var modelData: model.data
 
   signal leftMouseClick()
   signal rightMouseClick()

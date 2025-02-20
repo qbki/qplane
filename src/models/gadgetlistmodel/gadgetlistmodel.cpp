@@ -21,16 +21,33 @@ GadgetListModel::rowCount(const QModelIndex& parent) const
 QVariant
 GadgetListModel::data(const QModelIndex& index, int role) const
 {
-  return m_data.data(index, role);
+  switch (role) {
+    case Role::DisplayRole: return m_data.data(index).toString();
+    case Role::DataRole: return m_data.data(index);
+    default: return {};
+  }
 }
 
 bool
 GadgetListModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-  bool result = m_data.setData(index, value, role);
+  if (role != Role::DataRole) {
+    return false;
+  }
+  bool result = m_data.setData(index, value);
   if (result) {
     emit dataChanged(index, index);
   }
+  return result;
+}
+
+QHash<int, QByteArray>
+GadgetListModel::roleNames() const
+{
+  static QHash<int, QByteArray> result {
+    { Role::DisplayRole, "display" },
+    { Role::DataRole, "data" },
+  };
   return result;
 }
 
@@ -122,9 +139,18 @@ GadgetListModel::updateWholeModel(const std::vector<QVariant>& new_data)
 bool
 GadgetListModel::removeRows(int row, int count, const QModelIndex& parent)
 {
-  beginRemoveRows(QModelIndex{}, row, row + count - 1);
+  auto rows = m_data.rowCount({});
+  if (!(rows > 0
+      && row >= 0
+      && count >= 0
+      && row < rows))
+  {
+    return false;
+  }
+  auto end = std::clamp(row + count, 0, rows);
+  beginRemoveRows(QModelIndex{}, row, end - 1);
   auto& data = m_data.getData();
-  data.erase(data.begin() + row, data.begin() + row + count);
+  data.erase(data.begin() + row, data.begin() + end);
   endRemoveRows();
   return true;
 }

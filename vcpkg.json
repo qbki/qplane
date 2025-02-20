@@ -2,7 +2,7 @@
   "dependencies": [
     {
       "name": "qtbase",
-      "features": ["widgets", "opengl", "gui", "freetype", "icu", "dbus"]
+      "features": ["widgets", "opengl", "gui", "freetype", "icu", "dbus", "testlib"]
     },
     {
       "name": "qtquick3d",
