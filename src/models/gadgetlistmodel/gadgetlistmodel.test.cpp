@@ -1,10 +1,12 @@
 #include <QAbstractItemModelTester>
+#include <QJsonArray>
 #include <QQmlApplicationEngine>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QSignalSpy>
+#include <QTest>
 #include <QVariant>
-#include <QtTest>
 
 #include "gadgetlistmodel.h"
 

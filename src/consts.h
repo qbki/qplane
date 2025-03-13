@@ -1,3 +1,4 @@
+// clazy:excludeall=non-pod-global-static
 #pragma once
 #include <QColor>
 #include <QString>

@@ -50,12 +50,12 @@ PositionStrategyMany::layerId() const
 }
 
 void
-PositionStrategyMany::setLayerId(const QString &value)
+PositionStrategyMany::setLayerId(const QString& value)
 {
   m_layerId = value;
 }
 
-PositionStrategyManyFactory::PositionStrategyManyFactory(QObject *parent)
+PositionStrategyManyFactory::PositionStrategyManyFactory(QObject* parent)
   : QObject(parent)
 {
 }
@@ -67,7 +67,7 @@ PositionStrategyManyFactory::create()
 }
 
 QJsonObject
-PositionStrategyManyFactory::toJson(const PositionStrategyMany &strategy)
+PositionStrategyManyFactory::toJson(const PositionStrategyMany& strategy)
 {
   QJsonObject json;
   json["kind"] = "many";
@@ -75,7 +75,7 @@ PositionStrategyManyFactory::toJson(const PositionStrategyMany &strategy)
   json["entity_id"] = strategy.entityId();
   json["layer_id"] = strategy.layerId();
   QJsonArray positions;
-  for (const auto& variant : strategy.positions()) {
+  for (const auto& variant : static_cast<const QList<QVariant>>(strategy.positions())) {
     auto vector = variant.value<QVector3D>();
     positions.push_back(vector.x());
     positions.push_back(vector.y());
@@ -85,7 +85,8 @@ PositionStrategyManyFactory::toJson(const PositionStrategyMany &strategy)
   return json;
 }
 
-PositionStrategyMany PositionStrategyManyFactory::fromJson(const QJsonObject &json)
+PositionStrategyMany
+PositionStrategyManyFactory::fromJson(const QJsonObject& json)
 {
   return JsonValidator(this, &json, "'Many' strategy")
     .handle<PositionStrategyMany>([](const JsonValidator& check, PositionStrategyMany& strategy) {

@@ -84,7 +84,7 @@ LevelMetaFactory::fromJson(const QJsonObject &json)
       entity.setCamera(cameraFactory.fromJson(check.obj("camera")));
       entity.setBoundaries(boundariesFactory.fromJson(check.obj("boundaries")));
 
-      auto jsonLayers = check.optionalArray("layers", {});
+      const auto jsonLayers = check.optionalArray("layers", {});
       QList<LevelLayer> layers;
       for (auto jsonLayer : jsonLayers) {
         auto obj = jsonLayer.toObject();

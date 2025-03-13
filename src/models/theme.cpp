@@ -1,6 +1,6 @@
 #include "theme.h"
 
-const QColor Theme::ERROR_COLOR = QColor::fromString("#ff1111");
+const QColor Theme::ERROR_COLOR = QColor::fromRgb(0xff1111);
 
 Theme::Theme(QObject* parent)
   : QObject{ parent }

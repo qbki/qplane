@@ -4,7 +4,6 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QQmlEngine>
-#include <functional>
 
 class JsonValidator
 {
@@ -34,6 +33,7 @@ public:
   template<typename T>
   requires std::derived_from<T, QJSValue>
            || std::derived_from<T, QVariant>
+           || std::is_floating_point_v<T>
   T
   optionalReal(const QString& key, T defaultValue) const
   {

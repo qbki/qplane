@@ -17,6 +17,7 @@ class EntityActor : public EntityBase
   Q_PROPERTY(QString debrisId READ debrisId WRITE setDebrisId FINAL)
   Q_PROPERTY(int lives READ lives WRITE setLives FINAL)
   Q_PROPERTY(EntityPropVelocity speed READ speed WRITE setSpeed FINAL)
+  Q_PROPERTY(double rotationSpeed READ rotationSpeed WRITE setRotationSpeed FINAL)
 
 public:
   EntityActor() = default;
@@ -39,6 +40,9 @@ public:
   [[nodiscard]] int lives() const;
   void setLives(int value);
 
+  [[nodiscard]] double rotationSpeed() const;
+  void setRotationSpeed(double value);
+
   [[nodiscard]] Q_INVOKABLE EntityActor copy() const;
 
 private:
@@ -48,6 +52,7 @@ private:
   QString m_debrisId {};
   EntityPropVelocity m_speed {};
   int m_lives {1};
+  double m_rotationSpeed {0};
 };
 
 Q_DECLARE_METATYPE(EntityActor)

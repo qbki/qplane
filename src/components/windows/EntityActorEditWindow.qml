@@ -29,6 +29,7 @@ EditWindowBase {
     velocityFields.acceleration = initialData.speed.acceleration;
     velocityFields.damping = initialData.speed.damping;
     velocityFields.speed = initialData.speed.speed;
+    rotationSpeedField.value = initialData.rotationSpeed;
     livesField.value = initialData.lives;
     hitParticlesIdField.value = initialData.hitParticlesId;
     debrisModelIdField.value = initialData.debrisId;
@@ -56,6 +57,7 @@ EditWindowBase {
         model: modelIdField.value,
         name: nameField.value,
         speed: velocityFields.getValues(),
+        rotationSpeed: rotationSpeedField.value,
       });
       if (!validationResult.isValid()) {
         return;
@@ -74,6 +76,7 @@ EditWindowBase {
       newEntity.weaponId = weaponIdField.value;
       newEntity.hitParticlesId = hitParticlesIdField.value;
       newEntity.speed = speed;
+      newEntity.rotationSpeed = rotationSpeedField.value;
       newEntity.lives = JS.toFinitInt(livesField.value);
 
       root.accepted(newEntity, inner.initialData);
@@ -104,6 +107,12 @@ EditWindowBase {
     acceleration: null
     damping: null
     speed: null
+  }
+
+  FormNumberInput {
+    id: rotationSpeedField
+    label: qsTr("Rotation speed (radians per second)")
+    Layout.fillWidth: true
   }
 
   FormNumberInput {
@@ -170,11 +179,19 @@ EditWindowBase {
         .integer()
         .on(WU.wrapInputErrors(livesField));
 
+      const speed = velocityFields.getValidator();
+
+      const rotationSpeed = new FV.NumberValidator()
+        .min(0)
+        .finite()
+        .on(WU.wrapInputErrors(rotationSpeedField));
+
       return new FV.ObjectValidator({
         lives,
         model,
         name,
-        speed: velocityFields.getValidator(),
+        rotationSpeed,
+        speed,
       }).on(WU.createRootLogger());
     }
   }

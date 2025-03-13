@@ -65,6 +65,16 @@ void EntityActor::setLives(int new_lives)
   m_lives = new_lives;
 }
 
+double EntityActor::rotationSpeed() const
+{
+  return m_rotationSpeed;
+}
+
+void EntityActor::setRotationSpeed(double value)
+{
+  m_rotationSpeed = value;
+}
+
 EntityActor EntityActor::copy() const
 {
   return *this;
@@ -88,6 +98,7 @@ QJsonObject EntityActorFactory::toJson(const EntityActor &entity)
   json["lives"] = entity.lives();
   json["model_id"] = entity.modelId();
   json["name"] = entity.name();
+  json["rotation_speed"] = entity.rotationSpeed();
   json["speed"] = velocity.toJson(entity.speed()) ;
   if (auto value = entity.weaponId(); !value.isEmpty()) {
     json["weapon_id"] = value;
@@ -114,5 +125,6 @@ EntityActor EntityActorFactory::fromJson(const QString &id, const QJsonObject &j
       entity.setModelId(check.string("model_id"));
       entity.setSpeed(velocity.fromJson(check.obj("speed")));
       entity.setLives(static_cast<int>(check.real("lives")));
+      entity.setRotationSpeed(check.optionalReal("rotation_speed", 0.f));
     });
 }
